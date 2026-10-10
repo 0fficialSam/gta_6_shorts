@@ -1,0 +1,53 @@
+[2026-04-14 21:20:15] ============================================================
+[2026-04-14 21:20:15] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-14 21:20:15]   --news  : (auto-scrape)
+[2026-04-14 21:20:15]   --title : (auto from first sentence of --news)
+[2026-04-14 21:20:15]   --clip  : background.mp4
+[2026-04-14 21:20:15]   --upload: False
+[2026-04-14 21:20:15] ============================================================
+[2026-04-14 21:20:15] 
+STEP 1: Getting GTA 6 News...
+[2026-04-14 21:20:43]   Scraped: Despite rumors of a GTA 6-inspired delay, Fable studio says it's 'exci
+[2026-04-14 21:20:43] 
+STEP 2: Generating Script...
+[2026-04-14 21:20:44]   Script ready: 184 words via Free Builder
+[2026-04-14 21:20:44] 
+STEP 3: Generating Voiceover...
+[2026-04-14 21:20:59]   Audio saved: assets/voiceover.mp3
+[2026-04-14 21:20:59] 
+STEP 4: Resolving Background...
+[2026-04-14 21:20:59]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-14 21:20:59] 
+STEP 5: Assembling Video...
+[2026-04-14 21:22:55] ============================================================
+[2026-04-14 21:22:55] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-14 21:22:55]   --news  : (auto-scrape)
+[2026-04-14 21:22:55]   --title : (auto from first sentence of --news)
+[2026-04-14 21:22:55]   --clip  : background.mp4
+[2026-04-14 21:22:55]   --upload: False
+[2026-04-14 21:22:55] ============================================================
+[2026-04-14 21:22:55] 
+STEP 1: Getting GTA 6 News...
+[2026-04-14 21:23:25]   Scraped: GTA 6 PC release remains unconfirmed, but Rockstar leak reveals that c
+[2026-04-14 21:23:25] 
+STEP 2: Generating Script...
+[2026-04-14 21:23:25]   Script ready: 188 words via Free Builder
+[2026-04-14 21:23:25] 
+STEP 3: Generating Voiceover...
+[2026-04-14 21:23:39]   Audio saved: assets/voiceover.mp3
+[2026-04-14 21:23:39] 
+STEP 4: Resolving Background...
+[2026-04-14 21:23:39]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-14 21:23:39] 
+STEP 5: Assembling Video...
+[2026-04-14 21:49:26]   Video created: output/gta6_short_20260414_2149.mp4
+[2026-04-14 21:49:26] 
+STEP 6: YouTube Upload...
+[2026-04-14 21:49:26]   Skipped (--no-upload flag set)
+[2026-04-14 21:49:26]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260414_2149.mp4
+[2026-04-14 21:49:26] 
+============================================================
+[2026-04-14 21:49:26] DONE!
+[2026-04-14 21:49:26]   Story : GTA 6 PC release remains unconfirmed, but Rockstar leak reve
+[2026-04-14 21:49:26]   Video : D:\lab\gta6_shorts\output\gta6_short_20260414_2149.mp4
+[2026-04-14 21:49:26] ============================================================

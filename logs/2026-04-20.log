@@ -1,0 +1,98 @@
+[2026-04-20 22:02:59] ============================================================
+[2026-04-20 22:02:59] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-20 22:02:59]   --news  : (auto-scrape)
+[2026-04-20 22:02:59]   --title : (auto from first sentence of --news)
+[2026-04-20 22:02:59]   --clip  : (auto)
+[2026-04-20 22:02:59]   --upload: True
+[2026-04-20 22:02:59] ============================================================
+[2026-04-20 22:02:59] 
+STEP 1: Getting GTA 6 News...
+[2026-04-20 22:03:03] ============================================================
+[2026-04-20 22:03:03] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-20 22:03:03]   --news  : (auto-scrape)
+[2026-04-20 22:03:03]   --title : (auto from first sentence of --news)
+[2026-04-20 22:03:03]   --clip  : background.mp4
+[2026-04-20 22:03:03]   --upload: False
+[2026-04-20 22:03:03] ============================================================
+[2026-04-20 22:03:03] 
+STEP 1: Getting GTA 6 News...
+[2026-04-20 22:03:25]   Scraped: Take-Two CEO says if AI replaces anyone, it should be Elon Musk after 
+[2026-04-20 22:03:25] 
+STEP 2: Generating Script...
+[2026-04-20 22:03:25]   Script ready: 188 words via Free Builder
+[2026-04-20 22:03:25] 
+STEP 3: Generating Voiceover...
+[2026-04-20 22:03:36]   Audio saved: assets/voiceover.mp3
+[2026-04-20 22:03:36] 
+STEP 4: Resolving Background...
+[2026-04-20 22:03:36]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-20 22:03:36] 
+STEP 5: Assembling Video...
+[2026-04-20 22:03:38] ============================================================
+[2026-04-20 22:03:38] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-20 22:03:38]   --news  : (auto-scrape)
+[2026-04-20 22:03:38]   --title : (auto from first sentence of --news)
+[2026-04-20 22:03:38]   --clip  : background.mp4
+[2026-04-20 22:03:38]   --upload: False
+[2026-04-20 22:03:38] ============================================================
+[2026-04-20 22:03:38] 
+STEP 1: Getting GTA 6 News...
+[2026-04-20 22:03:55]   Scraped: Rockstar Boss Throws Shade at Elon Musk Over GTA 6 Comment
+[2026-04-20 22:03:55] 
+STEP 2: Generating Script...
+[2026-04-20 22:03:55]   Script ready: 178 words via Free Builder
+[2026-04-20 22:03:55] 
+STEP 3: Generating Voiceover...
+[2026-04-20 22:04:06]   Audio saved: assets/voiceover.mp3
+[2026-04-20 22:04:06] 
+STEP 4: Resolving Background...
+[2026-04-20 22:04:06]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-20 22:04:06] 
+STEP 5: Assembling Video...
+[2026-04-20 22:04:14] ============================================================
+[2026-04-20 22:04:14] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-20 22:04:14]   --news  : (auto-scrape)
+[2026-04-20 22:04:14]   --title : (auto from first sentence of --news)
+[2026-04-20 22:04:14]   --clip  : background.mp4
+[2026-04-20 22:04:14]   --upload: False
+[2026-04-20 22:04:14] ============================================================
+[2026-04-20 22:04:14] 
+STEP 1: Getting GTA 6 News...
+[2026-04-20 22:04:39]   Scraped: Take-Two CEO thinks Elon Musk is more at risk of losing job to AI than
+[2026-04-20 22:04:39] 
+STEP 2: Generating Script...
+[2026-04-20 22:04:39]   Script ready: 191 words via Free Builder
+[2026-04-20 22:04:39] 
+STEP 3: Generating Voiceover...
+[2026-04-20 22:04:49] ============================================================
+[2026-04-20 22:04:49] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-20 22:04:49]   --news  : (auto-scrape)
+[2026-04-20 22:04:49]   --title : (auto from first sentence of --news)
+[2026-04-20 22:04:49]   --clip  : background.mp4
+[2026-04-20 22:04:49]   --upload: False
+[2026-04-20 22:04:49] ============================================================
+[2026-04-20 22:04:49] 
+STEP 1: Getting GTA 6 News...
+[2026-04-20 22:05:08]   Scraped: GTA 6 Release Date: Current Predictions Suggest Late 2026 Launch
+[2026-04-20 22:05:08] 
+STEP 2: Generating Script...
+[2026-04-20 22:05:08]   Script ready: 142 words via Free Builder
+[2026-04-20 22:05:08] 
+STEP 3: Generating Voiceover...
+[2026-04-20 22:05:15]   Audio saved: assets/voiceover.mp3
+[2026-04-20 22:05:15] 
+STEP 4: Resolving Background...
+[2026-04-20 22:05:15]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-20 22:05:15] 
+STEP 5: Assembling Video...
+[2026-04-20 22:21:49]   Video created: output/gta6_short_20260420_2221.mp4
+[2026-04-20 22:21:49] 
+STEP 6: YouTube Upload...
+[2026-04-20 22:21:49]   Skipped (--no-upload flag set)
+[2026-04-20 22:21:49]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260420_2221.mp4
+[2026-04-20 22:21:49] 
+============================================================
+[2026-04-20 22:21:49] DONE!
+[2026-04-20 22:21:49]   Story : GTA 6 Release Date: Current Predictions Suggest Late 2026 La
+[2026-04-20 22:21:49]   Video : D:\lab\gta6_shorts\output\gta6_short_20260420_2221.mp4
+[2026-04-20 22:21:49] ============================================================

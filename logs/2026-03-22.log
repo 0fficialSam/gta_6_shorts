@@ -1,0 +1,53 @@
+[2026-03-22 01:15:07] ============================================================
+[2026-03-22 01:15:07] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-22 01:15:07]   --news  : (auto-scrape)
+[2026-03-22 01:15:07]   --title : (auto from first sentence of --news)
+[2026-03-22 01:15:07]   --clip  : background.mp4
+[2026-03-22 01:15:07]   --upload: False
+[2026-03-22 01:15:07] ============================================================
+[2026-03-22 01:15:07] 
+STEP 1: Getting GTA 6 News...
+[2026-03-22 01:15:28]   Scraped: From a 'single save-passing exercise' to an 'international community':
+[2026-03-22 01:15:28] 
+STEP 2: Generating Script...
+[2026-03-22 01:15:29]   Script ready: 195 words via Free Builder
+[2026-03-22 01:15:29] 
+STEP 3: Generating Voiceover...
+[2026-03-22 01:15:42]   Audio saved: assets/voiceover.mp3
+[2026-03-22 01:15:42] 
+STEP 4: Resolving Background...
+[2026-03-22 01:15:42]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-03-22 01:15:42] 
+STEP 5: Assembling Video...
+[2026-03-22 01:16:24] ============================================================
+[2026-03-22 01:16:24] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-22 01:16:24]   --news  : (auto-scrape)
+[2026-03-22 01:16:24]   --title : (auto from first sentence of --news)
+[2026-03-22 01:16:24]   --clip  : background.mp4
+[2026-03-22 01:16:24]   --upload: False
+[2026-03-22 01:16:24] ============================================================
+[2026-03-22 01:16:24] 
+STEP 1: Getting GTA 6 News...
+[2026-03-22 01:16:45]   Scraped: Rockstar Games ordered to repay workers after underpaying them
+[2026-03-22 01:16:45] 
+STEP 2: Generating Script...
+[2026-03-22 01:16:46]   Script ready: 181 words via Free Builder
+[2026-03-22 01:16:46] 
+STEP 3: Generating Voiceover...
+[2026-03-22 01:16:57]   Audio saved: assets/voiceover.mp3
+[2026-03-22 01:16:57] 
+STEP 4: Resolving Background...
+[2026-03-22 01:16:57]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-03-22 01:16:57] 
+STEP 5: Assembling Video...
+[2026-03-22 01:40:15]   Video created: output/gta6_short_20260322_0139.mp4
+[2026-03-22 01:40:15] 
+STEP 6: YouTube Upload...
+[2026-03-22 01:40:15]   Skipped (--no-upload flag set)
+[2026-03-22 01:40:15]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260322_0139.mp4
+[2026-03-22 01:40:15] 
+============================================================
+[2026-03-22 01:40:15] DONE!
+[2026-03-22 01:40:15]   Story : Rockstar Games ordered to repay workers after underpaying th
+[2026-03-22 01:40:15]   Video : D:\lab\gta6_shorts\output\gta6_short_20260322_0139.mp4
+[2026-03-22 01:40:15] ============================================================

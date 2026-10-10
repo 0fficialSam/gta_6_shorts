@@ -1,0 +1,32 @@
+[2026-04-18 14:52:29] ============================================================
+[2026-04-18 14:52:29] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-18 14:52:29]   --news  : (auto-scrape)
+[2026-04-18 14:52:29]   --title : (auto from first sentence of --news)
+[2026-04-18 14:52:29]   --clip  : background.mp4
+[2026-04-18 14:52:29]   --upload: False
+[2026-04-18 14:52:29] ============================================================
+[2026-04-18 14:52:29] 
+STEP 1: Getting GTA 6 News...
+[2026-04-18 14:52:52]   Scraped: GTA 6’s updated community map just hit Reddit, and fans are already sa
+[2026-04-18 14:52:52] 
+STEP 2: Generating Script...
+[2026-04-18 14:52:52]   Script ready: 199 words via Free Builder
+[2026-04-18 14:52:52] 
+STEP 3: Generating Voiceover...
+[2026-04-18 14:53:05]   Audio saved: assets/voiceover.mp3
+[2026-04-18 14:53:05] 
+STEP 4: Resolving Background...
+[2026-04-18 14:53:05]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-18 14:53:05] 
+STEP 5: Assembling Video...
+[2026-04-18 15:07:54]   Video created: output/gta6_short_20260418_1507.mp4
+[2026-04-18 15:07:54] 
+STEP 6: YouTube Upload...
+[2026-04-18 15:07:54]   Skipped (--no-upload flag set)
+[2026-04-18 15:07:54]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260418_1507.mp4
+[2026-04-18 15:07:54] 
+============================================================
+[2026-04-18 15:07:54] DONE!
+[2026-04-18 15:07:54]   Story : GTA 6’s updated community map just hit Reddit, and fans are 
+[2026-04-18 15:07:54]   Video : D:\lab\gta6_shorts\output\gta6_short_20260418_1507.mp4
+[2026-04-18 15:07:54] ============================================================

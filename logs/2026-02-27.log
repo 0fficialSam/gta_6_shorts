@@ -1,0 +1,89 @@
+[2026-02-27 16:13:31] ============================================================
+[2026-02-27 16:13:31] GTA 6 SHORTS AUTOMATION STARTED
+[2026-02-27 16:13:31]   --news  : (auto-scrape)
+[2026-02-27 16:13:31]   --title : (auto from first sentence of --news)
+[2026-02-27 16:13:31]   --clip  : background.mp4
+[2026-02-27 16:13:31]   --upload: False
+[2026-02-27 16:13:31] ============================================================
+[2026-02-27 16:13:31] 
+STEP 1: Getting GTA 6 News...
+[2026-02-27 16:13:54]   Scraped: We're Really Getting Anime GTA on PS5 Before GTA 6
+[2026-02-27 16:13:54] 
+STEP 2: Generating Script...
+[2026-02-27 16:13:54]   Script ready: 200 words via Free Builder
+[2026-02-27 16:13:54] 
+STEP 3: Generating Voiceover...
+[2026-02-27 16:14:07]   Audio saved: assets/voiceover.mp3
+[2026-02-27 16:14:07] 
+STEP 4: Resolving Background...
+[2026-02-27 16:14:07]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-02-27 16:14:07] 
+STEP 5: Assembling Video...
+[2026-02-27 16:15:00] ============================================================
+[2026-02-27 16:15:00] GTA 6 SHORTS AUTOMATION STARTED
+[2026-02-27 16:15:00]   --news  : (auto-scrape)
+[2026-02-27 16:15:00]   --title : (auto from first sentence of --news)
+[2026-02-27 16:15:00]   --clip  : background.mp4
+[2026-02-27 16:15:00]   --upload: False
+[2026-02-27 16:15:00] ============================================================
+[2026-02-27 16:15:00] 
+STEP 1: Getting GTA 6 News...
+[2026-02-27 16:15:18]   Scraped: New Saros PS5 Gameplay Footage Is Brief But Cool as Heck
+[2026-02-27 16:15:18] 
+STEP 2: Generating Script...
+[2026-02-27 16:15:18]   Script ready: 192 words via Free Builder
+[2026-02-27 16:15:18] 
+STEP 3: Generating Voiceover...
+[2026-02-27 16:15:28] ============================================================
+[2026-02-27 16:15:28] GTA 6 SHORTS AUTOMATION STARTED
+[2026-02-27 16:15:28]   --news  : (auto-scrape)
+[2026-02-27 16:15:28]   --title : (auto from first sentence of --news)
+[2026-02-27 16:15:28]   --clip  : background.mp4
+[2026-02-27 16:15:28]   --upload: False
+[2026-02-27 16:15:28] ============================================================
+[2026-02-27 16:15:28] 
+STEP 1: Getting GTA 6 News...
+[2026-02-27 16:15:44]   Scraped: Biggest PS5 exclusive of 2026 avoids GTA 6 with new release date
+[2026-02-27 16:15:44] 
+STEP 2: Generating Script...
+[2026-02-27 16:15:44]   Script ready: 156 words via Free Builder
+[2026-02-27 16:15:44] 
+STEP 3: Generating Voiceover...
+[2026-02-27 16:15:51]   Audio saved: assets/voiceover.mp3
+[2026-02-27 16:15:51] 
+STEP 4: Resolving Background...
+[2026-02-27 16:15:51]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-02-27 16:15:51] 
+STEP 5: Assembling Video...
+[2026-02-27 16:18:21] ============================================================
+[2026-02-27 16:18:21] GTA 6 SHORTS AUTOMATION STARTED
+[2026-02-27 16:18:21]   --news  : (auto-scrape)
+[2026-02-27 16:18:21]   --title : (auto from first sentence of --news)
+[2026-02-27 16:18:21]   --clip  : background.mp4
+[2026-02-27 16:18:21]   --upload: False
+[2026-02-27 16:18:21] ============================================================
+[2026-02-27 16:18:21] 
+STEP 1: Getting GTA 6 News...
+[2026-02-27 16:18:40]   Scraped: Why Have GTA 6 Leaks Suddenly Stopped? Rockstar Uses CIA-Style ‘Canary
+[2026-02-27 16:18:40] 
+STEP 2: Generating Script...
+[2026-02-27 16:18:40]   Script ready: 171 words via Free Builder
+[2026-02-27 16:18:40] 
+STEP 3: Generating Voiceover...
+[2026-02-27 16:18:47]   Audio saved: assets/voiceover.mp3
+[2026-02-27 16:18:47] 
+STEP 4: Resolving Background...
+[2026-02-27 16:18:47]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-02-27 16:18:47] 
+STEP 5: Assembling Video...
+[2026-02-27 16:31:38]   Video created: output/gta6_short_20260227_1631.mp4
+[2026-02-27 16:31:38] 
+STEP 6: YouTube Upload...
+[2026-02-27 16:31:38]   Skipped (--no-upload flag set)
+[2026-02-27 16:31:38]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260227_1631.mp4
+[2026-02-27 16:31:38] 
+============================================================
+[2026-02-27 16:31:38] DONE!
+[2026-02-27 16:31:38]   Story : Why Have GTA 6 Leaks Suddenly Stopped? Rockstar Uses CIA-Sty
+[2026-02-27 16:31:38]   Video : D:\lab\gta6_shorts\output\gta6_short_20260227_1631.mp4
+[2026-02-27 16:31:38] ============================================================

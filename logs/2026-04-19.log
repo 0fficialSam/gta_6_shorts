@@ -1,0 +1,49 @@
+[2026-04-19 21:28:29] ============================================================
+[2026-04-19 21:28:29] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-19 21:28:29]   --news  : (auto-scrape)
+[2026-04-19 21:28:29]   --title : (auto from first sentence of --news)
+[2026-04-19 21:28:29]   --clip  : background.mp4
+[2026-04-19 21:28:29]   --upload: False
+[2026-04-19 21:28:29] ============================================================
+[2026-04-19 21:28:29] 
+STEP 1: Getting GTA 6 News...
+[2026-04-19 21:28:29]   Scraping failed: No module named 'feedparser'
+Traceback (most recent call last):
+  File "D:\lab\gta6_shorts\main.py", line 135, in run_pipeline
+    from scripts.news_scraper import get_top_story
+  File "D:\lab\gta6_shorts\scripts\news_scraper.py", line 8, in <module>
+    import feedparser, json, os, re, requests, hashlib, time, random
+ModuleNotFoundError: No module named 'feedparser'
+
+[2026-04-19 21:30:04] ============================================================
+[2026-04-19 21:30:04] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-19 21:30:04]   --news  : (auto-scrape)
+[2026-04-19 21:30:04]   --title : (auto from first sentence of --news)
+[2026-04-19 21:30:04]   --clip  : background.mp4
+[2026-04-19 21:30:04]   --upload: False
+[2026-04-19 21:30:04] ============================================================
+[2026-04-19 21:30:04] 
+STEP 1: Getting GTA 6 News...
+[2026-04-19 21:30:27]   Scraped: Dedicated nature watchers are combing every millisecond of GTA 6 trail
+[2026-04-19 21:30:27] 
+STEP 2: Generating Script...
+[2026-04-19 21:30:28]   Script ready: 201 words via Free Builder
+[2026-04-19 21:30:28] 
+STEP 3: Generating Voiceover...
+[2026-04-19 21:30:42]   Audio saved: assets/voiceover.mp3
+[2026-04-19 21:30:42] 
+STEP 4: Resolving Background...
+[2026-04-19 21:30:42]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-19 21:30:42] 
+STEP 5: Assembling Video...
+[2026-04-19 21:51:57]   Video created: output/gta6_short_20260419_2151.mp4
+[2026-04-19 21:51:57] 
+STEP 6: YouTube Upload...
+[2026-04-19 21:51:57]   Skipped (--no-upload flag set)
+[2026-04-19 21:51:57]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260419_2151.mp4
+[2026-04-19 21:51:57] 
+============================================================
+[2026-04-19 21:51:57] DONE!
+[2026-04-19 21:51:57]   Story : Dedicated nature watchers are combing every millisecond of G
+[2026-04-19 21:51:57]   Video : D:\lab\gta6_shorts\output\gta6_short_20260419_2151.mp4
+[2026-04-19 21:51:57] ============================================================

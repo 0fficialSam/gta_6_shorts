@@ -1,0 +1,34 @@
+[2026-02-26 19:39:39] ============================================================
+[2026-02-26 19:39:39] GTA 6 SHORTS AUTOMATION STARTED
+[2026-02-26 19:39:39]   --news  : Speculation is mounting over when fans can expect the third ...
+[2026-02-26 19:39:39]   --title : When Will GTA 6 Trailer 3 Come Out?
+[2026-02-26 19:39:39]   --clip  : background.mp4
+[2026-02-26 19:39:39]   --upload: False
+[2026-02-26 19:39:39] ============================================================
+[2026-02-26 19:39:39] 
+STEP 1: Getting GTA 6 News...
+[2026-02-26 19:39:39]   Cover headline : When Will GTA 6 Trailer 3 Come Out?
+[2026-02-26 19:39:39]   Script preview : Speculation is mounting over when fans can expect the third trailer fo...
+[2026-02-26 19:39:39] 
+STEP 2: Generating Script...
+[2026-02-26 19:39:39]   Using script as-is: 152 words
+[2026-02-26 19:39:39]   Script ready: 152 words via Manual (user provided)
+[2026-02-26 19:39:39] 
+STEP 3: Generating Voiceover...
+[2026-02-26 19:39:49]   Audio saved: assets/voiceover.mp3
+[2026-02-26 19:39:49] 
+STEP 4: Resolving Background...
+[2026-02-26 19:39:49]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-02-26 19:39:49] 
+STEP 5: Assembling Video...
+[2026-02-26 19:54:38]   Video created: output/gta6_short_20260226_1954.mp4
+[2026-02-26 19:54:38] 
+STEP 6: YouTube Upload...
+[2026-02-26 19:54:38]   Skipped (--no-upload flag set)
+[2026-02-26 19:54:38]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260226_1954.mp4
+[2026-02-26 19:54:38] 
+============================================================
+[2026-02-26 19:54:38] DONE!
+[2026-02-26 19:54:38]   Story : When Will GTA 6 Trailer 3 Come Out?
+[2026-02-26 19:54:38]   Video : D:\lab\gta6_shorts\output\gta6_short_20260226_1954.mp4
+[2026-02-26 19:54:38] ============================================================

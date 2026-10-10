@@ -1,0 +1,106 @@
+[2026-04-02 02:07:28] ============================================================
+[2026-04-02 02:07:28] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-02 02:07:28]   --news  : (auto-scrape)
+[2026-04-02 02:07:28]   --title : (auto from first sentence of --news)
+[2026-04-02 02:07:28]   --clip  : background.mp4
+[2026-04-02 02:07:28]   --upload: False
+[2026-04-02 02:07:28] ============================================================
+[2026-04-02 02:07:28] 
+STEP 1: Getting GTA 6 News...
+[2026-04-02 02:07:52]   Scraped: Rockstar said GTA 6 marketing wouldn't start until the summer, but the
+[2026-04-02 02:07:52] 
+STEP 2: Generating Script...
+[2026-04-02 02:07:53]   Script ready: 206 words via Free Builder
+[2026-04-02 02:07:53] 
+STEP 3: Generating Voiceover...
+[2026-04-02 02:08:05]   Audio saved: assets/voiceover.mp3
+[2026-04-02 02:08:05] 
+STEP 4: Resolving Background...
+[2026-04-02 02:08:05]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-02 02:08:05] 
+STEP 5: Assembling Video...
+[2026-04-02 02:30:48]   Video created: output/gta6_short_20260402_0230.mp4
+[2026-04-02 02:30:48] 
+STEP 6: YouTube Upload...
+[2026-04-02 02:30:48]   Skipped (--no-upload flag set)
+[2026-04-02 02:30:48]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260402_0230.mp4
+[2026-04-02 02:30:48] 
+============================================================
+[2026-04-02 02:30:48] DONE!
+[2026-04-02 02:30:48]   Story : Rockstar said GTA 6 marketing wouldn't start until the summe
+[2026-04-02 02:30:48]   Video : D:\lab\gta6_shorts\output\gta6_short_20260402_0230.mp4
+[2026-04-02 02:30:48] ============================================================
+[2026-04-02 02:34:49] ============================================================
+[2026-04-02 02:34:49] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-02 02:34:49]   --news  : (auto-scrape)
+[2026-04-02 02:34:49]   --title : (auto from first sentence of --news)
+[2026-04-02 02:34:49]   --clip  : background.mp4
+[2026-04-02 02:34:49]   --upload: False
+[2026-04-02 02:34:49] ============================================================
+[2026-04-02 02:34:49] 
+STEP 1: Getting GTA 6 News...
+[2026-04-02 02:35:09]   Scraped: GTA 6 ‘leak’ reveals new NPC interactions akin to Red Dead Redemption 
+[2026-04-02 02:35:09] 
+STEP 2: Generating Script...
+[2026-04-02 02:35:09]   Script ready: 195 words via Free Builder
+[2026-04-02 02:35:09] 
+STEP 3: Generating Voiceover...
+[2026-04-02 02:35:21]   Audio saved: assets/voiceover.mp3
+[2026-04-02 02:35:21] 
+STEP 4: Resolving Background...
+[2026-04-02 02:35:21]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-02 02:35:21] 
+STEP 5: Assembling Video...
+[2026-04-02 23:32:34] ============================================================
+[2026-04-02 23:32:34] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-02 23:32:34]   --news  : (auto-scrape)
+[2026-04-02 23:32:34]   --title : (auto from first sentence of --news)
+[2026-04-02 23:32:34]   --clip  : background.mp4
+[2026-04-02 23:32:34]   --upload: False
+[2026-04-02 23:32:34] ============================================================
+[2026-04-02 23:32:34] 
+STEP 1: Getting GTA 6 News...
+[2026-04-02 23:33:04]   Scraped: Absurd GTA 6 rumor claims big feature is “broken” and could result in 
+[2026-04-02 23:33:04] 
+STEP 2: Generating Script...
+[2026-04-02 23:33:05]   Script ready: 198 words via Free Builder
+[2026-04-02 23:33:05] 
+STEP 3: Generating Voiceover...
+[2026-04-02 23:33:17]   Audio saved: assets/voiceover.mp3
+[2026-04-02 23:33:17] 
+STEP 4: Resolving Background...
+[2026-04-02 23:33:17]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-02 23:33:17] 
+STEP 5: Assembling Video...
+[2026-04-02 23:33:48] ============================================================
+[2026-04-02 23:33:48] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-02 23:33:48]   --news  : (auto-scrape)
+[2026-04-02 23:33:48]   --title : (auto from first sentence of --news)
+[2026-04-02 23:33:48]   --clip  : background.mp4
+[2026-04-02 23:33:48]   --upload: False
+[2026-04-02 23:33:48] ============================================================
+[2026-04-02 23:33:48] 
+STEP 1: Getting GTA 6 News...
+[2026-04-02 23:34:07]   Scraped: GTA 6 Official Map Revealed: Rockstar Games Vice City & Leonida Map 2.
+[2026-04-02 23:34:07] 
+STEP 2: Generating Script...
+[2026-04-02 23:34:07]   Script ready: 165 words via Free Builder
+[2026-04-02 23:34:07] 
+STEP 3: Generating Voiceover...
+[2026-04-02 23:34:15]   Audio saved: assets/voiceover.mp3
+[2026-04-02 23:34:15] 
+STEP 4: Resolving Background...
+[2026-04-02 23:34:15]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-02 23:34:15] 
+STEP 5: Assembling Video...
+[2026-04-02 23:51:31]   Video created: output/gta6_short_20260402_2351.mp4
+[2026-04-02 23:51:31] 
+STEP 6: YouTube Upload...
+[2026-04-02 23:51:31]   Skipped (--no-upload flag set)
+[2026-04-02 23:51:31]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260402_2351.mp4
+[2026-04-02 23:51:31] 
+============================================================
+[2026-04-02 23:51:31] DONE!
+[2026-04-02 23:51:31]   Story : GTA 6 Official Map Revealed: Rockstar Games Vice City & Leon
+[2026-04-02 23:51:31]   Video : D:\lab\gta6_shorts\output\gta6_short_20260402_2351.mp4
+[2026-04-02 23:51:31] ============================================================

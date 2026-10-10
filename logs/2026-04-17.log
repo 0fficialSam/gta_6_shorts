@@ -1,0 +1,32 @@
+[2026-04-17 10:03:24] ============================================================
+[2026-04-17 10:03:24] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-17 10:03:24]   --news  : (auto-scrape)
+[2026-04-17 10:03:24]   --title : (auto from first sentence of --news)
+[2026-04-17 10:03:24]   --clip  : background.mp4
+[2026-04-17 10:03:24]   --upload: False
+[2026-04-17 10:03:24] ============================================================
+[2026-04-17 10:03:24] 
+STEP 1: Getting GTA 6 News...
+[2026-04-17 10:03:50]   Scraped: Wondering why GTA 6 Trailer 3 is taking so long? Rockstar already answ
+[2026-04-17 10:03:50] 
+STEP 2: Generating Script...
+[2026-04-17 10:03:50]   Script ready: 209 words via Free Builder
+[2026-04-17 10:03:50] 
+STEP 3: Generating Voiceover...
+[2026-04-17 10:04:01]   Audio saved: assets/voiceover.mp3
+[2026-04-17 10:04:01] 
+STEP 4: Resolving Background...
+[2026-04-17 10:04:01]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-17 10:04:01] 
+STEP 5: Assembling Video...
+[2026-04-17 10:20:12]   Video created: output/gta6_short_20260417_1019.mp4
+[2026-04-17 10:20:12] 
+STEP 6: YouTube Upload...
+[2026-04-17 10:20:12]   Skipped (--no-upload flag set)
+[2026-04-17 10:20:12]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260417_1019.mp4
+[2026-04-17 10:20:12] 
+============================================================
+[2026-04-17 10:20:12] DONE!
+[2026-04-17 10:20:12]   Story : Wondering why GTA 6 Trailer 3 is taking so long? Rockstar al
+[2026-04-17 10:20:12]   Video : D:\lab\gta6_shorts\output\gta6_short_20260417_1019.mp4
+[2026-04-17 10:20:12] ============================================================

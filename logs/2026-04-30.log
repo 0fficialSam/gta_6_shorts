@@ -1,0 +1,158 @@
+[2026-04-30 20:16:01] ============================================================
+[2026-04-30 20:16:01] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-30 20:16:01]   --news  : (auto-scrape)
+[2026-04-30 20:16:01]   --title : (auto from first sentence of --news)
+[2026-04-30 20:16:01]   --clip  : background.mp4
+[2026-04-30 20:16:01]   --upload: False
+[2026-04-30 20:16:01] ============================================================
+[2026-04-30 20:16:01] 
+STEP 1: Getting GTA 6 News...
+[2026-04-30 20:16:19] ============================================================
+[2026-04-30 20:16:19] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-30 20:16:19]   --news  : (auto-scrape)
+[2026-04-30 20:16:19]   --title : (auto from first sentence of --news)
+[2026-04-30 20:16:19]   --clip  : background.mp4
+[2026-04-30 20:16:19]   --upload: False
+[2026-04-30 20:16:19] ============================================================
+[2026-04-30 20:16:19] 
+STEP 1: Getting GTA 6 News...
+[2026-04-30 20:16:41]   Scraped: Even GTA 6's price needs to feel "reasonable", says Take-Two boss: hik
+[2026-04-30 20:16:41] 
+STEP 2: Generating Script...
+[2026-04-30 20:16:41]   Script ready: 202 words via Free Builder
+[2026-04-30 20:16:41] 
+STEP 3: Generating Voiceover...
+[2026-04-30 20:16:55]   Audio saved: assets/voiceover.mp3
+[2026-04-30 20:16:55] 
+STEP 4: Resolving Background...
+[2026-04-30 20:16:55]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-30 20:16:55] 
+STEP 5: Assembling Video...
+[2026-04-30 20:38:06]   Video created: output/gta6_short_20260430_2037.mp4
+[2026-04-30 20:38:06] 
+STEP 6: YouTube Upload...
+[2026-04-30 20:38:06]   Skipped (--no-upload flag set)
+[2026-04-30 20:38:06]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260430_2037.mp4
+[2026-04-30 20:38:06] 
+============================================================
+[2026-04-30 20:38:06] DONE!
+[2026-04-30 20:38:06]   Story : Even GTA 6's price needs to feel "reasonable", says Take-Two
+[2026-04-30 20:38:06]   Video : D:\lab\gta6_shorts\output\gta6_short_20260430_2037.mp4
+[2026-04-30 20:38:06] ============================================================
+[2026-04-30 20:41:48] ============================================================
+[2026-04-30 20:41:48] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-30 20:41:48]   --news  : (auto-scrape)
+[2026-04-30 20:41:48]   --title : (auto from first sentence of --news)
+[2026-04-30 20:41:48]   --clip  : background.mp4
+[2026-04-30 20:41:48]   --upload: False
+[2026-04-30 20:41:48] ============================================================
+[2026-04-30 20:41:48] 
+STEP 1: Getting GTA 6 News...
+[2026-04-30 20:42:10]   Scraped: GTA Online Officially Begins A New Era Ahead Of GTA 6
+[2026-04-30 20:42:10] 
+STEP 2: Generating Script...
+[2026-04-30 20:42:11]   Script ready: 193 words via Free Builder
+[2026-04-30 20:42:11] 
+STEP 3: Generating Voiceover...
+[2026-04-30 20:42:21]   Audio saved: assets/voiceover.mp3
+[2026-04-30 20:42:21] 
+STEP 4: Resolving Background...
+[2026-04-30 20:42:21]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-30 20:42:21] 
+STEP 5: Assembling Video...
+[2026-04-30 20:43:12] ============================================================
+[2026-04-30 20:43:12] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-30 20:43:12]   --news  : (auto-scrape)
+[2026-04-30 20:43:12]   --title : (auto from first sentence of --news)
+[2026-04-30 20:43:12]   --clip  : background.mp4
+[2026-04-30 20:43:12]   --upload: False
+[2026-04-30 20:43:12] ============================================================
+[2026-04-30 20:43:12] 
+STEP 1: Getting GTA 6 News...
+[2026-04-30 20:43:29]   Scraped: Take-Two CEO wants to ensure GTA 6's price 'feels very reasonable' but
+[2026-04-30 20:43:29] 
+STEP 2: Generating Script...
+[2026-04-30 20:43:29]   Script ready: 207 words via Free Builder
+[2026-04-30 20:43:29] 
+STEP 3: Generating Voiceover...
+[2026-04-30 20:43:41]   Audio saved: assets/voiceover.mp3
+[2026-04-30 20:43:41] 
+STEP 4: Resolving Background...
+[2026-04-30 20:43:41]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-30 20:43:41] 
+STEP 5: Assembling Video...
+[2026-04-30 21:00:07]   Video created: output/gta6_short_20260430_2059.mp4
+[2026-04-30 21:00:07] 
+STEP 6: YouTube Upload...
+[2026-04-30 21:00:07]   Skipped (--no-upload flag set)
+[2026-04-30 21:00:07]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260430_2059.mp4
+[2026-04-30 21:00:07] 
+============================================================
+[2026-04-30 21:00:07] DONE!
+[2026-04-30 21:00:07]   Story : Take-Two CEO wants to ensure GTA 6's price 'feels very reaso
+[2026-04-30 21:00:07]   Video : D:\lab\gta6_shorts\output\gta6_short_20260430_2059.mp4
+[2026-04-30 21:00:07] ============================================================
+[2026-04-30 21:05:17] ============================================================
+[2026-04-30 21:05:17] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-30 21:05:17]   --news  : (auto-scrape)
+[2026-04-30 21:05:17]   --title : (auto from first sentence of --news)
+[2026-04-30 21:05:17]   --clip  : background.mp4
+[2026-04-30 21:05:17]   --upload: False
+[2026-04-30 21:05:17] ============================================================
+[2026-04-30 21:05:17] 
+STEP 1: Getting GTA 6 News...
+[2026-04-30 21:05:40]   Scraped: GTA 6 boss explains why he’s “terrified” about game finally releasing
+[2026-04-30 21:05:40] 
+STEP 2: Generating Script...
+[2026-04-30 21:05:40]   Script ready: 198 words via Free Builder
+[2026-04-30 21:05:40] 
+STEP 3: Generating Voiceover...
+[2026-04-30 21:05:53]   Audio saved: assets/voiceover.mp3
+[2026-04-30 21:05:53] 
+STEP 4: Resolving Background...
+[2026-04-30 21:05:53]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-30 21:05:53] 
+STEP 5: Assembling Video...
+[2026-04-30 21:23:17]   Video created: output/gta6_short_20260430_2123.mp4
+[2026-04-30 21:23:17] 
+STEP 6: YouTube Upload...
+[2026-04-30 21:23:17]   Skipped (--no-upload flag set)
+[2026-04-30 21:23:17]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260430_2123.mp4
+[2026-04-30 21:23:17] 
+============================================================
+[2026-04-30 21:23:17] DONE!
+[2026-04-30 21:23:17]   Story : GTA 6 boss explains why he’s “terrified” about game finally 
+[2026-04-30 21:23:17]   Video : D:\lab\gta6_shorts\output\gta6_short_20260430_2123.mp4
+[2026-04-30 21:23:17] ============================================================
+[2026-04-30 21:32:49] ============================================================
+[2026-04-30 21:32:49] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-30 21:32:49]   --news  : (auto-scrape)
+[2026-04-30 21:32:49]   --title : (auto from first sentence of --news)
+[2026-04-30 21:32:49]   --clip  : background.mp4
+[2026-04-30 21:32:49]   --upload: False
+[2026-04-30 21:32:49] ============================================================
+[2026-04-30 21:32:49] 
+STEP 1: Getting GTA 6 News...
+[2026-04-30 21:33:05]   Scraped: Take-Two boss predicts wave of “sickness” for GTA 6 release day
+[2026-04-30 21:33:05] 
+STEP 2: Generating Script...
+[2026-04-30 21:33:05]   Script ready: 201 words via Free Builder
+[2026-04-30 21:33:05] 
+STEP 3: Generating Voiceover...
+[2026-04-30 21:33:17]   Audio saved: assets/voiceover.mp3
+[2026-04-30 21:33:17] 
+STEP 4: Resolving Background...
+[2026-04-30 21:33:17]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-30 21:33:17] 
+STEP 5: Assembling Video...
+[2026-04-30 21:50:23]   Video created: output/gta6_short_20260430_2150.mp4
+[2026-04-30 21:50:23] 
+STEP 6: YouTube Upload...
+[2026-04-30 21:50:23]   Skipped (--no-upload flag set)
+[2026-04-30 21:50:23]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260430_2150.mp4
+[2026-04-30 21:50:23] 
+============================================================
+[2026-04-30 21:50:23] DONE!
+[2026-04-30 21:50:23]   Story : Take-Two boss predicts wave of “sickness” for GTA 6 release 
+[2026-04-30 21:50:23]   Video : D:\lab\gta6_shorts\output\gta6_short_20260430_2150.mp4
+[2026-04-30 21:50:23] ============================================================

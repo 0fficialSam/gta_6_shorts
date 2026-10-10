@@ -1,0 +1,83 @@
+[2026-03-14 00:42:59] ============================================================
+[2026-03-14 00:42:59] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-14 00:42:59]   --news  : (auto-scrape)
+[2026-03-14 00:42:59]   --title : (auto from first sentence of --news)
+[2026-03-14 00:42:59]   --clip  : background.mp4
+[2026-03-14 00:42:59]   --upload: False
+[2026-03-14 00:42:59] ============================================================
+[2026-03-14 00:42:59] 
+STEP 1: Getting GTA 6 News...
+[2026-03-14 00:43:22]   Scraped: The impossible question: will the director general of European age-rat
+[2026-03-14 00:43:22] 
+STEP 2: Generating Script...
+[2026-03-14 00:43:22]   Script ready: 202 words via Free Builder
+[2026-03-14 00:43:22] 
+STEP 3: Generating Voiceover...
+[2026-03-14 00:43:31]   Audio saved: assets/voiceover.mp3
+[2026-03-14 00:43:31] 
+STEP 4: Resolving Background...
+[2026-03-14 00:43:31]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-03-14 00:43:31] 
+STEP 5: Assembling Video...
+[2026-03-14 00:43:36] ============================================================
+[2026-03-14 00:43:36] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-14 00:43:36]   --news  : (auto-scrape)
+[2026-03-14 00:43:36]   --title : (auto from first sentence of --news)
+[2026-03-14 00:43:36]   --clip  : background.mp4
+[2026-03-14 00:43:36]   --upload: False
+[2026-03-14 00:43:36] ============================================================
+[2026-03-14 00:43:36] 
+STEP 1: Getting GTA 6 News...
+[2026-03-14 00:43:52]   Scraped: GTA 6 leaked price tag: Here's how much fans will pay for the most ant
+[2026-03-14 00:43:52] 
+STEP 2: Generating Script...
+[2026-03-14 00:43:53]   Script ready: 156 words via Free Builder
+[2026-03-14 00:43:53] 
+STEP 3: Generating Voiceover...
+[2026-03-14 00:44:01]   Audio saved: assets/voiceover.mp3
+[2026-03-14 00:44:01] 
+STEP 4: Resolving Background...
+[2026-03-14 00:44:01]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-03-14 00:44:01] 
+STEP 5: Assembling Video...
+[2026-03-14 00:50:54] ============================================================
+[2026-03-14 00:50:54] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-14 00:50:54]   --news  : (auto-scrape)
+[2026-03-14 00:50:54]   --title : (auto from first sentence of --news)
+[2026-03-14 00:50:54]   --clip  : background.mp4
+[2026-03-14 00:50:54]   --upload: False
+[2026-03-14 00:50:54] ============================================================
+[2026-03-14 00:50:54] 
+STEP 1: Getting GTA 6 News...
+[2026-03-14 00:51:18] ============================================================
+[2026-03-14 00:51:18] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-14 00:51:18]   --news  : (auto-scrape)
+[2026-03-14 00:51:18]   --title : (auto from first sentence of --news)
+[2026-03-14 00:51:18]   --clip  : background.mp4
+[2026-03-14 00:51:18]   --upload: False
+[2026-03-14 00:51:18] ============================================================
+[2026-03-14 00:51:18] 
+STEP 1: Getting GTA 6 News...
+[2026-03-14 00:51:39]   Scraped: Rumor: Will GTA 6’s 3rd Trailer Come Out Next Month?
+[2026-03-14 00:51:39] 
+STEP 2: Generating Script...
+[2026-03-14 00:51:39]   Script ready: 111 words via Free Builder
+[2026-03-14 00:51:39] 
+STEP 3: Generating Voiceover...
+[2026-03-14 00:51:44]   Audio saved: assets/voiceover.mp3
+[2026-03-14 00:51:44] 
+STEP 4: Resolving Background...
+[2026-03-14 00:51:44]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-03-14 00:51:44] 
+STEP 5: Assembling Video...
+[2026-03-14 01:12:32]   Video created: output/gta6_short_20260314_0112.mp4
+[2026-03-14 01:12:32] 
+STEP 6: YouTube Upload...
+[2026-03-14 01:12:32]   Skipped (--no-upload flag set)
+[2026-03-14 01:12:32]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260314_0112.mp4
+[2026-03-14 01:12:32] 
+============================================================
+[2026-03-14 01:12:32] DONE!
+[2026-03-14 01:12:32]   Story : Rumor: Will GTA 6’s 3rd Trailer Come Out Next Month?
+[2026-03-14 01:12:32]   Video : D:\lab\gta6_shorts\output\gta6_short_20260314_0112.mp4
+[2026-03-14 01:12:32] ============================================================

@@ -1,0 +1,127 @@
+[2026-03-07 00:23:45] ============================================================
+[2026-03-07 00:23:45] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-07 00:23:45]   --news  : (auto-scrape)
+[2026-03-07 00:23:45]   --title : (auto from first sentence of --news)
+[2026-03-07 00:23:45]   --clip  : background.mp4
+[2026-03-07 00:23:45]   --upload: False
+[2026-03-07 00:23:45] ============================================================
+[2026-03-07 00:23:45] 
+STEP 1: Getting GTA 6 News...
+[2026-03-07 00:24:10]   Scraped: Nobody playing GTA 6, likely still not PS4-bound as Rockstar fixes Sto
+[2026-03-07 00:24:10] 
+STEP 2: Generating Script...
+[2026-03-07 00:24:10]   Script ready: 132 words via Free Builder
+[2026-03-07 00:24:10] 
+STEP 3: Generating Voiceover...
+[2026-03-07 00:24:18]   Audio saved: assets/voiceover.mp3
+[2026-03-07 00:24:18] 
+STEP 4: Resolving Background...
+[2026-03-07 00:24:18]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-03-07 00:24:18] 
+STEP 5: Assembling Video...
+[2026-03-07 00:40:58] ============================================================
+[2026-03-07 00:40:58] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-07 00:40:58]   --news  : (auto-scrape)
+[2026-03-07 00:40:58]   --title : (auto from first sentence of --news)
+[2026-03-07 00:40:58]   --clip  : background.mp4
+[2026-03-07 00:40:58]   --upload: False
+[2026-03-07 00:40:58] ============================================================
+[2026-03-07 00:40:58] 
+STEP 1: Getting GTA 6 News...
+[2026-03-07 00:41:23]   Scraped: GTA 6 PC Mod Support Has Fans Split
+[2026-03-07 00:41:23] 
+STEP 2: Generating Script...
+[2026-03-07 00:41:23]   Script ready: 188 words via Free Builder
+[2026-03-07 00:41:23] 
+STEP 3: Generating Voiceover...
+[2026-03-07 00:41:34]   Audio saved: assets/voiceover.mp3
+[2026-03-07 00:41:34] 
+STEP 4: Resolving Background...
+[2026-03-07 00:41:34]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-03-07 00:41:34] 
+STEP 5: Assembling Video...
+[2026-03-07 01:06:22]   Video created: output/gta6_short_20260307_0106.mp4
+[2026-03-07 01:06:22] 
+STEP 6: YouTube Upload...
+[2026-03-07 01:06:22]   Skipped (--no-upload flag set)
+[2026-03-07 01:06:22]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260307_0106.mp4
+[2026-03-07 01:06:22] 
+============================================================
+[2026-03-07 01:06:22] DONE!
+[2026-03-07 01:06:22]   Story : GTA 6 PC Mod Support Has Fans Split
+[2026-03-07 01:06:22]   Video : D:\lab\gta6_shorts\output\gta6_short_20260307_0106.mp4
+[2026-03-07 01:06:22] ============================================================
+[2026-03-07 11:29:02] ============================================================
+[2026-03-07 11:29:02] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-07 11:29:02]   --news  : (auto-scrape)
+[2026-03-07 11:29:02]   --title : (auto from first sentence of --news)
+[2026-03-07 11:29:02]   --clip  : background.mp4
+[2026-03-07 11:29:02]   --upload: False
+[2026-03-07 11:29:02] ============================================================
+[2026-03-07 11:29:02] 
+STEP 1: Getting GTA 6 News...
+[2026-03-07 11:29:23]   Scraped: Fake GTA 6 Leak Debunked In Record Time
+[2026-03-07 11:29:23] 
+STEP 2: Generating Script...
+[2026-03-07 11:29:23]   Script ready: 111 words via Free Builder
+[2026-03-07 11:29:23] 
+STEP 3: Generating Voiceover...
+[2026-03-07 11:29:29]   Audio saved: assets/voiceover.mp3
+[2026-03-07 11:29:29] 
+STEP 4: Resolving Background...
+[2026-03-07 11:29:29]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-03-07 11:29:29] 
+STEP 5: Assembling Video...
+[2026-03-07 11:32:00] ============================================================
+[2026-03-07 11:32:00] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-07 11:32:00]   --news  : (auto-scrape)
+[2026-03-07 11:32:00]   --title : (auto from first sentence of --news)
+[2026-03-07 11:32:00]   --clip  : background.mp4
+[2026-03-07 11:32:00]   --upload: False
+[2026-03-07 11:32:00] ============================================================
+[2026-03-07 11:32:00] 
+STEP 1: Getting GTA 6 News...
+[2026-03-07 11:32:18]   Scraped: Leak of GTA 6 codes on PSN generates wave of profiles pretending to ow
+[2026-03-07 11:32:18] 
+STEP 2: Generating Script...
+[2026-03-07 11:32:18]   Script ready: 138 words via Free Builder
+[2026-03-07 11:32:18] 
+STEP 3: Generating Voiceover...
+[2026-03-07 11:32:26]   Audio saved: assets/voiceover.mp3
+[2026-03-07 11:32:26] 
+STEP 4: Resolving Background...
+[2026-03-07 11:32:26]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-03-07 11:32:26] 
+STEP 5: Assembling Video...
+[2026-03-07 11:49:54] ============================================================
+[2026-03-07 11:49:54] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-07 11:49:54]   --news  : (auto-scrape)
+[2026-03-07 11:49:54]   --title : (auto from first sentence of --news)
+[2026-03-07 11:49:54]   --clip  : background.mp4
+[2026-03-07 11:49:54]   --upload: False
+[2026-03-07 11:49:54] ============================================================
+[2026-03-07 11:49:54] 
+STEP 1: Getting GTA 6 News...
+[2026-03-07 11:50:16]   Scraped: Recent GTA 6 leak shows traffic on Vice City bridge and confirms devel
+[2026-03-07 11:50:16] 
+STEP 2: Generating Script...
+[2026-03-07 11:50:16]   Script ready: 141 words via Free Builder
+[2026-03-07 11:50:16] 
+STEP 3: Generating Voiceover...
+[2026-03-07 11:50:25]   Audio saved: assets/voiceover.mp3
+[2026-03-07 11:50:25] 
+STEP 4: Resolving Background...
+[2026-03-07 11:50:25]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-03-07 11:50:25] 
+STEP 5: Assembling Video...
+[2026-03-07 12:08:13]   Video created: output/gta6_short_20260307_1207.mp4
+[2026-03-07 12:08:13] 
+STEP 6: YouTube Upload...
+[2026-03-07 12:08:13]   Skipped (--no-upload flag set)
+[2026-03-07 12:08:13]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260307_1207.mp4
+[2026-03-07 12:08:13] 
+============================================================
+[2026-03-07 12:08:13] DONE!
+[2026-03-07 12:08:13]   Story : Recent GTA 6 leak shows traffic on Vice City bridge and conf
+[2026-03-07 12:08:13]   Video : D:\lab\gta6_shorts\output\gta6_short_20260307_1207.mp4
+[2026-03-07 12:08:13] ============================================================

@@ -1,0 +1,29 @@
+# GTA 6 Shorts Automation - Python Dependencies
+# Install all: pip install -r requirements.txt
+
+# ── NEWS SCRAPING (No Reddit, no sign-up!) ───────────────────
+feedparser>=6.0.0        # RSS feed parser (free)
+requests>=2.31.0         # HTTP requests (Google News, IGN, Kotaku etc.)
+
+# ── TEXT-TO-SPEECH (choose one or both) ──────────────────────
+gTTS>=2.4.0              # Google Text-to-Speech (free, needs internet)
+pyttsx3>=2.90            # Offline TTS (free, no internet needed)
+
+# ── AUDIO PROCESSING ─────────────────────────────────────────
+pydub>=0.25.1            # Audio manipulation
+# NOTE: pydub needs ffmpeg installed separately:
+# Windows: https://ffmpeg.org/download.html → add to PATH
+# OR: pip install imageio[ffmpeg]
+
+# ── VIDEO CREATION ───────────────────────────────────────────
+moviepy>=1.0.3           # Video editing (free)
+Pillow>=10.0.0           # Image manipulation
+numpy>=1.24.0            # Array operations
+
+# ── YOUTUBE UPLOAD ───────────────────────────────────────────
+google-api-python-client>=2.100.0  # YouTube Data API
+google-auth-oauthlib>=1.1.0        # OAuth2 authentication
+google-auth-httplib2>=0.1.1        # Auth transport
+
+# ── UTILITIES ────────────────────────────────────────────────
+python-dateutil>=2.8.0

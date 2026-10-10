@@ -1,0 +1,95 @@
+[2026-04-07 22:47:57] ============================================================
+[2026-04-07 22:47:57] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-07 22:47:57]   --news  : (auto-scrape)
+[2026-04-07 22:47:57]   --title : (auto from first sentence of --news)
+[2026-04-07 22:47:57]   --clip  : background.mp4
+[2026-04-07 22:47:57]   --upload: False
+[2026-04-07 22:47:57] ============================================================
+[2026-04-07 22:47:57] 
+STEP 1: Getting GTA 6 News...
+[2026-04-07 22:48:27]   Scraped: As the shadow of GTA 6 looms, Just Cause lead isn't put off by compari
+[2026-04-07 22:48:27] 
+STEP 2: Generating Script...
+[2026-04-07 22:48:27]   Script ready: 205 words via Free Builder
+[2026-04-07 22:48:27] 
+STEP 3: Generating Voiceover...
+[2026-04-07 22:48:40]   Audio saved: assets/voiceover.mp3
+[2026-04-07 22:48:40] 
+STEP 4: Resolving Background...
+[2026-04-07 22:48:40]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-07 22:48:40] 
+STEP 5: Assembling Video...
+[2026-04-07 22:49:35] ============================================================
+[2026-04-07 22:49:35] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-07 22:49:35]   --news  : (auto-scrape)
+[2026-04-07 22:49:35]   --title : (auto from first sentence of --news)
+[2026-04-07 22:49:35]   --clip  : background.mp4
+[2026-04-07 22:49:35]   --upload: False
+[2026-04-07 22:49:35] ============================================================
+[2026-04-07 22:49:35] 
+STEP 1: Getting GTA 6 News...
+[2026-04-07 22:50:02]   Scraped: GTA 6 might not feature an entirely rebuilt Rage Engine after all, as 
+[2026-04-07 22:50:02] 
+STEP 2: Generating Script...
+[2026-04-07 22:50:03]   Script ready: 179 words via Free Builder
+[2026-04-07 22:50:03] 
+STEP 3: Generating Voiceover...
+[2026-04-07 22:50:13]   Audio saved: assets/voiceover.mp3
+[2026-04-07 22:50:13] 
+STEP 4: Resolving Background...
+[2026-04-07 22:50:13]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-07 22:50:13] 
+STEP 5: Assembling Video...
+[2026-04-07 22:51:06] ============================================================
+[2026-04-07 22:51:06] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-07 22:51:06]   --news  : (auto-scrape)
+[2026-04-07 22:51:06]   --title : (auto from first sentence of --news)
+[2026-04-07 22:51:06]   --clip  : background.mp4
+[2026-04-07 22:51:06]   --upload: False
+[2026-04-07 22:51:06] ============================================================
+[2026-04-07 22:51:06] 
+STEP 1: Getting GTA 6 News...
+[2026-04-07 22:51:36]   Scraped: GTA 6 and Red Dead Redemption 2 Image Comparison Shows Massive Graphic
+[2026-04-07 22:51:36] 
+STEP 2: Generating Script...
+[2026-04-07 22:51:37]   Script ready: 208 words via Free Builder
+[2026-04-07 22:51:37] 
+STEP 3: Generating Voiceover...
+[2026-04-07 22:51:49]   Audio saved: assets/voiceover.mp3
+[2026-04-07 22:51:49] 
+STEP 4: Resolving Background...
+[2026-04-07 22:51:49]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-07 22:51:49] 
+STEP 5: Assembling Video...
+[2026-04-07 22:52:38] ============================================================
+[2026-04-07 22:52:38] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-07 22:52:38]   --news  : (auto-scrape)
+[2026-04-07 22:52:38]   --title : (auto from first sentence of --news)
+[2026-04-07 22:52:38]   --clip  : background.mp4
+[2026-04-07 22:52:38]   --upload: False
+[2026-04-07 22:52:38] ============================================================
+[2026-04-07 22:52:38] 
+STEP 1: Getting GTA 6 News...
+[2026-04-07 22:53:02]   Scraped: GTA 6 Release Date Update Addresses Third Delay
+[2026-04-07 22:53:02] 
+STEP 2: Generating Script...
+[2026-04-07 22:53:03]   Script ready: 120 words via Free Builder
+[2026-04-07 22:53:03] 
+STEP 3: Generating Voiceover...
+[2026-04-07 22:53:11]   Audio saved: assets/voiceover.mp3
+[2026-04-07 22:53:11] 
+STEP 4: Resolving Background...
+[2026-04-07 22:53:11]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-07 22:53:11] 
+STEP 5: Assembling Video...
+[2026-04-07 23:11:48]   Video created: output/gta6_short_20260407_2311.mp4
+[2026-04-07 23:11:48] 
+STEP 6: YouTube Upload...
+[2026-04-07 23:11:48]   Skipped (--no-upload flag set)
+[2026-04-07 23:11:48]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260407_2311.mp4
+[2026-04-07 23:11:48] 
+============================================================
+[2026-04-07 23:11:48] DONE!
+[2026-04-07 23:11:48]   Story : GTA 6 Release Date Update Addresses Third Delay
+[2026-04-07 23:11:48]   Video : D:\lab\gta6_shorts\output\gta6_short_20260407_2311.mp4
+[2026-04-07 23:11:48] ============================================================

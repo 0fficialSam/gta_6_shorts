@@ -1,0 +1,74 @@
+[2026-04-08 22:25:51] ============================================================
+[2026-04-08 22:25:51] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-08 22:25:51]   --news  : (auto-scrape)
+[2026-04-08 22:25:51]   --title : (auto from first sentence of --news)
+[2026-04-08 22:25:51]   --clip  : background.mp4
+[2026-04-08 22:25:51]   --upload: False
+[2026-04-08 22:25:51] ============================================================
+[2026-04-08 22:25:51] 
+STEP 1: Getting GTA 6 News...
+[2026-04-08 22:26:20]   Scraped: Former GTA 6 artist also "can't wait" for Trailer 3, but warns the fin
+[2026-04-08 22:26:20] 
+STEP 2: Generating Script...
+[2026-04-08 22:26:21]   Script ready: 217 words via Free Builder
+[2026-04-08 22:26:21] 
+STEP 3: Generating Voiceover...
+[2026-04-08 22:26:34]   Audio saved: assets/voiceover.mp3
+[2026-04-08 22:26:34] 
+STEP 4: Resolving Background...
+[2026-04-08 22:26:34]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-08 22:26:34] 
+STEP 5: Assembling Video...
+[2026-04-08 22:27:30] ============================================================
+[2026-04-08 22:27:30] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-08 22:27:30]   --news  : (auto-scrape)
+[2026-04-08 22:27:30]   --title : (auto from first sentence of --news)
+[2026-04-08 22:27:30]   --clip  : background.mp4
+[2026-04-08 22:27:30]   --upload: False
+[2026-04-08 22:27:30] ============================================================
+[2026-04-08 22:27:30] 
+STEP 1: Getting GTA 6 News...
+[2026-04-08 22:27:54]   Scraped: RPS Verdict: In its best moments, Samson is like a goon-battering GTA 
+[2026-04-08 22:27:54] 
+STEP 2: Generating Script...
+[2026-04-08 22:27:54]   Script ready: 180 words via Free Builder
+[2026-04-08 22:27:54] 
+STEP 3: Generating Voiceover...
+[2026-04-08 22:28:03]   Audio saved: assets/voiceover.mp3
+[2026-04-08 22:28:03] 
+STEP 4: Resolving Background...
+[2026-04-08 22:28:03]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-08 22:28:03] 
+STEP 5: Assembling Video...
+[2026-04-08 22:28:19] ============================================================
+[2026-04-08 22:28:19] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-08 22:28:19]   --news  : (auto-scrape)
+[2026-04-08 22:28:19]   --title : (auto from first sentence of --news)
+[2026-04-08 22:28:19]   --clip  : background.mp4
+[2026-04-08 22:28:19]   --upload: False
+[2026-04-08 22:28:19] ============================================================
+[2026-04-08 22:28:19] 
+STEP 1: Getting GTA 6 News...
+[2026-04-08 22:28:44]   Scraped: Rockstar source denies GTA 6 release date will suffer delay due to bro
+[2026-04-08 22:28:44] 
+STEP 2: Generating Script...
+[2026-04-08 22:28:44]   Script ready: 143 words via Free Builder
+[2026-04-08 22:28:44] 
+STEP 3: Generating Voiceover...
+[2026-04-08 22:28:52]   Audio saved: assets/voiceover.mp3
+[2026-04-08 22:28:52] 
+STEP 4: Resolving Background...
+[2026-04-08 22:28:52]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-08 22:28:52] 
+STEP 5: Assembling Video...
+[2026-04-08 22:49:32]   Video created: output/gta6_short_20260408_2249.mp4
+[2026-04-08 22:49:32] 
+STEP 6: YouTube Upload...
+[2026-04-08 22:49:32]   Skipped (--no-upload flag set)
+[2026-04-08 22:49:32]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260408_2249.mp4
+[2026-04-08 22:49:32] 
+============================================================
+[2026-04-08 22:49:32] DONE!
+[2026-04-08 22:49:32]   Story : Rockstar source denies GTA 6 release date will suffer delay 
+[2026-04-08 22:49:32]   Video : D:\lab\gta6_shorts\output\gta6_short_20260408_2249.mp4
+[2026-04-08 22:49:32] ============================================================

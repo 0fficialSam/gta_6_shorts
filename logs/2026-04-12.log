@@ -1,0 +1,53 @@
+[2026-04-12 22:11:06] ============================================================
+[2026-04-12 22:11:06] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-12 22:11:06]   --news  : (auto-scrape)
+[2026-04-12 22:11:06]   --title : (auto from first sentence of --news)
+[2026-04-12 22:11:06]   --clip  : background.mp4
+[2026-04-12 22:11:06]   --upload: False
+[2026-04-12 22:11:06] ============================================================
+[2026-04-12 22:11:06] 
+STEP 1: Getting GTA 6 News...
+[2026-04-12 22:11:32]   Scraped: Hackers demand ransom from GTA6 studio Rockstar, threaten to leak stol
+[2026-04-12 22:11:32] 
+STEP 2: Generating Script...
+[2026-04-12 22:11:32]   Script ready: 200 words via Free Builder
+[2026-04-12 22:11:32] 
+STEP 3: Generating Voiceover...
+[2026-04-12 22:11:44]   Audio saved: assets/voiceover.mp3
+[2026-04-12 22:11:44] 
+STEP 4: Resolving Background...
+[2026-04-12 22:11:44]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-12 22:11:44] 
+STEP 5: Assembling Video...
+[2026-04-12 22:13:39] ============================================================
+[2026-04-12 22:13:39] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-12 22:13:39]   --news  : (auto-scrape)
+[2026-04-12 22:13:39]   --title : (auto from first sentence of --news)
+[2026-04-12 22:13:39]   --clip  : background.mp4
+[2026-04-12 22:13:39]   --upload: False
+[2026-04-12 22:13:39] ============================================================
+[2026-04-12 22:13:39] 
+STEP 1: Getting GTA 6 News...
+[2026-04-12 22:14:00]   Scraped: Rockstar confirms GTA 6 data breach after hackers threaten leak
+[2026-04-12 22:14:00] 
+STEP 2: Generating Script...
+[2026-04-12 22:14:01]   Script ready: 186 words via Free Builder
+[2026-04-12 22:14:01] 
+STEP 3: Generating Voiceover...
+[2026-04-12 22:14:13]   Audio saved: assets/voiceover.mp3
+[2026-04-12 22:14:13] 
+STEP 4: Resolving Background...
+[2026-04-12 22:14:13]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-12 22:14:13] 
+STEP 5: Assembling Video...
+[2026-04-12 22:38:25]   Video created: output/gta6_short_20260412_2238.mp4
+[2026-04-12 22:38:25] 
+STEP 6: YouTube Upload...
+[2026-04-12 22:38:25]   Skipped (--no-upload flag set)
+[2026-04-12 22:38:25]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260412_2238.mp4
+[2026-04-12 22:38:25] 
+============================================================
+[2026-04-12 22:38:25] DONE!
+[2026-04-12 22:38:25]   Story : Rockstar confirms GTA 6 data breach after hackers threaten l
+[2026-04-12 22:38:25]   Video : D:\lab\gta6_shorts\output\gta6_short_20260412_2238.mp4
+[2026-04-12 22:38:25] ============================================================

@@ -1,0 +1,100 @@
+[2026-04-06 22:03:58] ============================================================
+[2026-04-06 22:03:58] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-06 22:03:58]   --news  : (auto-scrape)
+[2026-04-06 22:03:58]   --title : (auto from first sentence of --news)
+[2026-04-06 22:03:58]   --clip  : background.mp4
+[2026-04-06 22:03:58]   --upload: False
+[2026-04-06 22:03:58] ============================================================
+[2026-04-06 22:03:58] 
+STEP 1: Getting GTA 6 News...
+[2026-04-06 22:04:26]   Scraped: Is GTA 6‘s Long Development The Result Of A Complete Engine Rebuild? I
+[2026-04-06 22:04:26] 
+STEP 2: Generating Script...
+[2026-04-06 22:04:26]   Script ready: 203 words via Free Builder
+[2026-04-06 22:04:26] 
+STEP 3: Generating Voiceover...
+[2026-04-06 22:04:39]   Audio saved: assets/voiceover.mp3
+[2026-04-06 22:04:39] 
+STEP 4: Resolving Background...
+[2026-04-06 22:04:39]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-06 22:04:39] 
+STEP 5: Assembling Video...
+[2026-04-06 22:22:39]   Video created: output/gta6_short_20260406_2222.mp4
+[2026-04-06 22:22:39] 
+STEP 6: YouTube Upload...
+[2026-04-06 22:22:39]   Skipped (--no-upload flag set)
+[2026-04-06 22:22:39]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260406_2222.mp4
+[2026-04-06 22:22:39] 
+============================================================
+[2026-04-06 22:22:39] DONE!
+[2026-04-06 22:22:39]   Story : Is GTA 6‘s Long Development The Result Of A Complete Engine 
+[2026-04-06 22:22:39]   Video : D:\lab\gta6_shorts\output\gta6_short_20260406_2222.mp4
+[2026-04-06 22:22:39] ============================================================
+[2026-04-06 22:23:20] ============================================================
+[2026-04-06 22:23:20] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-06 22:23:20]   --news  : (auto-scrape)
+[2026-04-06 22:23:20]   --title : (auto from first sentence of --news)
+[2026-04-06 22:23:20]   --clip  : background.mp4
+[2026-04-06 22:23:20]   --upload: False
+[2026-04-06 22:23:20] ============================================================
+[2026-04-06 22:23:20] 
+STEP 1: Getting GTA 6 News...
+[2026-04-06 22:23:49]   Scraped: 'Marathon Is Gonna Be Game of the Year': Actor Ben Starr Jokes It'll B
+[2026-04-06 22:23:49] 
+STEP 2: Generating Script...
+[2026-04-06 22:23:49]   Script ready: 197 words via Free Builder
+[2026-04-06 22:23:49] 
+STEP 3: Generating Voiceover...
+[2026-04-06 22:23:59] ============================================================
+[2026-04-06 22:23:59] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-06 22:23:59]   --news  : (auto-scrape)
+[2026-04-06 22:23:59]   --title : (auto from first sentence of --news)
+[2026-04-06 22:23:59]   --clip  : background.mp4
+[2026-04-06 22:23:59]   --upload: False
+[2026-04-06 22:23:59] ============================================================
+[2026-04-06 22:23:59] 
+STEP 1: Getting GTA 6 News...
+[2026-04-06 22:24:16]   Scraped: GTA 6's First Official Gameplay Trailer Already Has Fans Hyped
+[2026-04-06 22:24:16] 
+STEP 2: Generating Script...
+[2026-04-06 22:24:17]   Script ready: 135 words via Free Builder
+[2026-04-06 22:24:17] 
+STEP 3: Generating Voiceover...
+[2026-04-06 22:24:25]   Audio saved: assets/voiceover.mp3
+[2026-04-06 22:24:25] 
+STEP 4: Resolving Background...
+[2026-04-06 22:24:25]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-06 22:24:25] 
+STEP 5: Assembling Video...
+[2026-04-06 22:26:01] ============================================================
+[2026-04-06 22:26:01] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-06 22:26:01]   --news  : (auto-scrape)
+[2026-04-06 22:26:01]   --title : (auto from first sentence of --news)
+[2026-04-06 22:26:01]   --clip  : background.mp4
+[2026-04-06 22:26:01]   --upload: False
+[2026-04-06 22:26:01] ============================================================
+[2026-04-06 22:26:01] 
+STEP 1: Getting GTA 6 News...
+[2026-04-06 22:26:20]   Scraped: GTA 6 Developers Dismiss Recent Rumors Surrounding Delay
+[2026-04-06 22:26:20] 
+STEP 2: Generating Script...
+[2026-04-06 22:26:20]   Script ready: 115 words via Free Builder
+[2026-04-06 22:26:20] 
+STEP 3: Generating Voiceover...
+[2026-04-06 22:26:26]   Audio saved: assets/voiceover.mp3
+[2026-04-06 22:26:26] 
+STEP 4: Resolving Background...
+[2026-04-06 22:26:26]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-06 22:26:26] 
+STEP 5: Assembling Video...
+[2026-04-06 22:43:48]   Video created: output/gta6_short_20260406_2243.mp4
+[2026-04-06 22:43:48] 
+STEP 6: YouTube Upload...
+[2026-04-06 22:43:48]   Skipped (--no-upload flag set)
+[2026-04-06 22:43:48]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260406_2243.mp4
+[2026-04-06 22:43:48] 
+============================================================
+[2026-04-06 22:43:48] DONE!
+[2026-04-06 22:43:48]   Story : GTA 6 Developers Dismiss Recent Rumors Surrounding Delay
+[2026-04-06 22:43:48]   Video : D:\lab\gta6_shorts\output\gta6_short_20260406_2243.mp4
+[2026-04-06 22:43:48] ============================================================

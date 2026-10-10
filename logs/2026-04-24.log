@@ -1,0 +1,89 @@
+[2026-04-24 22:55:18] ============================================================
+[2026-04-24 22:55:18] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-24 22:55:18]   --news  : (auto-scrape)
+[2026-04-24 22:55:18]   --title : (auto from first sentence of --news)
+[2026-04-24 22:55:18]   --clip  : background.mp4
+[2026-04-24 22:55:18]   --upload: False
+[2026-04-24 22:55:18] ============================================================
+[2026-04-24 22:55:18] 
+STEP 1: Getting GTA 6 News...
+[2026-04-24 22:55:42]   Scraped: Returning GTA 6 Feature Leaves Gamers Divided
+[2026-04-24 22:55:42] 
+STEP 2: Generating Script...
+[2026-04-24 22:55:42]   Script ready: 194 words via Free Builder
+[2026-04-24 22:55:42] 
+STEP 3: Generating Voiceover...
+[2026-04-24 22:55:50] ============================================================
+[2026-04-24 22:55:50] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-24 22:55:50]   --news  : (auto-scrape)
+[2026-04-24 22:55:50]   --title : (auto from first sentence of --news)
+[2026-04-24 22:55:50]   --clip  : background.mp4
+[2026-04-24 22:55:50]   --upload: False
+[2026-04-24 22:55:50] ============================================================
+[2026-04-24 22:55:50] 
+STEP 1: Getting GTA 6 News...
+[2026-04-24 22:56:07]   Scraped: GTA 6 Pre-Orders to Start in May? Rockstar Games Confirms November 19 
+[2026-04-24 22:56:07] 
+STEP 2: Generating Script...
+[2026-04-24 22:56:08]   Script ready: 163 words via Free Builder
+[2026-04-24 22:56:08] 
+STEP 3: Generating Voiceover...
+[2026-04-24 22:56:16]   Audio saved: assets/voiceover.mp3
+[2026-04-24 22:56:16] 
+STEP 4: Resolving Background...
+[2026-04-24 22:56:16]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-24 22:56:16] 
+STEP 5: Assembling Video...
+[2026-04-24 22:56:30] ============================================================
+[2026-04-24 22:56:30] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-24 22:56:30]   --news  : (auto-scrape)
+[2026-04-24 22:56:30]   --title : (auto from first sentence of --news)
+[2026-04-24 22:56:30]   --clip  : background.mp4
+[2026-04-24 22:56:30]   --upload: False
+[2026-04-24 22:56:30] ============================================================
+[2026-04-24 22:56:30] 
+STEP 1: Getting GTA 6 News...
+[2026-04-24 22:56:46]   Scraped: Game Awards 2026 Odds: GTA 6 Dominates Game Awards Betting as Early Fa
+[2026-04-24 22:56:46] 
+STEP 2: Generating Script...
+[2026-04-24 22:56:46]   Script ready: 143 words via Free Builder
+[2026-04-24 22:56:46] 
+STEP 3: Generating Voiceover...
+[2026-04-24 22:56:53]   Audio saved: assets/voiceover.mp3
+[2026-04-24 22:56:53] 
+STEP 4: Resolving Background...
+[2026-04-24 22:56:53]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-24 22:56:53] 
+STEP 5: Assembling Video...
+[2026-04-24 22:57:04] ============================================================
+[2026-04-24 22:57:04] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-24 22:57:04]   --news  : (auto-scrape)
+[2026-04-24 22:57:04]   --title : (auto from first sentence of --news)
+[2026-04-24 22:57:04]   --clip  : background.mp4
+[2026-04-24 22:57:04]   --upload: False
+[2026-04-24 22:57:04] ============================================================
+[2026-04-24 22:57:04] 
+STEP 1: Getting GTA 6 News...
+[2026-04-24 22:57:21]   Scraped: GTA 6 Trailer 3 Has Gamers Marking Their Calendars Following Official 
+[2026-04-24 22:57:21] 
+STEP 2: Generating Script...
+[2026-04-24 22:57:21]   Script ready: 121 words via Free Builder
+[2026-04-24 22:57:21] 
+STEP 3: Generating Voiceover...
+[2026-04-24 22:57:27]   Audio saved: assets/voiceover.mp3
+[2026-04-24 22:57:27] 
+STEP 4: Resolving Background...
+[2026-04-24 22:57:27]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-24 22:57:27] 
+STEP 5: Assembling Video...
+[2026-04-24 23:17:16]   Video created: output/gta6_short_20260424_2317.mp4
+[2026-04-24 23:17:16] 
+STEP 6: YouTube Upload...
+[2026-04-24 23:17:16]   Skipped (--no-upload flag set)
+[2026-04-24 23:17:16]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260424_2317.mp4
+[2026-04-24 23:17:16] 
+============================================================
+[2026-04-24 23:17:16] DONE!
+[2026-04-24 23:17:16]   Story : GTA 6 Trailer 3 Has Gamers Marking Their Calendars Following
+[2026-04-24 23:17:16]   Video : D:\lab\gta6_shorts\output\gta6_short_20260424_2317.mp4
+[2026-04-24 23:17:16] ============================================================

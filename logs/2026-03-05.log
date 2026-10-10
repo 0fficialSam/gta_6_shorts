@@ -1,0 +1,110 @@
+[2026-03-05 22:35:27] ============================================================
+[2026-03-05 22:35:27] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-05 22:35:27]   --news  : (auto-scrape)
+[2026-03-05 22:35:27]   --title : (auto from first sentence of --news)
+[2026-03-05 22:35:27]   --clip  : background.mp4
+[2026-03-05 22:35:27]   --upload: False
+[2026-03-05 22:35:27] ============================================================
+[2026-03-05 22:35:27] 
+STEP 1: Getting GTA 6 News...
+[2026-03-05 22:35:49]   Scraped: GTA 6 fans are so desperate after 15 years of waiting that they’re exp
+[2026-03-05 22:35:49] 
+STEP 2: Generating Script...
+[2026-03-05 22:35:49]   Script ready: 186 words via Free Builder
+[2026-03-05 22:35:49] 
+STEP 3: Generating Voiceover...
+[2026-03-05 22:36:01]   Audio saved: assets/voiceover.mp3
+[2026-03-05 22:36:01] 
+STEP 4: Resolving Background...
+[2026-03-05 22:36:01]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-03-05 22:36:01] 
+STEP 5: Assembling Video...
+[2026-03-05 22:36:03] ============================================================
+[2026-03-05 22:36:03] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-05 22:36:03]   --news  : (auto-scrape)
+[2026-03-05 22:36:03]   --title : (auto from first sentence of --news)
+[2026-03-05 22:36:03]   --clip  : background.mp4
+[2026-03-05 22:36:03]   --upload: False
+[2026-03-05 22:36:03] ============================================================
+[2026-03-05 22:36:03] 
+STEP 1: Getting GTA 6 News...
+[2026-03-05 22:36:18]   Scraped: Rockstar takes action after PS5 players “access” GTA 6 early
+[2026-03-05 22:36:18] 
+STEP 2: Generating Script...
+[2026-03-05 22:36:18]   Script ready: 207 words via Free Builder
+[2026-03-05 22:36:18] 
+STEP 3: Generating Voiceover...
+[2026-03-05 22:36:30] ============================================================
+[2026-03-05 22:36:30] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-05 22:36:30]   --news  : (auto-scrape)
+[2026-03-05 22:36:30]   --title : (auto from first sentence of --news)
+[2026-03-05 22:36:30]   --clip  : background.mp4
+[2026-03-05 22:36:30]   --upload: False
+[2026-03-05 22:36:30] ============================================================
+[2026-03-05 22:36:30] 
+STEP 1: Getting GTA 6 News...
+[2026-03-05 22:36:46]   Scraped: From GTA 6 to the rise of AI, here are the biggest trends to watch out
+[2026-03-05 22:36:46] 
+STEP 2: Generating Script...
+[2026-03-05 22:36:46]   Script ready: 145 words via Free Builder
+[2026-03-05 22:36:46] 
+STEP 3: Generating Voiceover...
+[2026-03-05 22:36:53]   Audio saved: assets/voiceover.mp3
+[2026-03-05 22:36:53] 
+STEP 4: Resolving Background...
+[2026-03-05 22:36:53]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-03-05 22:36:53] 
+STEP 5: Assembling Video...
+[2026-03-05 22:50:33]   Video created: output/gta6_short_20260305_2250.mp4
+[2026-03-05 22:50:33] 
+STEP 6: YouTube Upload...
+[2026-03-05 22:50:33]   Skipped (--no-upload flag set)
+[2026-03-05 22:50:33]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260305_2250.mp4
+[2026-03-05 22:50:33] 
+============================================================
+[2026-03-05 22:50:33] DONE!
+[2026-03-05 22:50:33]   Story : From GTA 6 to the rise of AI, here are the biggest trends to
+[2026-03-05 22:50:33]   Video : D:\lab\gta6_shorts\output\gta6_short_20260305_2250.mp4
+[2026-03-05 22:50:33] ============================================================
+[2026-03-05 22:52:48] ============================================================
+[2026-03-05 22:52:48] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-05 22:52:48]   --news  : (auto-scrape)
+[2026-03-05 22:52:48]   --title : (auto from first sentence of --news)
+[2026-03-05 22:52:48]   --clip  : background.mp4
+[2026-03-05 22:52:48]   --upload: False
+[2026-03-05 22:52:48] ============================================================
+[2026-03-05 22:52:48] 
+STEP 1: Getting GTA 6 News...
+[2026-03-05 22:53:14]   Scraped: GTA 6 6/4 Favourite in Game of the Year 2026 Betting Odds
+[2026-03-05 22:53:14] 
+STEP 2: Generating Script...
+[2026-03-05 22:53:14]   Script ready: 151 words via Free Builder
+[2026-03-05 22:53:14] 
+STEP 3: Generating Voiceover...
+[2026-03-05 22:53:22]   Audio saved: assets/voiceover.mp3
+[2026-03-05 22:53:22] 
+STEP 4: Resolving Background...
+[2026-03-05 22:53:22]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-03-05 22:53:22] 
+STEP 5: Assembling Video...
+[2026-03-05 22:56:46] ============================================================
+[2026-03-05 22:56:46] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-05 22:56:46]   --news  : (auto-scrape)
+[2026-03-05 22:56:46]   --title : (auto from first sentence of --news)
+[2026-03-05 22:56:46]   --clip  : background.mp4
+[2026-03-05 22:56:46]   --upload: False
+[2026-03-05 22:56:46] ============================================================
+[2026-03-05 22:56:46] 
+STEP 1: Getting GTA 6 News...
+[2026-03-05 22:57:08]   Scraped: GTA 6 Store Data Scrubbed By Rockstar After Leak
+[2026-03-05 22:57:08] 
+STEP 2: Generating Script...
+[2026-03-05 22:57:08]   Script ready: 133 words via Free Builder
+[2026-03-05 22:57:08] 
+STEP 3: Generating Voiceover...
+[2026-03-05 22:57:14]   Audio saved: assets/voiceover.mp3
+[2026-03-05 22:57:14] 
+STEP 4: Resolving Background...
+[2026-03-05 22:57:14]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-03-05 22:57:14] 
+STEP 5: Assembling Video...

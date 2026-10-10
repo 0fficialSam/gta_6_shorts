@@ -1,0 +1,32 @@
+[2026-04-11 21:17:01] ============================================================
+[2026-04-11 21:17:01] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-11 21:17:01]   --news  : (auto-scrape)
+[2026-04-11 21:17:01]   --title : (auto from first sentence of --news)
+[2026-04-11 21:17:01]   --clip  : background.mp4
+[2026-04-11 21:17:01]   --upload: False
+[2026-04-11 21:17:01] ============================================================
+[2026-04-11 21:17:01] 
+STEP 1: Getting GTA 6 News...
+[2026-04-11 21:17:32]   Scraped: GTA 6's Rockstar breached by hacker group with secret data up for rans
+[2026-04-11 21:17:32] 
+STEP 2: Generating Script...
+[2026-04-11 21:17:33]   Script ready: 199 words via Free Builder
+[2026-04-11 21:17:33] 
+STEP 3: Generating Voiceover...
+[2026-04-11 21:17:46]   Audio saved: assets/voiceover.mp3
+[2026-04-11 21:17:46] 
+STEP 4: Resolving Background...
+[2026-04-11 21:17:46]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-11 21:17:46] 
+STEP 5: Assembling Video...
+[2026-04-11 21:41:58]   Video created: output/gta6_short_20260411_2141.mp4
+[2026-04-11 21:41:58] 
+STEP 6: YouTube Upload...
+[2026-04-11 21:41:58]   Skipped (--no-upload flag set)
+[2026-04-11 21:41:58]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260411_2141.mp4
+[2026-04-11 21:41:58] 
+============================================================
+[2026-04-11 21:41:58] DONE!
+[2026-04-11 21:41:58]   Story : GTA 6's Rockstar breached by hacker group with secret data u
+[2026-04-11 21:41:58]   Video : D:\lab\gta6_shorts\output\gta6_short_20260411_2141.mp4
+[2026-04-11 21:41:58] ============================================================

@@ -1,0 +1,98 @@
+[2026-04-29 19:18:44] ============================================================
+[2026-04-29 19:18:44] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-29 19:18:44]   --news  : (auto-scrape)
+[2026-04-29 19:18:44]   --title : (auto from first sentence of --news)
+[2026-04-29 19:18:44]   --clip  : background.mp4
+[2026-04-29 19:18:44]   --upload: False
+[2026-04-29 19:18:44] ============================================================
+[2026-04-29 19:18:44] 
+STEP 1: Getting GTA 6 News...
+[2026-04-29 19:19:06]   Scraped: In the wake of $100 GTA 6 rumours, Take-Two still won't give an actual
+[2026-04-29 19:19:06] 
+STEP 2: Generating Script...
+[2026-04-29 19:19:07]   Script ready: 195 words via Free Builder
+[2026-04-29 19:19:07] 
+STEP 3: Generating Voiceover...
+[2026-04-29 19:19:20]   Audio saved: assets/voiceover.mp3
+[2026-04-29 19:19:20] 
+STEP 4: Resolving Background...
+[2026-04-29 19:19:20]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-29 19:19:20] 
+STEP 5: Assembling Video...
+[2026-04-29 19:23:06] ============================================================
+[2026-04-29 19:23:06] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-29 19:23:06]   --news  : (auto-scrape)
+[2026-04-29 19:23:06]   --title : (auto from first sentence of --news)
+[2026-04-29 19:23:06]   --clip  : background.mp4
+[2026-04-29 19:23:06]   --upload: False
+[2026-04-29 19:23:06] ============================================================
+[2026-04-29 19:23:06] 
+STEP 1: Getting GTA 6 News...
+[2026-04-29 19:23:25]   Scraped: GTA 6 Release Date Update Officially Drops, Claim Your Sick Days Now
+[2026-04-29 19:23:25] 
+STEP 2: Generating Script...
+[2026-04-29 19:23:25]   Script ready: 209 words via Free Builder
+[2026-04-29 19:23:25] 
+STEP 3: Generating Voiceover...
+[2026-04-29 19:23:37]   Audio saved: assets/voiceover.mp3
+[2026-04-29 19:23:37] 
+STEP 4: Resolving Background...
+[2026-04-29 19:23:37]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-29 19:23:37] 
+STEP 5: Assembling Video...
+[2026-04-29 19:29:16]   Video assembly failed: max() arg is an empty sequence
+Traceback (most recent call last):
+  File "D:\lab\gta6_shorts\main.py", line 230, in run_pipeline
+    video_path = assemble_video(script_data, audio_path, clip_override=clip_path)
+  File "D:\lab\gta6_shorts\scripts\video_assembler.py", line 705, in assemble_video
+    frame_img = build_frame(
+  File "D:\lab\gta6_shorts\scripts\video_assembler.py", line 593, in build_frame
+    wrap_draw(d, sentence, WIDTH//2, text_cy, sub_font,
+  File "D:\lab\gta6_shorts\scripts\video_assembler.py", line 147, in wrap_draw
+    stroke_text(draw, line, cx, sy+i*lh, font, fill, sfill, sw, "mm")
+  File "D:\lab\gta6_shorts\scripts\video_assembler.py", line 131, in stroke_text
+    draw.text((x+dx, y+dy), text, font=font, fill=sfill, anchor=anchor)
+  File "C:\Users\satya\AppData\Local\Programs\Python\Python310\lib\site-packages\PIL\ImageDraw.py", line 670, in text
+    draw_text(ink)
+  File "C:\Users\satya\AppData\Local\Programs\Python\Python310\lib\site-packages\PIL\ImageDraw.py", line 609, in draw_text
+    mask, offset = font.getmask2(  # type: ignore[union-attr,misc]
+  File "C:\Users\satya\AppData\Local\Programs\Python\Python310\lib\site-packages\PIL\ImageFont.py", line 640, in getmask2
+    return self.font.render(
+  File "C:\Users\satya\AppData\Local\Programs\Python\Python310\lib\site-packages\PIL\ImageFont.py", line 637, in fill
+    Image._decompression_bomb_check(size)
+  File "C:\Users\satya\AppData\Local\Programs\Python\Python310\lib\site-packages\PIL\Image.py", line 3442, in _decompression_bomb_check
+    pixels = max(1, size[0]) * max(1, size[1])
+ValueError: max() arg is an empty sequence
+
+[2026-04-29 19:29:34] ============================================================
+[2026-04-29 19:29:34] GTA 6 SHORTS AUTOMATION STARTED
+[2026-04-29 19:29:34]   --news  : (auto-scrape)
+[2026-04-29 19:29:34]   --title : (auto from first sentence of --news)
+[2026-04-29 19:29:34]   --clip  : background.mp4
+[2026-04-29 19:29:34]   --upload: False
+[2026-04-29 19:29:34] ============================================================
+[2026-04-29 19:29:34] 
+STEP 1: Getting GTA 6 News...
+[2026-04-29 19:29:57]   Scraped: Take-Two CEO eases GTA 6 delay fears, says "a lot of people will be ca
+[2026-04-29 19:29:57] 
+STEP 2: Generating Script...
+[2026-04-29 19:29:58]   Script ready: 179 words via Free Builder
+[2026-04-29 19:29:58] 
+STEP 3: Generating Voiceover...
+[2026-04-29 19:30:10]   Audio saved: assets/voiceover.mp3
+[2026-04-29 19:30:10] 
+STEP 4: Resolving Background...
+[2026-04-29 19:30:10]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-04-29 19:30:10] 
+STEP 5: Assembling Video...
+[2026-04-29 19:50:52]   Video created: output/gta6_short_20260429_1950.mp4
+[2026-04-29 19:50:52] 
+STEP 6: YouTube Upload...
+[2026-04-29 19:50:52]   Skipped (--no-upload flag set)
+[2026-04-29 19:50:52]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260429_1950.mp4
+[2026-04-29 19:50:52] 
+============================================================
+[2026-04-29 19:50:52] DONE!
+[2026-04-29 19:50:52]   Story : Take-Two CEO eases GTA 6 delay fears, says "a lot of people 
+[2026-04-29 19:50:52]   Video : D:\lab\gta6_shorts\output\gta6_short_20260429_1950.mp4
+[2026-04-29 19:50:52] ============================================================

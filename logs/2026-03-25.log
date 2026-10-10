@@ -1,0 +1,32 @@
+[2026-03-25 22:34:33] ============================================================
+[2026-03-25 22:34:33] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-25 22:34:33]   --news  : (auto-scrape)
+[2026-03-25 22:34:33]   --title : (auto from first sentence of --news)
+[2026-03-25 22:34:33]   --clip  : background.mp4
+[2026-03-25 22:34:33]   --upload: False
+[2026-03-25 22:34:33] ============================================================
+[2026-03-25 22:34:33] 
+STEP 1: Getting GTA 6 News...
+[2026-03-25 22:34:58]   Scraped: New GTA 6 leaks tease ground-breaking tech for NPCs with an ‘absurd am
+[2026-03-25 22:34:58] 
+STEP 2: Generating Script...
+[2026-03-25 22:34:59]   Script ready: 175 words via Free Builder
+[2026-03-25 22:34:59] 
+STEP 3: Generating Voiceover...
+[2026-03-25 22:35:09]   Audio saved: assets/voiceover.mp3
+[2026-03-25 22:35:09] 
+STEP 4: Resolving Background...
+[2026-03-25 22:35:09]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-03-25 22:35:09] 
+STEP 5: Assembling Video...
+[2026-03-25 22:52:33]   Video created: output/gta6_short_20260325_2252.mp4
+[2026-03-25 22:52:33] 
+STEP 6: YouTube Upload...
+[2026-03-25 22:52:33]   Skipped (--no-upload flag set)
+[2026-03-25 22:52:33]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260325_2252.mp4
+[2026-03-25 22:52:33] 
+============================================================
+[2026-03-25 22:52:33] DONE!
+[2026-03-25 22:52:33]   Story : New GTA 6 leaks tease ground-breaking tech for NPCs with an 
+[2026-03-25 22:52:33]   Video : D:\lab\gta6_shorts\output\gta6_short_20260325_2252.mp4
+[2026-03-25 22:52:33] ============================================================

@@ -1,0 +1,66 @@
+[2026-03-01 19:31:01] ============================================================
+[2026-03-01 19:31:01] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-01 19:31:01]   --news  : (auto-scrape)
+[2026-03-01 19:31:01]   --title : (auto from first sentence of --news)
+[2026-03-01 19:31:01]   --clip  : background.mp4
+[2026-03-01 19:31:01]   --upload: False
+[2026-03-01 19:31:01] ============================================================
+[2026-03-01 19:31:01] 
+STEP 1: Getting GTA 6 News...
+[2026-03-01 19:31:29]   Scraped: GTA 6 Pre-Orders Could Be Going Live Soon
+[2026-03-01 19:31:29] 
+STEP 2: Generating Script...
+[2026-03-01 19:31:29]   Script ready: 197 words via Free Builder
+[2026-03-01 19:31:29] 
+STEP 3: Generating Voiceover...
+[2026-03-01 19:31:41]   Audio saved: assets/voiceover.mp3
+[2026-03-01 19:31:41] 
+STEP 4: Resolving Background...
+[2026-03-01 19:31:41]   WARNING: Clip not found at 'background.mp4' — using auto background
+[2026-03-01 19:31:41] 
+STEP 5: Assembling Video...
+[2026-03-01 19:36:37] ============================================================
+[2026-03-01 19:36:37] GTA 6 SHORTS AUTOMATION STARTED
+[2026-03-01 19:36:37]   --news  : Pre-orders for Grand Theft Auto VI may be on the horizon, ac...
+[2026-03-01 19:36:37]   --title : GTA 6 IDs added in Playstation Store, Pre-Order soon
+[2026-03-01 19:36:37]   --clip  : (auto)
+[2026-03-01 19:36:37]   --upload: False
+[2026-03-01 19:36:37] ============================================================
+[2026-03-01 19:36:37] 
+STEP 1: Getting GTA 6 News...
+[2026-03-01 19:36:37]   Cover headline : GTA 6 IDs added in Playstation Store, Pre-Order soon
+[2026-03-01 19:36:37]   Script preview : Pre-orders for Grand Theft Auto VI may be on the horizon, according to...
+[2026-03-01 19:36:37] 
+STEP 2: Generating Script...
+[2026-03-01 19:36:37]   Using script as-is: 164 words
+[2026-03-01 19:36:37]   Script ready: 164 words via Manual (user provided)
+[2026-03-01 19:36:37] 
+STEP 3: Generating Voiceover...
+[2026-03-01 19:36:46]   Audio saved: assets/voiceover.mp3
+[2026-03-01 19:36:46] 
+STEP 4: Resolving Background...
+[2026-03-01 19:36:46]   No clip provided — using auto background
+[2026-03-01 19:36:46] 
+STEP 5: Assembling Video...
+[2026-03-01 19:49:25]   Video created: output/gta6_short_20260301_1949.mp4
+[2026-03-01 19:49:25] 
+STEP 6: YouTube Upload...
+[2026-03-01 19:49:25]   Skipped (--no-upload flag set)
+[2026-03-01 19:49:25]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260301_1949.mp4
+[2026-03-01 19:49:25] 
+============================================================
+[2026-03-01 19:49:25] DONE!
+[2026-03-01 19:49:25]   Story : GTA 6 Pre-Orders Could Be Going Live Soon
+[2026-03-01 19:49:25]   Video : D:\lab\gta6_shorts\output\gta6_short_20260301_1949.mp4
+[2026-03-01 19:49:25] ============================================================
+[2026-03-01 19:57:10]   Video created: output/gta6_short_20260301_1956.mp4
+[2026-03-01 19:57:10] 
+STEP 6: YouTube Upload...
+[2026-03-01 19:57:10]   Skipped (--no-upload flag set)
+[2026-03-01 19:57:10]   Your video is at: D:\lab\gta6_shorts\output\gta6_short_20260301_1956.mp4
+[2026-03-01 19:57:10] 
+============================================================
+[2026-03-01 19:57:10] DONE!
+[2026-03-01 19:57:10]   Story : GTA 6 IDs added in Playstation Store, Pre-Order soon
+[2026-03-01 19:57:10]   Video : D:\lab\gta6_shorts\output\gta6_short_20260301_1956.mp4
+[2026-03-01 19:57:10] ============================================================
