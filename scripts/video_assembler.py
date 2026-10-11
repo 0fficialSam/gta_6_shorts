@@ -700,6 +700,7 @@ def draw_hook_badge(img: Image.Image, story_title: str, t: float, max_dur: float
     """
     Renders a punchy, translucent breaking news badge at the top of the video
     during the first 3.6 seconds to hook viewers without obscuring subtitles or gameplay.
+    Dynamically scales font and clamps text width so it NEVER overflows or cuts off.
     """
     if t >= max_dur:
         return img
@@ -707,21 +708,42 @@ def draw_hook_badge(img: Image.Image, story_title: str, t: float, max_dur: float
         theme = DAILY_THEMES[0]
 
     alpha = 220 if t < (max_dur - 0.6) else int(220 * (max_dur - t) / 0.6)
-    badge_h = 74
-    badge_y = 118
-    h_font = get_font(38, bold=True)
 
     clean_title = re.sub(r'#\w+', '', story_title).strip()
-    if len(clean_title) > 40:
-        clean_title = clean_title[:38].strip() + "..."
-    title_upper = "BREAKING: " + clean_title.upper()
+    clean_title = re.sub(r'\s+', ' ', clean_title).replace('—', '-').replace('–', '-')
 
     d_test = ImageDraw.Draw(img)
+    max_text_w = WIDTH - 140  # 940px maximum text width safely inside screen bounds
+
+    font_size = 30
+    h_font = get_font(font_size, bold=True)
+    title_display = clean_title.upper()
+
+    # Dynamic scaling to fit comfortably within max_text_w
+    while font_size > 22:
+        test_str = "BREAKING: " + title_display
+        tb = d_test.textbbox((0, 0), test_str, font=h_font)
+        if tb[2] - tb[0] <= max_text_w:
+            break
+        font_size -= 2
+        h_font = get_font(font_size, bold=True)
+
+    # If still too long at size 22, smoothly trim with ellipsis
+    test_str = "BREAKING: " + title_display
+    while d_test.textbbox((0, 0), test_str, font=h_font)[2] > max_text_w and len(title_display) > 10:
+        title_display = title_display[:-2].rstrip(' -:,')
+        test_str = "BREAKING: " + title_display + "..."
+
+    title_upper = test_str
     tb = d_test.textbbox((0, 0), title_upper, font=h_font)
     tw = tb[2] - tb[0]
+    th = tb[3] - tb[1]
+
     pad_x = 28
-    badge_w = min(tw + pad_x * 2, WIDTH - 40)
+    badge_w = min(tw + pad_x * 2, WIDTH - 48)
+    badge_h = max(th + 24, 64)
     bx = (WIDTH - badge_w) // 2
+    badge_y = 118
 
     border_c = (*theme["badge_border"], alpha)
     badge = Image.new("RGBA", (badge_w, badge_h), (0, 0, 0, 0))
