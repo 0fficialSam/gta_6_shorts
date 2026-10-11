@@ -99,7 +99,7 @@ def wrap_draw(draw, text, cx, cy, font, fill=(255, 255, 255), sfill=(0, 0, 0), s
 
 
 # ── KINETIC WORD-LEVEL SUBTITLE ENGINE ─────────────────────────────────────────
-def prepare_kinetic_chunks(subtitles_timing: list, raw_script: str, audio_dur: float, cover_dur: float = 2.0) -> list:
+def prepare_kinetic_chunks(subtitles_timing: list, raw_script: str, audio_dur: float, cover_dur: float = 0.0) -> list:
     """
     Transforms speech-timed sentences into punchy 2-3 word kinetic chunks
     with exact per-word start and end timestamps.
@@ -126,7 +126,7 @@ def prepare_kinetic_chunks(subtitles_timing: list, raw_script: str, audio_dur: f
             cur_t += dur
 
     chunks = []
-    font = get_font(70, bold=True)
+    font = get_font(74, bold=True)
     temp_img = Image.new("RGB", (10, 10))
     d = ImageDraw.Draw(temp_img)
 
@@ -156,7 +156,7 @@ def prepare_kinetic_chunks(subtitles_timing: list, raw_script: str, audio_dur: f
             test_text = " ".join(x["w"] for x in test_chunk).upper()
             test_w = d.textbbox((0, 0), test_text, font=font)[2]
 
-            if len(current_chunk) >= 3 or (current_chunk and test_w > 900):
+            if len(current_chunk) >= 3 or (current_chunk and test_w > 880):
                 chunks.append({
                     "words": current_chunk,
                     "s": current_chunk[0]["s"],
@@ -181,8 +181,9 @@ def get_active_chunk(chunks: list, elapsed_t: float):
         return None
     if elapsed_t < chunks[0]["s"]:
         return chunks[0]
-    if elapsed_t >= chunks[-1]["e"]:
-        return chunks[-1]
+    # Clean fade out after speech ends so CTA banner is unobstructed
+    if elapsed_t > chunks[-1]["e"] + 0.6:
+        return None
 
     for c in chunks:
         if c["s"] <= elapsed_t < c["e"]:
@@ -197,7 +198,7 @@ def get_active_chunk(chunks: list, elapsed_t: float):
 
 def draw_kinetic_caption(img: Image.Image, chunk: dict, elapsed_t: float) -> Image.Image:
     words = chunk["words"]
-    font = get_font(70, bold=True)
+    font = get_font(74, bold=True)
     d = ImageDraw.Draw(img)
 
     words_upper = [w["w"].upper() for w in words]
@@ -206,25 +207,26 @@ def draw_kinetic_caption(img: Image.Image, chunk: dict, elapsed_t: float) -> Ima
     tw = bbox[2] - bbox[0]
     th = bbox[3] - bbox[1]
 
-    cy = 1300
-    pad_x = 32
-    pad_y = 16
+    cy = 1260
+    pad_x = 34
+    pad_y = 18
     pill_w = tw + pad_x * 2
     pill_h = th + pad_y * 2
     bx = (WIDTH - pill_w) // 2
     by = cy - th // 2 - pad_y
 
     pill = Image.new("RGBA", (pill_w, pill_h), (0, 0, 0, 0))
-    ImageDraw.Draw(pill).rounded_rectangle([(0, 0), (pill_w, pill_h)], radius=22, fill=(0, 0, 0, 200))
+    ImageDraw.Draw(pill).rounded_rectangle([(0, 0), (pill_w, pill_h)], radius=24, fill=(0, 0, 0, 205))
     img.paste(pill, (bx, by), pill)
 
     d = ImageDraw.Draw(img)
     cur_x = bx + pad_x
     top_y = by + pad_y
 
-    for w_info in words:
+    for i, w_info in enumerate(words):
         w_text = w_info["w"].upper()
-        is_active = w_info["s"] <= elapsed_t < w_info["e"]
+        # Word is active if elapsed_t is within its window, or keep last word highlighted until chunk changes
+        is_active = (w_info["s"] <= elapsed_t < w_info["e"]) or (i == len(words) - 1 and elapsed_t >= w_info["s"])
         fill_col = (255, 230, 0) if is_active else (255, 255, 255)
 
         d.text((cur_x, top_y), w_text, font=font, fill=fill_col,
@@ -441,131 +443,131 @@ class VideoClipStreamReader:
             self.process = None
 
 
-# ── STATIC IMAGE LOADER & CACHE ────────────────────────────────────────────────
-def load_image_bg(path: str) -> Image.Image:
-    try:
-        img = Image.open(path).convert("RGB")
-        iw, ih = img.size
-        scale = max(WIDTH / iw, HEIGHT / ih)
-        nw, nh = int(iw * scale) + 1, int(ih * scale) + 1
-        img = img.resize((nw, nh), Image.LANCZOS)
-        x0 = (nw - WIDTH) // 2
-        y0 = (nh - HEIGHT) // 2
-        img = img.crop((x0, y0, x0 + WIDTH, y0 + HEIGHT))
-        img = ImageEnhance.Brightness(img).enhance(0.75)
-        img = img.filter(ImageFilter.GaussianBlur(radius=0.8))
-        return img
-    except:
-        return None
-
-
-# ── GTA 6 LOGO CACHE ───────────────────────────────────────────────────────────
-_gta6_logo_cache = None
-
-def load_gta6_logo(size: tuple = (480, 200)) -> Image.Image:
-    global _gta6_logo_cache
-    if _gta6_logo_cache is not None:
-        return _gta6_logo_cache
-    logo_paths = [
-        "assets/gta6_logo.png",
-        "assets/gta6_logo.jpg",
-        "assets/gta6logo.png",
-        "assets/logo.png",
-    ]
-    for path in logo_paths:
-        if os.path.exists(path):
+# ── DYNAMIC 4K IMAGE BACKGROUND ENGINE (KEN BURNS & SCENE CUTS) ───────────────
+class DynamicImageBackgroundEngine:
+    """
+    Renders authentic 4K GTA 6 screenshots with cinematic camera motion:
+    - Dynamic cuts to a new GTA 6 scene every ~3.2 seconds
+    - Smooth camera panning and slow zooming (Ken Burns) across 4K resolution
+    - Pristine clarity: Full resolution, vibrant colors, subtle top/bottom contrast gradients
+    """
+    def __init__(self, image_paths: list, shot_dur: float = 3.2):
+        self.shot_dur = shot_dur
+        self.images = []
+        for p in image_paths:
             try:
-                logo = Image.open(path).convert("RGBA")
-                logo.thumbnail(size, Image.LANCZOS)
-                _gta6_logo_cache = logo
-                return logo
+                im = Image.open(p).convert("RGB")
+                iw, ih = im.size
+                if ih > 2160:
+                    scale = 2160 / ih
+                    im = im.resize((int(iw * scale), 2160), Image.BILINEAR)
+                self.images.append(im)
             except:
                 pass
-    return None
 
+        if not self.images:
+            self.images.append(Image.new("RGB", (WIDTH, HEIGHT), (20, 16, 36)))
 
-# ── STATIC COVER CARD BUILDER ──────────────────────────────────────────────────
-def build_cover_base(story_title: str, days_left: int) -> Image.Image:
-    logo_paths = [
-        "assets/gta6_logo.png", "assets/gta6_logo.jpg",
-        "assets/gta6logo.png",  "assets/logo.png",
-    ]
-    img = None
-    for lp in logo_paths:
-        if os.path.exists(lp):
-            try:
-                raw = Image.open(lp).convert("RGB")
-                if raw.size != (WIDTH, HEIGHT):
-                    raw = raw.resize((WIDTH, HEIGHT), Image.LANCZOS)
-                img = raw
-                break
-            except:
-                pass
-    if img is None:
-        img = Image.new("RGB", (WIDTH, HEIGHT), (0, 0, 0))
+        # Pre-render subtle top & bottom contrast gradient overlays
+        self.top_grad = Image.new("RGBA", (WIDTH, 220), (0, 0, 0, 0))
+        d_top = ImageDraw.Draw(self.top_grad)
+        for y in range(220):
+            a = int(140 * (1 - y / 220))
+            d_top.line([(0, y), (WIDTH, y)], fill=(0, 0, 0, a))
 
-    launch_str = get_target_launch_date().strftime("%B %d, %Y").upper()
-    if days_left > 0:
-        days_str = f"{days_left} DAYS LEFT"
-    elif days_left == 0:
-        days_str = "LAUNCHES TODAY!!"
-    else:
-        days_str = "OUT NOW!"
+        self.bot_grad = Image.new("RGBA", (WIDTH, 260), (0, 0, 0, 0))
+        d_bot = ImageDraw.Draw(self.bot_grad)
+        for y in range(260):
+            a = int(160 * (y / 260))
+            d_bot.line([(0, y), (WIDTH, y)], fill=(0, 0, 0, a))
 
-    # Zone 1 overlay (Date & Days Left)
-    zone1_top = 180
-    zone1_bot = 460
-    zone1_w = WIDTH
-    zone1_h = zone1_bot - zone1_top
-    zone1_ov = Image.new("RGBA", (zone1_w, zone1_h), (0, 0, 0, 160))
-    img.paste(zone1_ov, (0, zone1_top), zone1_ov)
+    def get_frame(self, t: float) -> Image.Image:
+        shot_idx = int(t // self.shot_dur) % len(self.images)
+        shot_prog = (t % self.shot_dur) / self.shot_dur  # 0.0 to 1.0
+        src = self.images[shot_idx]
+        sw, sh = src.size
 
-    d = ImageDraw.Draw(img)
-    stroke_text(d, "RELEASING", WIDTH // 2, zone1_top + 52,
-                get_font(38, True), (160, 160, 160), (0, 0, 0), 2, "mm")
-    stroke_text(d, launch_str, WIDTH // 2, zone1_top + 145,
-                get_font(58, True), (255, 255, 255), (0, 0, 0), 3, "mm")
-    stroke_text(d, days_str, WIDTH // 2, zone1_top + 270,
-                get_font(96, True), (255, 225, 0), (120, 60, 0), 5, "mm")
+        target_aspect = WIDTH / HEIGHT  # 1080 / 1920 = 0.5625
+        base_h = sh
+        base_w = int(base_h * target_aspect)
+        if base_w > sw:
+            base_w = sw
+            base_h = int(base_w / target_aspect)
 
-    # Zone 2 overlay (Headline)
-    zone2_top = 1350
-    zone2_bot = HEIGHT - 20
-    h_font = get_font(53, True)
-    max_w = WIDTH - 80
-    words = story_title.split()
-    lines, cur = [], []
-    for w in words:
-        test = " ".join(cur + [w])
-        if d.textbbox((0, 0), test, font=h_font)[2] <= max_w:
-            cur.append(w)
+        max_pan_x = max(sw - base_w, 0)
+        pattern = shot_idx % 4
+
+        if pattern == 0:
+            # Smooth pan left to right
+            cx = int(max_pan_x * (0.2 + 0.6 * shot_prog))
+            cy = (sh - base_h) // 2
+            cw, ch = base_w, base_h
+        elif pattern == 1:
+            # Ken Burns slow zoom in
+            zoom = 1.0 - 0.07 * shot_prog
+            cw = int(base_w * zoom)
+            ch = int(base_h * zoom)
+            cx = (sw - cw) // 2
+            cy = (sh - ch) // 2
+        elif pattern == 2:
+            # Smooth pan right to left
+            cx = int(max_pan_x * (0.8 - 0.6 * shot_prog))
+            cy = (sh - base_h) // 2
+            cw, ch = base_w, base_h
         else:
-            if cur:
-                lines.append(" ".join(cur))
-            cur = [w]
-    if cur:
-        lines.append(" ".join(cur))
-    if len(lines) > 4:
-        lines = lines[:3]
-        lines[-1] = lines[-1][:40] + "..."
+            # Ken Burns slow zoom out
+            zoom = 0.93 + 0.07 * shot_prog
+            cw = int(base_w * zoom)
+            ch = int(base_h * zoom)
+            cx = (sw - cw) // 2
+            cy = (sh - ch) // 2
 
-    lh = d.textbbox((0, 0), "Ag", font=h_font)[3] + 8
-    txt_h = lh * len(lines)
-    pad = 20
-    box_y0 = zone2_top
-    box_y1 = min(box_y0 + txt_h + pad * 2, zone2_bot)
-    box_h = box_y1 - box_y0
+        cx = max(0, min(cx, sw - cw))
+        cy = max(0, min(cy, sh - ch))
 
-    hl_ov = Image.new("RGBA", (WIDTH, box_h), (0, 0, 0, 185))
-    img.paste(hl_ov, (0, box_y0), hl_ov)
+        frame = src.crop((cx, cy, cx + cw, cy + ch))
+        if frame.size != (WIDTH, HEIGHT):
+            frame = frame.resize((WIDTH, HEIGHT), Image.BILINEAR)
+
+        frame.paste(self.top_grad, (0, 0), self.top_grad)
+        frame.paste(self.bot_grad, (0, HEIGHT - 260), self.bot_grad)
+        return frame
+
+
+def draw_hook_badge(img: Image.Image, story_title: str, t: float, max_dur: float = 3.6) -> Image.Image:
+    """
+    Renders a punchy, translucent breaking news badge at the top of the video
+    during the first 3.6 seconds to hook viewers without obscuring subtitles or gameplay.
+    """
+    if t >= max_dur:
+        return img
+
+    alpha = 220 if t < (max_dur - 0.6) else int(220 * (max_dur - t) / 0.6)
+    badge_h = 74
+    badge_y = 115
+    h_font = get_font(38, bold=True)
+
+    clean_title = re.sub(r'#\w+', '', story_title).strip()
+    if len(clean_title) > 40:
+        clean_title = clean_title[:38].strip() + "..."
+    title_upper = "BREAKING: " + clean_title.upper()
+
+    d_test = ImageDraw.Draw(img)
+    tb = d_test.textbbox((0, 0), title_upper, font=h_font)
+    tw = tb[2] - tb[0]
+    pad_x = 28
+    badge_w = min(tw + pad_x * 2, WIDTH - 40)
+    bx = (WIDTH - badge_w) // 2
+
+    badge = Image.new("RGBA", (badge_w, badge_h), (0, 0, 0, 0))
+    d_b = ImageDraw.Draw(badge)
+    d_b.rounded_rectangle([(0, 0), (badge_w, badge_h)], radius=16,
+                          fill=(20, 10, 35, alpha), outline=(255, 60, 140, alpha), width=2)
+    img.paste(badge, (bx, badge_y), badge)
 
     d = ImageDraw.Draw(img)
-    sy = box_y0 + pad
-    for line in lines:
-        stroke_text(d, line, WIDTH // 2, sy + lh // 2,
-                    h_font, (220, 220, 200), (0, 0, 0), 2, "mm")
-        sy += lh
-
+    stroke_text(d, title_upper, WIDTH // 2, badge_y + badge_h // 2, h_font,
+                fill=(255, 230, 100), sfill=(0, 0, 0), sw=3, anchor="mm")
     return img
 
 
@@ -682,8 +684,7 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
     if not sentences:
         sentences = [raw[:80]]
 
-    COVER_DUR = 2.0
-    tps = max(0.1, (audio_dur - COVER_DUR) / max(len(sentences), 1))
+    COVER_DUR = 0.0
     story_title = script_data.get("story", {}).get("title", "GTA 6 Update")
 
     subtitles_timing = script_data.get("subtitles_timing")
@@ -698,9 +699,7 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
         print(f"  Subtitles: using {len(subtitles_timing)} speech-synchronized timestamps")
 
     kinetic_chunks = prepare_kinetic_chunks(subtitles_timing, raw, audio_dur, COVER_DUR)
-    print(f"  Kinetic Subtitles: {len(kinetic_chunks)} animated chunks ready")
-
-
+    print(f"  Kinetic Subtitles: {len(kinetic_chunks)} animated chunks ready (1:1 speech-synced)")
 
     # 3. Setup video encoder & destination
     encoder, enc_args = get_best_encoder(ffmpeg)
@@ -740,13 +739,12 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
     if bg_source == "clip" and clip_path:
         bg_reader = VideoClipStreamReader(ffmpeg, clip_path, WIDTH, HEIGHT, FPS)
 
-    cached_bg_images = []
+    dynamic_img_engine = None
     if bg_source == "images" and bg_imgs:
-        cached_bg_images = [load_image_bg(p) for p in bg_imgs if os.path.exists(p)]
-        cached_bg_images = [im for im in cached_bg_images if im is not None]
+        dynamic_img_engine = DynamicImageBackgroundEngine(bg_imgs, shot_dur=3.2)
+        print(f"  BG: dynamic 4K GTA 6 engine active ({len(dynamic_img_engine.images)} frames, Ken Burns & cuts)")
 
-    proc_engine = ProceduralBackgroundEngine() if bg_source == "generate" or not (bg_reader or cached_bg_images) else None
-    cover_base = build_cover_base(story_title, days_left)
+    proc_engine = ProceduralBackgroundEngine() if bg_source == "generate" or not (bg_reader or dynamic_img_engine) else None
 
     print(f"  Rendering stream directly to FFmpeg...")
     start_time = time.time()
@@ -754,63 +752,52 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
     try:
         for i in range(total_frames):
             t = i / FPS
+            img = None
 
-            if t < COVER_DUR:
-                # Cover card
-                frame_img = cover_base.copy()
-                frame_img = draw_countdown_banner(frame_img, t, days_left)
+            if bg_reader:
+                img = bg_reader.read_frame()
+
+            if img is None and dynamic_img_engine:
+                img = dynamic_img_engine.get_frame(t)
+
+            if img is None and proc_engine:
+                img = proc_engine.get_frame(t)
+
+            if img is None:
+                img = Image.new("RGB", (WIDTH, HEIGHT), (15, 12, 28))
+
+            # Countdown banner (top y=0..90)
+            img = draw_countdown_banner(img, t, days_left)
+            d = ImageDraw.Draw(img)
+
+            # Progress bar (top y=93..100)
+            prog = int(WIDTH * (t / audio_dur))
+            d.rectangle([(0, 93), (prog, 100)], fill=(255, 200, 0))
+            d.rectangle([(prog, 93), (WIDTH, 100)], fill=(30, 30, 30))
+
+            # Floating hook breaking news badge for first 3.6s
+            img = draw_hook_badge(img, story_title, t, max_dur=3.6)
+
+            # Dynamic Kinetic Subtitles (2-3 words with active word highlight) at exact speech time t
+            active_chunk = get_active_chunk(kinetic_chunks, t)
+            if active_chunk:
+                img = draw_kinetic_caption(img, active_chunk, t)
+
+            # Footer
+            d = ImageDraw.Draw(img)
+            show_cta = t >= audio_dur - 8
+            if show_cta:
+                d.rectangle([(0, HEIGHT - 140), (WIDTH, HEIGHT)], fill=(220, 0, 0))
+                stroke_text(d, "FOLLOW FOR DAILY GTA 6 NEWS!",
+                            WIDTH // 2, HEIGHT - 70,
+                            get_font(44, True), (255, 255, 255), (100, 0, 0), 2, "mm")
             else:
-                # Main body frame
-                clip_t = t - COVER_DUR
-                img = None
+                d.rectangle([(0, HEIGHT - 80), (WIDTH, HEIGHT)], fill=(0, 0, 0))
+                stroke_text(d, "GTA6 DAILY  |  LIKE & FOLLOW  |  2026",
+                            WIDTH // 2, HEIGHT - 40,
+                            get_font(28), (130, 130, 130), (0, 0, 0), 1, "mm")
 
-                if bg_reader:
-                    img = bg_reader.read_frame()
-
-                if img is None and cached_bg_images:
-                    img_idx = int(clip_t // 8) % len(cached_bg_images)
-                    img = cached_bg_images[img_idx].copy()
-
-                if img is None and proc_engine:
-                    img = proc_engine.get_frame(clip_t)
-
-                if img is None:
-                    img = Image.new("RGB", (WIDTH, HEIGHT), (15, 12, 28))
-
-                d = ImageDraw.Draw(img)
-
-                # Countdown banner
-                img = draw_countdown_banner(img, t, days_left)
-                d = ImageDraw.Draw(img)
-
-                # Progress bar
-                prog = int(WIDTH * (t / audio_dur))
-                d.rectangle([(0, 93), (prog, 100)], fill=(255, 200, 0))
-                d.rectangle([(prog, 93), (WIDTH, 100)], fill=(30, 30, 30))
-
-                # Dynamic Kinetic Subtitles (2-3 words with active word highlight)
-                active_chunk = get_active_chunk(kinetic_chunks, clip_t)
-                if active_chunk:
-                    img = draw_kinetic_caption(img, active_chunk, clip_t)
-                    d = ImageDraw.Draw(img)
-
-
-                # Footer
-                show_cta = t >= audio_dur - 8
-                if show_cta:
-                    d.rectangle([(0, HEIGHT - 140), (WIDTH, HEIGHT)], fill=(220, 0, 0))
-                    stroke_text(d, "FOLLOW FOR DAILY GTA 6 NEWS!",
-                                WIDTH // 2, HEIGHT - 70,
-                                get_font(44, True), (255, 255, 255), (100, 0, 0), 2, "mm")
-                else:
-                    d.rectangle([(0, HEIGHT - 80), (WIDTH, HEIGHT)], fill=(0, 0, 0))
-                    stroke_text(d, "GTA6 DAILY  |  LIKE & FOLLOW  |  2026",
-                                WIDTH // 2, HEIGHT - 40,
-                                get_font(28), (130, 130, 130), (0, 0, 0), 1, "mm")
-
-                frame_img = img
-
-            pipe_out.stdin.write(frame_img.tobytes())
+            pipe_out.stdin.write(img.tobytes())
 
             if (i % (FPS * 2) == 0) or (i == total_frames - 1):
                 pct = int(100 * (i + 1) / total_frames)
