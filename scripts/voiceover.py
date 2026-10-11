@@ -10,9 +10,19 @@ import asyncio, json, os, re, subprocess, shutil, sys, wave, math, random
 from pathlib import Path
 import numpy as np
 
-DEFAULT_VOICE = "en-US-ChristopherNeural"   # High-energy, crisp gaming narration
-DEFAULT_RATE  = "+12%"                      # Punchy YouTube Shorts pacing
-DEFAULT_BGM_VOL = 0.09                      # ~-21 dB background music ducking
+try:
+    from scripts.config import get_tts_settings, get_music_settings
+except ImportError:
+    import sys
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from scripts.config import get_tts_settings, get_music_settings
+
+_tts_cfg = get_tts_settings()
+_mus_cfg = get_music_settings()
+DEFAULT_VOICE = _tts_cfg.get("voice", "en-US-ChristopherNeural")   # High-energy, crisp gaming narration
+DEFAULT_RATE  = _tts_cfg.get("rate", "+12%")                      # Punchy YouTube Shorts pacing
+DEFAULT_BGM_VOL = 0.09 if _mus_cfg.get("volume_ducking_db", -21) == -21 else 10 ** (_mus_cfg.get("volume_ducking_db", -21) / 20.0)
+DEFAULT_ENABLE_MUSIC = _mus_cfg.get("enabled", True)
 
 
 def find_ffmpeg():
@@ -243,7 +253,7 @@ def generate_voice_pyttsx3(script: str, output_path: str) -> bool:
 
 
 # ── MASTER VOICEOVER GENERATOR ────────────────────────────────────────────────
-def generate_voiceover(script_data: dict, voice: str = DEFAULT_VOICE, rate: str = DEFAULT_RATE, enable_music: bool = True) -> str:
+def generate_voiceover(script_data: dict, voice: str = DEFAULT_VOICE, rate: str = DEFAULT_RATE, enable_music: bool = DEFAULT_ENABLE_MUSIC) -> str:
     """
     Generate professional studio voiceover:
     1. Edge-TTS neural voice + exact sentence boundaries

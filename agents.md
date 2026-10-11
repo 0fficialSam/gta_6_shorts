@@ -89,29 +89,29 @@ flowchart TD
   - [x] Retain graceful fallbacks to `gTTS` and offline `pyttsx3`.
 
 ### Phase 3: Viral Visuals & Dynamic Word-Level Captions (P2)
-- [ ] Upgrade Caption Renderer in `scripts/video_assembler.py`:
-  - Implement 2–3 words-at-a-time kinetic subtitles.
-  - Highlight current spoken word in vibrant yellow (`#FFE600`) or cyan (`#00F0FF`).
-  - Modernize font styling (clean heavy stroke, high contrast).
-  - Preserve top countdown banner (`X DAYS UNTIL GTA 6`) and engagement progress bar.
+- [x] Upgrade Caption Renderer in `scripts/video_assembler.py`:
+  - [x] Implement 2–3 words-at-a-time kinetic subtitles (`prepare_kinetic_chunks`, `get_active_chunk`).
+  - [x] Highlight current spoken word in vibrant yellow (`#FFE600`) with white inactive words and heavy outline.
+  - [x] Dark translucent rounded pill backdrop (`radius=22`, 200 alpha) for high contrast over any background video.
+  - [x] Render time maintains blazing <60s performance.
 
 ### Phase 4: Free LLM Script Generation & Hook Engine (P3)
-- [ ] Upgrade `scripts/script_generator.py`:
-  - Add support for **Google Gemini 2.0 / 1.5 Flash API** using the official free tier.
-  - Improve prompt engineering with 3 proven viral hook structures:
+- [x] Upgrade `scripts/script_generator.py`:
+  - [x] Add support for **Google Gemini 2.0 / 1.5 Flash API** using official free tier REST endpoint.
+  - [x] Implement 3 proven viral hook structures:
     - *The Curiosity Gap* ("Rockstar just quietly updated something...")
     - *The Contrarian Take* ("Everyone thinks X, but the latest leak confirms Y...")
     - *High-Stakes Reveal* ("If this report is accurate, GTA 6 just changed everything...")
-  - Maintain the fallback free rule-based builder.
+  - [x] Integrate fallback free rule-based builder equipped with viral hook frameworks.
 
 ### Phase 5: Centralized Configuration & Multi-Platform Readiness (P4)
-- [ ] Create `config.json` / `.env` for:
+- [x] Create `config.json` and `scripts/config.py` for:
   - Target launch date for countdown calculation.
   - TTS voice selection and speech rate.
-  - YouTube upload defaults (privacy: public/unlisted, tags, category).
-  - Music volume ratio.
-- [ ] Update `README.md` and dependencies in `requirements.txt`.
-- [ ] Keep platform support strictly focused on **YouTube Shorts** (NO TikTok).
+  - YouTube upload defaults (privacy: unlisted/public, tags, category).
+  - Music volume ratio and ducking.
+- [x] Update `README.md` and dependencies in `requirements.txt`.
+- [x] Keep platform support strictly focused on **YouTube Shorts** (NO TikTok).
 
 ---
 
@@ -123,5 +123,6 @@ flowchart TD
 | **2026-10-11** | Phase 1 Completed | Overhauled `scripts/video_assembler.py`: Piped raw RGB24 directly into FFmpeg `stdin`. Added Windows Media Foundation (`h264_mf`) & NVENC GPU detection. Implemented continuous looping `VideoClipStreamReader`. Optimized text with native C `stroke_width` in Pillow. Installed `imageio-ffmpeg` for standalone Windows binary. Render time dropped from **23m 15s to 75s** with zero disk temp files. Verified video output in `output/gta6_short_20261011_0050.mp4` (23.8 MB). |
 | **2026-10-11** | Git Branch Setup | Active working branch renamed to `dev`. Rule established: Only commit changes to `dev` when explicitly prompted by user. |
 | **2026-10-11** | Phase 2 Completed | Integrated `edge-tts` with `en-US-ChristopherNeural` (+12% rate). Extracted millisecond-level sentence timestamps into `assets/subtitles_timing.json`. Built procedural 80s Vice City synthwave ambient beat generator (`assets/music/synthwave_ambience.wav`). Added automatic FFmpeg volume ducking at -21 dB. Connected real-time speech timestamps into `video_assembler.py` for 100% drift-free subtitle synchronization. Verified video: `output/gta6_short_20261011_1447.mp4` (24.3 MB). |
-| *Pending* | Phase 3 Execution | Implement word-level kinetic captions. |
-| *Pending* | Phase 4 Execution | Add Gemini Flash API integration. |
+| **2026-10-11** | Phase 3 Completed | Implemented kinetic dynamic word-level subtitles in `scripts/video_assembler.py`. Renders 2–3 words at a time with active spoken word highlighted in Electric Yellow (`#FFE600`) and rounded pill backdrop. Rendered in **59.6s** (29.2 fps). Verified visual output in `output/gta6_short_20261011_1920.mp4` (25.8 MB). |
+| **2026-10-11** | Phase 4 Completed | Integrated Google Gemini 2.0 / 1.5 Flash API (free tier REST) and 3 viral hook frameworks (Curiosity Gap, Contrarian Take, High-Stakes Reveal) into `scripts/script_generator.py` with multi-LLM fallback chain (Gemini -> Claude -> Ollama -> Dynamic Free Builder). |
+| **2026-10-11** | Phase 5 Completed | Created `config.json` and zero-dependency `scripts/config.py` loader supporting `.env`. Connected countdown dates, TTS voice, YouTube upload settings, and music ducking across all modules. Updated `README.md` and `requirements.txt`. Preserved strict YouTube Shorts focus (zero TikTok). |

@@ -13,11 +13,17 @@ from functools import lru_cache
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 
-WIDTH, HEIGHT, FPS = 1080, 1920, 30
+try:
+    from scripts.config import get_target_launch_date, get_video_settings
+except ImportError:
+    import sys
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from scripts.config import get_target_launch_date, get_video_settings
+
+_vid_cfg = get_video_settings()
+WIDTH, HEIGHT, FPS = _vid_cfg.get("width", 1080), _vid_cfg.get("height", 1920), _vid_cfg.get("fps", 30)
 
 # ── COUNTDOWN CONFIG ───────────────────────────────────────────────────────────
-GTA6_LAUNCH_DATE = _date(2026, 11, 19)   # Nov 19 2026
-
 COUNTDOWN_PHRASES = [
     "{n} DAYS UNTIL GTA 6 DROPS!",
     "GTA 6 IN {n} DAYS — ARE YOU READY?",
@@ -34,7 +40,7 @@ COUNTDOWN_PHRASES = [
 
 def get_days_left() -> int:
     today = _date.today()
-    delta = GTA6_LAUNCH_DATE - today
+    delta = get_target_launch_date() - today
     return delta.days
 
 
@@ -90,6 +96,143 @@ def wrap_draw(draw, text, cx, cy, font, fill=(255, 255, 255), sfill=(0, 0, 0), s
     sy = cy - (lh * len(lines)) // 2
     for i, line in enumerate(lines):
         stroke_text(draw, line, cx, sy + i * lh, font, fill, sfill, sw, "mm")
+
+
+# ── KINETIC WORD-LEVEL SUBTITLE ENGINE ─────────────────────────────────────────
+def prepare_kinetic_chunks(subtitles_timing: list, raw_script: str, audio_dur: float, cover_dur: float = 2.0) -> list:
+    """
+    Transforms speech-timed sentences into punchy 2-3 word kinetic chunks
+    with exact per-word start and end timestamps.
+    """
+    usable_dur = max(audio_dur - cover_dur, 1.0)
+    entries = []
+
+    if subtitles_timing:
+        entries = subtitles_timing
+    else:
+        raw_sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', raw_script) if s.strip()]
+        if not raw_sentences:
+            raw_sentences = [raw_script[:80]]
+        total_chars = max(sum(len(s) for s in raw_sentences), 1)
+        cur_t = 0.0
+        for s in raw_sentences:
+            dur = (len(s) / total_chars) * usable_dur
+            entries.append({
+                "text": s,
+                "start": round(cur_t, 3),
+                "end": round(cur_t + dur, 3),
+                "duration": round(dur, 3)
+            })
+            cur_t += dur
+
+    chunks = []
+    font = get_font(70, bold=True)
+    temp_img = Image.new("RGB", (10, 10))
+    d = ImageDraw.Draw(temp_img)
+
+    for entry in entries:
+        words = entry["text"].strip().split()
+        if not words:
+            continue
+        sum_chars = max(sum(len(w) for w in words), 1)
+        s_start = entry["start"]
+        s_end = entry["end"]
+        s_dur = max(s_end - s_start, 0.1)
+
+        wt = []
+        cur_w_t = s_start
+        for w in words:
+            w_dur = (len(w) / sum_chars) * s_dur
+            wt.append({
+                "w": w,
+                "s": round(cur_w_t, 3),
+                "e": round(cur_w_t + w_dur, 3)
+            })
+            cur_w_t += w_dur
+
+        current_chunk = []
+        for item in wt:
+            test_chunk = current_chunk + [item]
+            test_text = " ".join(x["w"] for x in test_chunk).upper()
+            test_w = d.textbbox((0, 0), test_text, font=font)[2]
+
+            if len(current_chunk) >= 3 or (current_chunk and test_w > 900):
+                chunks.append({
+                    "words": current_chunk,
+                    "s": current_chunk[0]["s"],
+                    "e": current_chunk[-1]["e"]
+                })
+                current_chunk = [item]
+            else:
+                current_chunk.append(item)
+
+        if current_chunk:
+            chunks.append({
+                "words": current_chunk,
+                "s": current_chunk[0]["s"],
+                "e": current_chunk[-1]["e"]
+            })
+
+    return chunks
+
+
+def get_active_chunk(chunks: list, elapsed_t: float):
+    if not chunks:
+        return None
+    if elapsed_t < chunks[0]["s"]:
+        return chunks[0]
+    if elapsed_t >= chunks[-1]["e"]:
+        return chunks[-1]
+
+    for c in chunks:
+        if c["s"] <= elapsed_t < c["e"]:
+            return c
+
+    for c in reversed(chunks):
+        if elapsed_t >= c["s"]:
+            return c
+
+    return chunks[0]
+
+
+def draw_kinetic_caption(img: Image.Image, chunk: dict, elapsed_t: float) -> Image.Image:
+    words = chunk["words"]
+    font = get_font(70, bold=True)
+    d = ImageDraw.Draw(img)
+
+    words_upper = [w["w"].upper() for w in words]
+    full_text = " ".join(words_upper)
+    bbox = d.textbbox((0, 0), full_text, font=font)
+    tw = bbox[2] - bbox[0]
+    th = bbox[3] - bbox[1]
+
+    cy = 1300
+    pad_x = 32
+    pad_y = 16
+    pill_w = tw + pad_x * 2
+    pill_h = th + pad_y * 2
+    bx = (WIDTH - pill_w) // 2
+    by = cy - th // 2 - pad_y
+
+    pill = Image.new("RGBA", (pill_w, pill_h), (0, 0, 0, 0))
+    ImageDraw.Draw(pill).rounded_rectangle([(0, 0), (pill_w, pill_h)], radius=22, fill=(0, 0, 0, 200))
+    img.paste(pill, (bx, by), pill)
+
+    d = ImageDraw.Draw(img)
+    cur_x = bx + pad_x
+    top_y = by + pad_y
+
+    for w_info in words:
+        w_text = w_info["w"].upper()
+        is_active = w_info["s"] <= elapsed_t < w_info["e"]
+        fill_col = (255, 230, 0) if is_active else (255, 255, 255)
+
+        d.text((cur_x, top_y), w_text, font=font, fill=fill_col,
+               stroke_width=5, stroke_fill=(0, 0, 0), anchor="lt")
+
+        cur_x += d.textbbox((0, 0), w_text + " ", font=font)[2]
+
+    return img
 
 
 # ── PRE-RENDERED COUNTDOWN BANNER BASE ─────────────────────────────────────────
@@ -361,7 +504,7 @@ def build_cover_base(story_title: str, days_left: int) -> Image.Image:
     if img is None:
         img = Image.new("RGB", (WIDTH, HEIGHT), (0, 0, 0))
 
-    launch_str = GTA6_LAUNCH_DATE.strftime("%B %d, %Y").upper()
+    launch_str = get_target_launch_date().strftime("%B %d, %Y").upper()
     if days_left > 0:
         days_str = f"{days_left} DAYS LEFT"
     elif days_left == 0:
@@ -554,6 +697,10 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
     if subtitles_timing:
         print(f"  Subtitles: using {len(subtitles_timing)} speech-synchronized timestamps")
 
+    kinetic_chunks = prepare_kinetic_chunks(subtitles_timing, raw, audio_dur, COVER_DUR)
+    print(f"  Kinetic Subtitles: {len(kinetic_chunks)} animated chunks ready")
+
+
 
     # 3. Setup video encoder & destination
     encoder, enc_args = get_best_encoder(ffmpeg)
@@ -641,68 +788,12 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
                 d.rectangle([(0, 93), (prog, 100)], fill=(255, 200, 0))
                 d.rectangle([(prog, 93), (WIDTH, 100)], fill=(30, 30, 30))
 
-                # Sentence indicator dots & active subtitle selection
-                if subtitles_timing:
-                    elapsed = t - COVER_DUR
-                    total_s = len(subtitles_timing)
-                    found_idx = None
-                    for s_i, s_entry in enumerate(subtitles_timing):
-                        if s_entry["start"] <= elapsed < s_entry["end"]:
-                            found_idx = s_i
-                            break
-                    if found_idx is not None:
-                        idx = found_idx
-                    elif elapsed < subtitles_timing[0]["start"]:
-                        idx = 0
-                    else:
-                        idx = total_s - 1
-                    sentence = subtitles_timing[idx]["text"]
-                else:
-                    total_s = len(sentences)
-                    idx = min(int((t - COVER_DUR) / tps), total_s - 1)
-                    sentence = sentences[idx]
+                # Dynamic Kinetic Subtitles (2-3 words with active word highlight)
+                active_chunk = get_active_chunk(kinetic_chunks, clip_t)
+                if active_chunk:
+                    img = draw_kinetic_caption(img, active_chunk, clip_t)
+                    d = ImageDraw.Draw(img)
 
-                dw = min(16, 800 // max(total_s, 1))
-                ds = WIDTH // 2 - (total_s * (dw + 5)) // 2
-                for si in range(total_s):
-                    col = (255, 200, 0) if si == idx else (60, 60, 60)
-                    d.rectangle([(ds + si * (dw + 5), 105), (ds + si * (dw + 5) + dw, 113)], fill=col)
-
-                # Subtitles
-                sub_font = get_font(54, True)
-
-                margin = 50
-                max_w = WIDTH - margin * 2
-
-                words = sentence.split()
-                lines, cur = [], []
-                for w in words:
-                    test = " ".join(cur + [w])
-                    if d.textbbox((0, 0), test, font=sub_font)[2] <= max_w:
-                        cur.append(w)
-                    else:
-                        if cur:
-                            lines.append(" ".join(cur))
-                        cur = [w]
-                if cur:
-                    lines.append(" ".join(cur))
-
-                lh = d.textbbox((0, 0), "Ag", font=sub_font)[3] + 12
-                box_h = lh * len(lines) + 44
-                box_y0 = HEIGHT - 180 - box_h
-                box_y1 = HEIGHT - 160
-                box_x0 = margin - 20
-                box_x1 = WIDTH - margin + 20
-                box_w = box_x1 - box_x0
-
-                # Fast localized alpha paste for subtitle box
-                box_ov = Image.new("RGBA", (box_w, box_h), (0, 0, 0, 0))
-                ImageDraw.Draw(box_ov).rounded_rectangle([(0, 0), (box_w, box_h)], radius=18, fill=(0, 0, 0, 195))
-                img.paste(box_ov, (box_x0, box_y0), box_ov)
-
-                d = ImageDraw.Draw(img)
-                text_cy = (box_y0 + box_y1) // 2
-                wrap_draw(d, sentence, WIDTH // 2, text_cy, sub_font, (255, 255, 255), (0, 0, 0), 3, max_w)
 
                 # Footer
                 show_cta = t >= audio_dur - 8

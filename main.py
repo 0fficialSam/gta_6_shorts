@@ -28,6 +28,7 @@ HOW --news AND --title WORK:
 """
 import os, sys, re, json, argparse, traceback, shutil, random
 from datetime import datetime
+from scripts.config import get_config, get_youtube_settings
 
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -76,12 +77,18 @@ def extract_headline(script_text: str, max_len: int = 80) -> str:
 
 
 def run_pipeline(args):
+    cfg = get_config()
+    tts_v = cfg.get("tts", {}).get("voice", "en-US-ChristopherNeural")
+    launch_d = cfg.get("target_release_date", "2026-11-19")
+
     log("=" * 60)
     log("GTA 6 SHORTS AUTOMATION STARTED")
-    log(f"  --news  : {(args.news[:60] + '...') if args.news else '(auto-scrape)'}")
-    log(f"  --title : {args.title or '(auto from first sentence of --news)'}")
-    log(f"  --clip  : {args.clip or '(auto)'}")
-    log(f"  --upload: {not args.no_upload}")
+    log(f"  Target Launch : {launch_d}")
+    log(f"  Voice Engine  : {tts_v}")
+    log(f"  --news        : {(args.news[:60] + '...') if args.news else '(auto-scrape)'}")
+    log(f"  --title       : {args.title or '(auto from first sentence of --news)'}")
+    log(f"  --clip        : {args.clip or '(auto)'}")
+    log(f"  --upload      : {not args.no_upload}")
     log("=" * 60)
 
     # ── STEP 1: GET NEWS / SCRIPT ──────────────────────────────────
@@ -168,12 +175,12 @@ def run_pipeline(args):
                 "script":      args.news,    # exact script, no AI rewriting
                 "title":       yt_title,
                 "description": description,
-                "tags": [
+                "tags": get_youtube_settings().get("default_tags", [
                     "GTA6", "GTA VI", "Grand Theft Auto 6", "GTA 6 news",
                     "GTA 6 2026", "Rockstar Games", "GTA 6 leak", "GTA 6 trailer",
                     "GTA 6 gameplay", "GTA 6 release date", "gaming news 2026",
                     "GamingShorts", "Shorts",
-                ],
+                ]),
                 "method": "Manual (user provided)",
             }
             log(f"  Using script as-is: {len(args.news.split())} words")

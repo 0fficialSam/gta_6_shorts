@@ -1,0 +1,47 @@
+{
+  "project_name": "GTA 6 YouTube Shorts Automation",
+  "target_release_date": "2026-11-19",
+  "llm": {
+    "provider": "auto",
+    "gemini_model": "gemini-2.0-flash",
+    "claude_model": "claude-haiku-4-5-20251001",
+    "temperature": 0.7
+  },
+  "tts": {
+    "engine": "edge-tts",
+    "voice": "en-US-ChristopherNeural",
+    "rate": "+12%",
+    "pitch": "+0Hz"
+  },
+  "music": {
+    "enabled": true,
+    "volume_ducking_db": -21,
+    "bgm_path": "assets/music/synthwave_ambience.wav"
+  },
+  "video": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "cover_duration_seconds": 2.0,
+    "max_duration_seconds": 58.0
+  },
+  "youtube": {
+    "privacy_status": "unlisted",
+    "category_id": "20",
+    "default_tags": [
+      "GTA6",
+      "GTA VI",
+      "Grand Theft Auto 6",
+      "GTA 6 news",
+      "GTA 6 2026",
+      "Rockstar Games",
+      "GTA 6 leak",
+      "GTA 6 trailer",
+      "GTA 6 gameplay",
+      "GTA 6 release date",
+      "gaming news 2026",
+      "GamingShorts",
+      "Shorts"
+    ]
+  }
+}
