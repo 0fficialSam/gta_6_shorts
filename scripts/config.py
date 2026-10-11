@@ -48,8 +48,8 @@ DEFAULT_CONFIG = {
     },
     "tts": {
         "engine": "edge-tts",
-        "voice": "en-IN-PrabhatNeural",
-        "rate": "+13%",
+        "voice": "en-US-BrianMultilingualNeural",
+        "rate": "+4%",
         "pitch": "+0Hz"
     },
     "music": {

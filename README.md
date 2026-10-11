@@ -7,15 +7,19 @@ Automated, high-retention daily video production engine that creates and publish
 
 ## ⚡ What Makes This Engine Next-Gen
 
-- 🚀 **Blazing-Fast Render (<60s)**: Direct memory-to-FFmpeg `stdin` pipe with automatic GPU hardware acceleration (`h264_mf` / `h264_nvenc` / `libx264 ultrafast`). No temporary disk JPEGs.
-- 🎙️ **Studio Neural Voice**: Crisp, high-energy gaming narration powered by `edge-tts` (`en-US-ChristopherNeural` at +12% pacing).
-- 🎵 **Vice City Synthwave Audio Ducking**: Procedural, royalty-free 80s synthwave ambience mixed and ducked at `-21 dB`.
-- 💬 **Kinetic Dynamic Subtitles**: Word-by-word synchronized captions with electric yellow highlights (`#FFE600`) and rounded dark pill backdrop (CapCut / Shorts viral aesthetic).
-- 🤖 **Google Gemini 2.0 / 1.5 Flash Free Tier**: Official free tier LLM script generation with 3 proven viral hook structures:
-  - *The Curiosity Gap* ("Rockstar just quietly updated something...")
-  - *The Contrarian Take* ("Everyone thinks X, but the latest leak confirms Y...")
-  - *The High-Stakes Reveal* ("If this report is accurate, GTA 6 just changed everything...")
-- ⚙️ **Centralized Configuration**: All countdown dates, voices, music, models, and YouTube defaults centralized in `config.json` and `.env`.
+- 🚀 **Blazing-Fast Render (<60s)**: Direct memory-to-FFmpeg `stdin` pipe with automatic GPU hardware acceleration (`h264_nvenc` / `h264_mf` / `libx264 ultrafast`). Zero disk temp files.
+- 🎙️ **Hyper-Realistic Neural Voice**: Powered by Microsoft's flagship conversational neural voice (`en-US-BrianMultilingualNeural` at natural `+4%` pacing) — natural vocal inflection, human breathing pauses, and authentic YouTube creator delivery.
+- 🎚️ **Shure SM7B Studio Vocal Mastering**: Broadcast EQ & dynamic processing chain (180 Hz chest warmth, 650 Hz de-box filter, 3.8 kHz anti-sibilance dip, 10 kHz acoustic air, and transparent soft-knee leveler) eliminating robotic metallic harshness.
+- 🎛️ **Dynamic Sidechain BGM Ducking**: FFmpeg `sidechaincompress` automatically ducks background music under spoken dialogue and swells back up during pauses like a Hollywood gaming trailer.
+- 🎵 **4-Track Vice City Synthwave Library**: Procedural, royalty-free 80s synthwave gaming beats rotating daily (`assets/music/`).
+- 🎬 **Dynamic 4K Rockstar Universe Engine**: 34 authentic 4K GTA 6 trailer frames with Ken Burns camera pan/zoom, organic scene cuts (2.7s–3.4s), and daily seed shuffling.
+- 📺 **Broadcast-Grade Visual Layout**:
+  - **Top Countdown Strip**: AAA gradient `[ GTA VI ]` badge, glowing remaining days counter (`X DAYS REMAINING`), live release status indicator (`• FALL 2026`), and integrated 5px glowing progress bar.
+  - **Breaking News Pill Badge**: High-contrast headline badge displaying the news hook for the first 3.6s.
+  - **Kinetic Word Subtitles**: 2–3 words-at-a-time synchronized captions with electric yellow highlights (`#FFE600`) and rounded dark pill backdrop.
+  - **Creator Branding**: Frosted glass footer for `@SamWithJoystick` transitioning into an animated final 7-second CTA card (`SUBSCRIBE TO @SamWithJoystick`).
+- 🤖 **Google Gemini 2.0 / 1.5 Flash Free Tier**: Official free tier LLM script generation with 3 proven viral hook frameworks (Curiosity Gap, Contrarian Take, High-Stakes Reveal) and zero-cost dynamic fallback builder.
+- ⚙️ **Centralized Configuration**: All countdown dates, voices, music ducking, creator handles, and YouTube defaults centralized in `config.json` and `.env`.
 - 🎯 **Target Platform**: Exclusively engineered for **YouTube Shorts** (9:16 vertical, 1080x1920, strictly 50–58s).
 
 ---
@@ -25,7 +29,7 @@ Automated, high-retention daily video production engine that creates and publish
 ```
 gta6_shorts/
 ├── main.py                    ← Master pipeline orchestrator
-├── config.json                ← Central settings (dates, audio, video, YouTube)
+├── config.json                ← Central settings (dates, audio, video, branding, YouTube)
 ├── requirements.txt           ← Python dependencies
 ├── client_secrets.json        ← YouTube API credentials (optional, for auto-upload)
 ├── .env                       ← API keys (GEMINI_API_KEY, ANTHROPIC_API_KEY)
@@ -33,22 +37,24 @@ gta6_shorts/
 │   ├── config.py              ← Central configuration & .env loader
 │   ├── news_scraper.py        ← Scrapes 17+ gaming RSS feeds & Google News
 │   ├── script_generator.py    ← Gemini Flash / Claude / Ollama / Free builder
-│   ├── voiceover.py           ← Edge-TTS studio voiceover + BGM ducking
-│   ├── video_assembler.py     ← High-speed streaming FFmpeg render engine
+│   ├── voiceover.py           ← Studio voiceover, SM7B mastering & sidechain ducking
+│   ├── video_assembler.py     ← High-speed streaming FFmpeg render engine & overlays
 │   ├── background_fetcher.py  ← Auto background image downloader & caching
 │   └── youtube_uploader.py    ← Auto-uploader with metadata & tags
 ├── assets/
+│   ├── backgrounds/           ← 4K authentic GTA 6 trailer captures
 │   ├── clips/                 ← 🎮 Place your GTA 6 background video clips here (.mp4)
-│   ├── music/                 ← Background music tracks (.wav)
+│   ├── music/                 ← 4-track Vice City synthwave library (.wav)
 │   ├── voiceover.mp3          ← Rendered voice + ducked music track
-│   └── current_script.json    ← Current script data & subtitle timings
+│   ├── subtitles_timing.json  ← Millisecond-accurate sentence and word timestamps
+│   └── current_script.json    ← Current script data & metadata
 └── output/
     └── gta6_short_*.mp4       ← Finished YouTube Shorts videos!
 ```
 
 ---
 
-## ⚡ Quick Setup (10 Minutes)
+## ⚡ Quick Setup (5 Minutes)
 
 ### Step 1: Install Python & Dependencies
 ```bash
@@ -64,14 +70,20 @@ GEMINI_API_KEY=your_gemini_api_key_here
 ```
 *(If no API key is provided, the engine automatically uses its built-in dynamic rule-based script builder at zero cost.)*
 
-### Step 3: Configure `config.json` (Optional)
-Adjust your countdown date, voice, or YouTube upload privacy:
+### Step 3: Customize `config.json` (Optional)
 ```json
 {
+  "project_name": "GTA 6 YouTube Shorts Automation",
+  "creator_handle": "@SamWithJoystick",
   "target_release_date": "2026-11-19",
   "tts": {
-    "voice": "en-US-ChristopherNeural",
-    "rate": "+12%"
+    "engine": "edge-tts",
+    "voice": "en-US-BrianMultilingualNeural",
+    "rate": "+4%"
+  },
+  "music": {
+    "enabled": true,
+    "volume_ducking_db": -11
   },
   "youtube": {
     "privacy_status": "unlisted"
@@ -79,11 +91,16 @@ Adjust your countdown date, voice, or YouTube upload privacy:
 }
 ```
 
-### Step 4: Add Background Clips (Recommended)
-Place any 1080x1920 or 16:9 `.mp4` GTA 6 trailer or gameplay clips in `assets/clips/`.
-The assembler will auto-crop, loop, and composite overlays seamlessly.
+### Curated Voice Options in `config.json`:
+| Voice | Type | Description |
+| :--- | :--- | :--- |
+| `en-US-BrianMultilingualNeural` *(Default)* | Male (Multilingual) | Ultra-natural, charismatic YouTube Shorts narrator |
+| `en-US-GuyNeural` | Male | High-energy, passionate gaming news presenter |
+| `en-US-AndrewMultilingualNeural` | Male (Multilingual) | Warm, confident, authentic broadcast tone |
+| `en-IN-PrabhatNeural` | Male | Indian English gaming news narrator |
+| `en-IN-NeerjaExpressiveNeural` | Female | Expressive Indian English presenter |
 
-### Step 5: Set Up YouTube API (For Auto-Uploading)
+### Step 4: Set Up YouTube API (For Auto-Uploading)
 1. Go to [Google Cloud Console](https://console.cloud.google.com/).
 2. Create a project and enable **YouTube Data API v3**.
 3. Create **OAuth 2.0 Client ID** (Desktop Application).
@@ -94,35 +111,58 @@ The assembler will auto-crop, loop, and composite overlays seamlessly.
 ## 🚀 Running the Pipeline
 
 ### 1. Test Mode (No internet scraping, no upload)
+Generates a complete Short using local 4K frames, studio voiceover, and ducked music:
 ```bash
 python main.py --test --no-upload
 ```
 
-### 2. Auto Mode (Scrapes top news, renders short, saves locally)
+### 2. Auto Production Mode (Scrapes top daily news, renders short)
 ```bash
 python main.py --no-upload
 ```
 
-### 3. Custom Script & Title
+### 3. Custom Story / Headline
 ```bash
-python main.py --news "Rockstar just dropped a massive GTA 6 update..." --title "GTA 6 TRAILER 2 LEAKED" --no-upload
+python main.py --news "Rockstar has officially submitted GTA 6 to the ESRB for rating" --title "GTA 6 AGE RATING LEAKED" --no-upload
 ```
 
 ### 4. Custom Video Background Clip
+Supply any custom 1080x1920 or 16:9 gameplay/trailer clip:
 ```bash
-python main.py --clip "C:/Videos/gta6_trailer.mp4" --no-upload
+python main.py --clip "assets/clips/my_gta6_gameplay.mp4" --no-upload
 ```
 
 ### 5. Full Auto-Production & YouTube Upload
+Generates video, builds viral tags and description, and uploads directly to YouTube Shorts:
 ```bash
 python main.py
 ```
 
 ---
 
+## 🎬 Testing Components Individually
+
+You can also test each component in isolation:
+
+```bash
+# Test news scraping & RSS feed deduplication
+python scripts/news_scraper.py
+
+# Test AI / rule-based script generation
+python scripts/script_generator.py
+
+# Test voiceover generation, studio EQ mastering & music ducking
+python scripts/voiceover.py
+
+# Test video rendering and compositor
+python scripts/video_assembler.py
+```
+
+---
+
 ## ⏰ Schedule Daily Production (Windows)
 
-Use the included `run_daily.bat` script to run via Windows Task Scheduler:
+Automate daily rendering at peak YouTube Shorts upload hours (e.g., 5:00 PM local time) using Windows Task Scheduler or the included `run_daily.bat`:
 
 ```batch
 @echo off
@@ -130,19 +170,20 @@ cd /d "D:\Om\Projects\gta_6_shorts"
 python main.py >> logs\daily.log 2>&1
 ```
 
-Set trigger to daily at **5:00 PM EST** (peak YouTube Shorts traffic window).
-
 ---
 
 ## 📊 Pipeline Benchmark
 
 | Metric | Previous Engine | Modernized Engine |
 | :--- | :--- | :--- |
-| **Video Render Time** | 23 min 15 sec | **~59 sec** (~23x faster) |
-| **Voice Narration** | Flat robotic gTTS | **Studio Neural Edge-TTS** |
-| **Background Music** | None (silent) | **Vice City Synthwave (-21 dB ducked)** |
+| **Video Render Time** | 23 min 15 sec | **~75 sec** (H.264 GPU streaming pipe) |
+| **Voice Realism** | Flat robotic gTTS / mechanical | **Conversational Neural (`BrianMultilingualNeural`)** |
+| **Vocal Mastering** | Raw dry synthesizer | **Shure SM7B Broadcast Chain (Warmth EQ + Soft-knee Leveler)** |
+| **Audio Mixing** | None (silent) | **Dynamic Sidechain Ducking (`sidechaincompress`)** |
+| **Visual Quality** | Repetitive stock photos | **34 authentic 4K Trailer frames + Ken Burns zoom** |
 | **Captions** | Static sentence block | **Kinetic Word Highlights (`#FFE600`)** |
-| **AI Script Engine** | Claude (paid) | **Gemini 2.0 Flash (100% Free tier)** |
+| **Broadcast Overlays** | Simple black rectangles | **AAA `GTA VI` Countdown Strip + `@SamWithJoystick` Branding** |
+| **Shorts Duration** | Uncontrolled | **Strictly Calibrated 50–55s** |
 | **Cost Per Video** | $0.00 | **$0.00** |
 
 ---

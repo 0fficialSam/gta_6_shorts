@@ -207,7 +207,7 @@ Body details:
 MANDATORY CLOSING SENTENCE: "{cta}"
 
 SCRIPT REQUIREMENTS:
-1. Pacing & Length: Strictly 125 to 135 words total (timed for 50-55 seconds for YouTube Shorts).
+1. Pacing & Length: Strictly 128 to 136 words total (timed for 51-55 seconds for YouTube Shorts at natural pacing).
 2. Structure:
    - Line 1: Use the exact Opening Sentence provided above.
    - Body (7-8 flowing sentences): Break down the news with high excitement. Highlight concrete names, leaks, numbers, map details, dates, or console impact. Keep sentences punchy and conversational.
@@ -262,60 +262,49 @@ def clean_sentence(s: str) -> str:
 
 
 def expand_headline(title: str) -> list:
-    """Dynamically expands any headline into high-relevance GTA 6 factual statements."""
+    """Dynamically expands any headline into high-relevance, natural conversational GTA 6 statements."""
     facts = []
     tl = title.lower()
 
     years  = re.findall(r'\b(202[5-9]|203\d)\b', title)
     months = re.findall(r'\b(january|february|march|april|may|june|july|'
                         r'august|september|october|november|december)\b', tl)
-    numbers = re.findall(r'\$[\d,.]+|\b\d{2,}(?:\.\d+)?\s*(?:billion|million|thousand)?\b', title)
-
-    clean_title = re.sub(r'\s*[|:–—]\s*.+$', '', title).strip().rstrip('.')
-    facts.append(f"{clean_title}.")
 
     if months and years:
-        facts.append(f"This puts GTA 6 firmly in a {months[0].capitalize()} {years[0]} window, aligning with the major holiday gaming season.")
+        facts.append(f"This targets GTA 6 right in a {months[0].capitalize()} {years[0]} launch window, lining up perfectly with the massive holiday season.")
     elif years:
-        facts.append(f"The discussions around GTA 6 in {years[0]} continue to ramp up as fans await the next major announcement from Rockstar.")
-
-    if numbers:
-        facts.append(f"The specific figure of {numbers[0]} is what has the GTA 6 community buzzing loudest right now.")
+        facts.append(f"The countdown to {years[0]} is officially ticking, and Rockstar is entering the final stretch of development.")
 
     expansions = {
-        "price":      "Pricing has become one of the most hotly debated topics around GTA 6, with players discussing what is fair for a decade in development.",
-        "cost":       "The cost of GTA 6 is a massive talking point given the unprecedented scale and budget behind Rockstar's development.",
-        "delay":      "A potential delay would be a major development for fans who have already waited over a decade since GTA 5 launched in 2013.",
-        "leak":       "This leak is drawing massive attention because the specific details suggest genuine inside production knowledge.",
-        "leaked":     "Leaked information of this caliber is rare, which is why the gaming community is reacting so strongly.",
-        "trailer":    "The initial GTA 6 trailer shattered YouTube records within twenty-four hours, meaning any new footage will instantly dominate the internet.",
-        "gameplay":   "Gameplay details for GTA 6 have been tightly guarded by Rockstar, making any confirmed mechanics a massive story.",
-        "map":        "The GTA 6 map is widely anticipated to be the largest and most detailed open world Rockstar Games has ever constructed.",
-        "online":     "GTA Online has generated billions of dollars, making GTA 6's upcoming multiplayer suite one of the most anticipated releases in history.",
-        "ps5":        "PlayStation 5 and Xbox Series consoles are the primary launch targets, with fans waiting eagerly to see pure next-gen performance.",
-        "xbox":       "Xbox players are tracking GTA 6 updates closely given the massive active player community across modern platforms.",
-        "pc":         "Whether GTA 6 launches day-and-date on PC or arrives later remains one of the top questions among PC enthusiasts.",
-        "rating":     "Official age ratings are always among the strongest signals that a title is heading into final production polish.",
-        "esrb":       "An ESRB rating is a major milestone, typically indicating a release window is drawing near.",
-        "pre-order":  "Retailer pre-order preparations are often the earliest concrete signs that a release timeline is locked in.",
-        "rockstar":   "Rockstar Games has kept an extraordinary level of secrecy, making every credible piece of news a major event.",
-        "vice city":  "The return of Vice City brings neon-lit streets, sprawling coastlines, and a massive evolution in world immersion.",
-        "lucia":      "Lucia and Jason represent a brand-new dynamic for the franchise as the first co-protagonist partnership in modern GTA.",
+        "price":      "Discussions around the launch price are already exploding across the community, with fans debating what a billion-dollar game should cost.",
+        "cost":       "With an estimated development budget crossing two billion dollars, Rockstar is aiming to completely redefine the entertainment industry.",
+        "delay":      "Even rumors of a slight shift have players on high alert, because the gaming world has already waited over a decade for this sequel.",
+        "leak":       "These leaked details are turning heads everywhere because the insider production info looks shockingly authentic.",
+        "leaked":     "The details emerging from this leak give us our clearest look yet at how next-gen systems will handle Rockstar's massive world.",
+        "trailer":    "After the record-breaking debut trailer, any fresh gameplay footage or teaser from Rockstar is guaranteed to break the entire internet.",
+        "gameplay":   "Under the hood, new AI physics and dynamic police interactions are reportedly going to make Vice City feel like a living breathing city.",
+        "map":        "The new map is widely expected to dwarf both GTA 5 and Red Dead 2 combined, packed with dense interiors and endless coastlines.",
+        "online":     "Multiplayer is where GTA truly shines, and the next evolution of GTA Online is poised to become the biggest gaming playground in history.",
+        "ps5":        "PlayStation 5 and Xbox Series X are set to push hardware to its absolute limit, featuring realistic volumetric clouds and ray-traced lighting.",
+        "xbox":       "Current-gen console owners are counting down the days, with Rockstar optimizing specifically for maximum immersion and 60 FPS performance.",
+        "pc":         "PC gamers are watching closely to see if Rockstar surprises us with a simultaneous release, or follows the traditional console-first launch.",
+        "rating":     "Official production milestones are quietly locking into place, signaling that Rockstar is gearing up for the marketing storm.",
+        "vice city":  "Returning to Vice City with modern neon lighting, saturated sunset skies, and hyper-detailed neighborhoods is going to feel incredible.",
+        "lucia":      "Lucia and Jason bring a gripping criminal duo dynamic to the storyline, creating the most emotional and cinematic GTA campaign yet.",
+        "release":    "Every single piece of evidence shows Rockstar is locking down the release timeline to make this the biggest launch event of the decade.",
     }
 
-    added = set()
     for kw, exp in expansions.items():
-        if kw in tl and exp not in facts and kw not in added:
+        if kw in tl and exp not in facts:
             facts.append(exp)
-            added.add(kw)
-            if len(facts) >= 5:
+            if len(facts) >= 4:
                 break
 
     general = [
-        "Rockstar Games has generated historic levels of anticipation, turning every whisper into a viral headline.",
-        "GTA 6 carries the weight of being the most anticipated entertainment release in history.",
-        "With hundreds of millions of players worldwide, the stakes for GTA 6 could not be higher.",
-        "Every official hint from Rockstar is analyzed frame by frame by millions of players.",
+        "The level of anticipation behind GTA 6 is unprecedented, with hundreds of millions of players tracking every subtle clue.",
+        "Rockstar has spent over ten years perfecting this world, and expectations could not be higher.",
+        "From lifelike NPC routines to breathtaking visual fidelity, this is shaping up to be an absolute masterpiece.",
+        "Every single detail we learn proves that Vice City is going to be an unforgettable experience."
     ]
     random.shuffle(general)
     for g in general:
@@ -329,7 +318,7 @@ def build_free_script(story: dict, hook: str, cta: str) -> str:
     """Offline rule-based script builder using viral hook structure."""
     title  = story.get("title", "GTA 6 Update")
     text   = story.get("text", story.get("summary", "")).strip()
-    target = 110
+    target = 132
 
     body_sentences = []
     word_count = len(hook.split()) + len(cta.split())
@@ -343,22 +332,28 @@ def build_free_script(story: dict, hook: str, cta: str) -> str:
         for s in good:
             if word_count >= target: break
             cleaned = clean_sentence(s)
+            sw = len(cleaned.split())
+            if word_count + sw > target + 5:
+                continue
             key = cleaned[:50].lower()
             if cleaned and key not in seen_text:
                 body_sentences.append(cleaned)
                 seen_text.add(key)
-                word_count += len(cleaned.split())
+                word_count += sw
 
-    if word_count < target - 20:
+    if word_count < target - 10:
         expanded = expand_headline(title)
         seen_keys = {s[:50].lower() for s in body_sentences}
         for f in expanded:
             if word_count >= target: break
+            fw = len(f.split())
+            if word_count + fw > target + 5:
+                continue
             key = f[:50].lower()
             if key not in seen_keys:
                 body_sentences.append(f)
                 seen_keys.add(key)
-                word_count += len(f.split())
+                word_count += fw
 
     script = f"{hook}\n\n" + " ".join(body_sentences) + f"\n\n{cta}"
     return script

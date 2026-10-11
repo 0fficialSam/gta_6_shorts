@@ -20,9 +20,9 @@ except ImportError:
 
 _tts_cfg = get_tts_settings()
 _mus_cfg = get_music_settings()
-DEFAULT_VOICE = _tts_cfg.get("voice", "en-IN-PrabhatNeural")       # High-energy, natural Indian English narration
-DEFAULT_RATE  = _tts_cfg.get("rate", "+13%")                          # Punchy YouTube Shorts pacing
-DEFAULT_BGM_VOL = 0.28                                                 # Audible gaming mix ratio
+DEFAULT_VOICE = _tts_cfg.get("voice", "en-US-BrianMultilingualNeural")   # Flagship ultra-natural conversational creator voice
+DEFAULT_RATE  = _tts_cfg.get("rate", "+4%")                               # Natural human conversational pacing
+DEFAULT_BGM_VOL = 0.28                                                    # Audible gaming mix ratio
 DEFAULT_ENABLE_MUSIC = _mus_cfg.get("enabled", True)
 
 
@@ -41,7 +41,19 @@ def find_ffmpeg():
 
 
 def clean_script_for_tts(script: str) -> str:
-    """Clean script for smooth neural TTS output."""
+    """Clean script for smooth, ultra-natural human-like neural TTS output."""
+    # Convert shouting all-caps words to Titlecase so TTS doesn't spell them out or sound robotic
+    def fix_caps(match):
+        w = match.group(0)
+        if w in {"GTA", "PS5", "PS4", "Xbox", "PC", "AI", "DLC", "NPC", "NPCs", "ESRB", "BGM", "CEO"}:
+            return w
+        return w.capitalize()
+
+    script = re.sub(r'\b[A-Z]{3,}\b', fix_caps, script)
+    # Natural phonetic expansions
+    script = re.sub(r'\bGTA\s+VI\b', 'GTA 6', script, flags=re.IGNORECASE)
+    script = re.sub(r'\bRDR\s*2\b', 'Red Dead 2', script, flags=re.IGNORECASE)
+    script = re.sub(r'\bTake-Two\b', 'Take Two', script, flags=re.IGNORECASE)
     script = re.sub(r'[^\x00-\x7F]+', '', script)   # Remove emojis/non-ascii
     script = re.sub(r'#\w+', '', script)            # Remove hashtags
     script = re.sub(r'\.{2,}', '. ', script)        # Fix ellipsis
@@ -156,13 +168,38 @@ def glob_files(folder: str, pattern: str) -> list:
 def mix_voice_and_bgm(voice_path: str, bgm_path: str, output_path: str,
                       bgm_volume: float = DEFAULT_BGM_VOL, voice_volume: float = 1.15) -> bool:
     """
-    Mix background music under the voiceover with ducking using FFmpeg.
-    Uses normalize=0 to guarantee the music is clearly audible without clipping.
+    Mix background music under the voiceover with dynamic sidechain ducking.
+    Music automatically ducks smoothly when the voice speaks and swells during pauses.
     """
     ffmpeg = find_ffmpeg()
     if not ffmpeg:
         return False
 
+    # Dynamic sidechain ducking filtergraph
+    sidechain_filter = (
+        f"[0:a]volume={voice_volume},asplit=2[v1][v2];"
+        f"[1:a]volume={bgm_volume * 1.25}[bg];"
+        "[bg][v1]sidechaincompress=threshold=0.08:ratio=4.0:attack=40:release=350[ducked_bg];"
+        "[v2][ducked_bg]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[out]"
+    )
+
+    try:
+        cmd = [
+            ffmpeg, "-y",
+            "-i", voice_path,
+            "-stream_loop", "-1", "-i", bgm_path,
+            "-filter_complex", sidechain_filter,
+            "-map", "[out]",
+            "-c:a", "libmp3lame", "-b:a", "192k",
+            output_path
+        ]
+        result = subprocess.run(cmd, capture_output=True, timeout=40)
+        if result.returncode == 0 and os.path.exists(output_path):
+            return True
+    except Exception as e:
+        print(f"  Sidechain ducking warning: {e}, using static mix")
+
+    # Graceful fallback to static volume mix
     try:
         cmd = [
             ffmpeg, "-y",
@@ -184,12 +221,13 @@ def mix_voice_and_bgm(voice_path: str, bgm_path: str, output_path: str,
 def apply_studio_vocal_chain(input_path: str, output_path: str) -> bool:
     """
     Applies professional studio microphone audio mastering to the voiceover:
-    - Highpass (80 Hz): removes synthetic sub-rumble
-    - Proximity warmth EQ (+2.2 dB at 220 Hz): rich radio presence
-    - Consonant clarity EQ (+3.8 dB at 3400 Hz): crisp intelligibility over music
-    - Studio air EQ (+1.8 dB at 8000 Hz): high-end clarity
-    - Broadcast dynamic compressor: evens out quiet and punchy syllables
-    - Output volume leveling
+    - Highpass (75 Hz): removes sub-bass rumble and breath thumps
+    - Chest warmth EQ (+1.4 dB at 180 Hz): rich radio presence
+    - De-boxiness EQ (-1.0 dB at 650 Hz): eliminates muddy cardboard resonance
+    - De-harshing EQ (-1.2 dB at 3800 Hz): removes synthetic robotic digital rasp
+    - Studio air EQ (+1.0 dB at 10000 Hz): clean modern acoustic breath
+    - Transparent broadcast leveler: soft-knee compressor preserving natural human dynamics
+    - Smooth output volume leveling
     """
     ffmpeg = find_ffmpeg()
     if not ffmpeg:
@@ -197,12 +235,13 @@ def apply_studio_vocal_chain(input_path: str, output_path: str) -> bool:
         return False
 
     vocal_filter = (
-        "highpass=f=80,"
-        "equalizer=f=220:width_type=o:width=1.0:g=2.2,"
-        "equalizer=f=3400:width_type=o:width=1.2:g=3.8,"
-        "equalizer=f=8200:width_type=o:width=1.0:g=1.8,"
-        "acompressor=threshold=-18dB:ratio=3.5:attack=15:release=120:makeup=2.5dB,"
-        "volume=1.2"
+        "highpass=f=75,"
+        "equalizer=f=180:width_type=o:width=1.0:g=1.4,"
+        "equalizer=f=650:width_type=o:width=1.2:g=-1.0,"
+        "equalizer=f=3800:width_type=o:width=1.2:g=-1.2,"
+        "equalizer=f=10000:width_type=o:width=1.0:g=1.0,"
+        "acompressor=threshold=-22dB:ratio=2.0:attack=25:release=180:knee=4dB,"
+        "volume=1.12"
     )
 
     try:
