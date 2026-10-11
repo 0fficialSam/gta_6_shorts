@@ -543,6 +543,18 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
     tps = max(0.1, (audio_dur - COVER_DUR) / max(len(sentences), 1))
     story_title = script_data.get("story", {}).get("title", "GTA 6 Update")
 
+    subtitles_timing = script_data.get("subtitles_timing")
+    if not subtitles_timing and os.path.exists("assets/subtitles_timing.json"):
+        try:
+            with open("assets/subtitles_timing.json", "r", encoding="utf-8") as f:
+                subtitles_timing = json.load(f)
+        except:
+            subtitles_timing = None
+
+    if subtitles_timing:
+        print(f"  Subtitles: using {len(subtitles_timing)} speech-synchronized timestamps")
+
+
     # 3. Setup video encoder & destination
     encoder, enc_args = get_best_encoder(ffmpeg)
     print(f"  Encoder: {encoder} ({' '.join(enc_args)})")
@@ -629,9 +641,27 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
                 d.rectangle([(0, 93), (prog, 100)], fill=(255, 200, 0))
                 d.rectangle([(prog, 93), (WIDTH, 100)], fill=(30, 30, 30))
 
-                # Sentence indicator dots
-                total_s = len(sentences)
-                idx = min(int((t - COVER_DUR) / tps), total_s - 1)
+                # Sentence indicator dots & active subtitle selection
+                if subtitles_timing:
+                    elapsed = t - COVER_DUR
+                    total_s = len(subtitles_timing)
+                    found_idx = None
+                    for s_i, s_entry in enumerate(subtitles_timing):
+                        if s_entry["start"] <= elapsed < s_entry["end"]:
+                            found_idx = s_i
+                            break
+                    if found_idx is not None:
+                        idx = found_idx
+                    elif elapsed < subtitles_timing[0]["start"]:
+                        idx = 0
+                    else:
+                        idx = total_s - 1
+                    sentence = subtitles_timing[idx]["text"]
+                else:
+                    total_s = len(sentences)
+                    idx = min(int((t - COVER_DUR) / tps), total_s - 1)
+                    sentence = sentences[idx]
+
                 dw = min(16, 800 // max(total_s, 1))
                 ds = WIDTH // 2 - (total_s * (dw + 5)) // 2
                 for si in range(total_s):
@@ -639,8 +669,8 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
                     d.rectangle([(ds + si * (dw + 5), 105), (ds + si * (dw + 5) + dw, 113)], fill=col)
 
                 # Subtitles
-                sentence = sentences[idx]
                 sub_font = get_font(54, True)
+
                 margin = 50
                 max_w = WIDTH - margin * 2
 

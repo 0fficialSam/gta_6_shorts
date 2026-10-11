@@ -11,8 +11,11 @@ output/
 
 # Auto-downloaded / transient assets
 assets/backgrounds/
-assets/voiceover.mp3
-assets/voiceover.wav
+assets/*.mp3
+assets/*.wav
+assets/music/*.wav
+!assets/music/.gitkeep
+assets/subtitles_timing.json
 assets/current_script.json
 assets/today_stories.json
 assets/youtube_token.pkl

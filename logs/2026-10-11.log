@@ -45,3 +45,35 @@ STEP 6: YouTube Upload...
 [2026-10-11 00:49:43]   Story : GTA 6 Release Date CONFIRMED for 2026
 [2026-10-11 00:49:43]   Video : D:\Om\Projects\gta_6_shorts\output\gta6_short_20261011_0042.mp4
 [2026-10-11 00:49:43] ============================================================
+[2026-10-11 14:46:57] ============================================================
+[2026-10-11 14:46:57] GTA 6 SHORTS AUTOMATION STARTED
+[2026-10-11 14:46:57]   --news  : (auto-scrape)
+[2026-10-11 14:46:57]   --title : (auto from first sentence of --news)
+[2026-10-11 14:46:57]   --clip  : (auto)
+[2026-10-11 14:46:57]   --upload: False
+[2026-10-11 14:46:57] ============================================================
+[2026-10-11 14:46:57] 
+STEP 1: Getting GTA 6 News...
+[2026-10-11 14:46:57]   TEST MODE: Using built-in sample story
+[2026-10-11 14:46:57] 
+STEP 2: Generating Script...
+[2026-10-11 14:46:57]   Script ready: 191 words via Free Builder
+[2026-10-11 14:46:57] 
+STEP 3: Generating Voiceover...
+[2026-10-11 14:47:06]   Audio saved: assets/voiceover.mp3
+[2026-10-11 14:47:06] 
+STEP 4: Resolving Background...
+[2026-10-11 14:47:06]   No clip provided — using auto background
+[2026-10-11 14:47:06] 
+STEP 5: Assembling Video...
+[2026-10-11 14:48:44]   Video created: output/gta6_short_20261011_1447.mp4
+[2026-10-11 14:48:44] 
+STEP 6: YouTube Upload...
+[2026-10-11 14:48:44]   Skipped (--no-upload flag set)
+[2026-10-11 14:48:44]   Your video is at: D:\Om\Projects\gta_6_shorts\output\gta6_short_20261011_1447.mp4
+[2026-10-11 14:48:44] 
+============================================================
+[2026-10-11 14:48:44] DONE!
+[2026-10-11 14:48:44]   Story : GTA 6 Release Date CONFIRMED for 2026
+[2026-10-11 14:48:44]   Video : D:\Om\Projects\gta_6_shorts\output\gta6_short_20261011_1447.mp4
+[2026-10-11 14:48:44] ============================================================
