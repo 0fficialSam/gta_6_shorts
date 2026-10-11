@@ -7,6 +7,7 @@ GTA 6 Voiceover Generator - Studio Audio Engine & Music Mixing
 - Fallbacks: gTTS (Google) -> pyttsx3 (offline SAPI5)
 """
 import asyncio, json, os, re, subprocess, shutil, sys, wave, math, random
+from datetime import datetime
 from pathlib import Path
 import numpy as np
 
@@ -21,7 +22,7 @@ _tts_cfg = get_tts_settings()
 _mus_cfg = get_music_settings()
 DEFAULT_VOICE = _tts_cfg.get("voice", "en-US-ChristopherNeural")   # High-energy, crisp gaming narration
 DEFAULT_RATE  = _tts_cfg.get("rate", "+12%")                      # Punchy YouTube Shorts pacing
-DEFAULT_BGM_VOL = 0.09 if _mus_cfg.get("volume_ducking_db", -21) == -21 else 10 ** (_mus_cfg.get("volume_ducking_db", -21) / 20.0)
+DEFAULT_BGM_VOL = 0.28                                             # Audible gaming mix ratio
 DEFAULT_ENABLE_MUSIC = _mus_cfg.get("enabled", True)
 
 
@@ -49,88 +50,126 @@ def clean_script_for_tts(script: str) -> str:
     return script
 
 
-def generate_procedural_bgm(output_path: str = "assets/music/synthwave_ambience.wav", duration: float = 65.0) -> str:
+def synth_procedural_track(path: str, bpm: int = 124, root_f: float = 73.42, duration: float = 65.0):
     """
-    Generates a dark retro Vice City synthwave ambient bassline track if no music is provided.
-    100% offline, procedural, royalty-free.
+    Synthesizes a high-energy 80s Vice City synthwave gaming beat
+    with punchy kick drum, 80s snare/clap, 16th hats, rolling bassline, and lead arp.
     """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    if os.path.exists(output_path) and os.path.getsize(output_path) > 10000:
-        return output_path
+    sr = 44100
+    total = int(sr * duration)
+    t = np.linspace(0, duration, total, endpoint=False)
+    b_dur = 60.0 / bpm
+    bar_dur = b_dur * 4.0
 
-    print("  Creating procedural Vice City synthwave ambient track...")
-    sample_rate = 44100
-    t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
+    # 1. 4-on-the-floor punchy kick drum
+    b_phase = (t % b_dur) / b_dur
+    k_env = np.exp(-14.0 * b_phase)
+    k_freq = 150.0 * np.exp(-18.0 * b_phase) + 48.0
+    kick = np.sin(2 * np.pi * k_freq * b_phase * b_dur) * k_env
 
-    # 120 BPM dark synthwave chord progression (D -> Bb -> C -> A)
-    bass_freqs = [73.42, 58.27, 65.41, 55.0]
-    bass = np.zeros_like(t)
+    # 2. Snare / Clap on beats 2 & 4
+    s_mask = ((t % (2 * b_dur)) >= b_dur) & ((t % (2 * b_dur)) < b_dur * 1.5)
+    s_phase = (t % b_dur) / b_dur
+    noise = (np.random.rand(total) * 2 - 1)
+    s_tone = np.sin(2 * np.pi * 190.0 * s_phase * b_dur) * np.exp(-12.0 * s_phase)
+    s_noise = noise * np.exp(-8.0 * s_phase)
+    snare = (s_tone * 0.4 + s_noise * 0.6) * s_mask
 
-    for i, f in enumerate(bass_freqs):
-        start_t = i * 2.0
-        mask = (t % 8.0 >= start_t) & (t % 8.0 < start_t + 2.0)
-        # Rich sawtooth harmonic stack
-        saw = 0.5 * np.sin(2 * np.pi * f * t) + 0.25 * np.sin(4 * np.pi * f * t) + 0.12 * np.sin(6 * np.pi * f * t)
-        # Rhythmic eighth-note pulse envelope
-        pulse = np.exp(-4.5 * ((t % 0.25) / 0.25))
-        bass += mask * saw * pulse
+    # 3. 16th-note Hi-Hats with rhythmic accents
+    h_dur = b_dur / 4.0
+    h_phase = (t % h_dur) / h_dur
+    h_accent = 1.0 + 0.5 * (((t // h_dur) % 4) == 2)
+    hat = (np.random.rand(total) * 2 - 1) * np.exp(-28.0 * h_phase) * 0.25 * h_accent
 
-    # Warm analog pad synth (D minor triad)
-    pad = (0.15 * np.sin(2 * np.pi * 146.83 * t) +
-           0.15 * np.sin(2 * np.pi * 220.0 * t) +
-           0.10 * np.sin(2 * np.pi * 293.66 * t))
+    # 4. Driving Bassline (16th-note arpeggiated bass)
+    bass = np.zeros(total)
+    chords = [root_f, root_f * (2**(3/12)), root_f * (2**(5/12)), root_f * (2**(10/12))]
+    for i, rf in enumerate(chords):
+        c_mask = (t % (bar_dur * 4) >= i * bar_dur) & (t % (bar_dur * 4) < (i + 1) * bar_dur)
+        sub_phase = (t % (b_dur / 2.0)) / (b_dur / 2.0)
+        pulse = np.exp(-6.0 * sub_phase)
+        saw = 0.5 * np.sin(2 * np.pi * rf * t) + 0.3 * np.sin(4 * np.pi * rf * t) + 0.15 * np.sin(6 * np.pi * rf * t)
+        bass += saw * pulse * c_mask
 
-    # Subtle vinyl texture
-    noise = 0.015 * (np.random.rand(len(t)) * 2 - 1)
+    # 5. Synth Lead Arpeggio
+    arp = np.zeros(total)
+    arp_notes = [root_f * 2, root_f * 2.4, root_f * 3, root_f * 3.6]
+    step_dur = b_dur / 2.0
+    step_phase = (t % step_dur) / step_dur
+    for idx, nf in enumerate(arp_notes):
+        step_mask = (t % (b_dur * 2) >= idx * step_dur) & (t % (b_dur * 2) < (idx + 1) * step_dur)
+        lead = np.sin(2 * np.pi * nf * t) * np.exp(-3.5 * step_phase)
+        arp += lead * step_mask * 0.3
 
-    music = np.clip(bass * 0.45 + pad * 0.35 + noise, -0.9, 0.9)
-    audio_int16 = (music * 32767).astype(np.int16)
+    mix = kick * 0.55 + snare * 0.48 + hat * 0.28 + bass * 0.50 + arp * 0.35
+    mix = np.clip(mix * 0.90, -0.95, 0.95)
+    raw = (mix * 32767).astype(np.int16)
 
-    with wave.open(output_path, 'w') as wf:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with wave.open(path, 'w') as wf:
         wf.setnchannels(1)
         wf.setsampwidth(2)
-        wf.setframerate(sample_rate)
-        wf.writeframes(audio_int16.tobytes())
+        wf.setframerate(sr)
+        wf.writeframes(raw.tobytes())
+    return path
 
-    return output_path
 
-
-def get_bgm_track() -> str:
-    """Find a background music track in assets/music/ or generate one."""
+def ensure_music_library():
+    """Ensures a rich library of 4 distinct Vice City tracks is ready."""
     music_dir = "assets/music"
     os.makedirs(music_dir, exist_ok=True)
+    tracks_spec = [
+        ("vice_city_night_drive.wav", 124, 73.42),
+        ("miami_heist_pulse.wav",     128, 65.41),
+        ("sunset_boulevard.wav",      116, 82.41),
+        ("leonida_action_beat.wav",   130, 55.00),
+    ]
+    for filename, bpm, root_f in tracks_spec:
+        p = os.path.join(music_dir, filename)
+        if not os.path.exists(p) or os.path.getsize(p) < 100000:
+            synth_procedural_track(p, bpm, root_f)
 
+
+def get_bgm_track(seed: str = None) -> str:
+    """Find a background music track in assets/music/, rotating daily."""
+    music_dir = "assets/music"
+    ensure_music_library()
     tracks = (glob_files(music_dir, "*.mp3") +
               glob_files(music_dir, "*.wav") +
               glob_files(music_dir, "*.ogg"))
+    tracks = [t for t in tracks if not os.path.basename(t).startswith("test_")]
 
     if tracks:
+        if seed:
+            import hashlib
+            idx = int(hashlib.md5(seed.encode()).hexdigest(), 16) % len(tracks)
+            return tracks[idx]
         return random.choice(tracks)
 
-    return generate_procedural_bgm()
+    return os.path.join(music_dir, "vice_city_night_drive.wav")
 
 
 def glob_files(folder: str, pattern: str) -> list:
     return [str(p) for p in Path(folder).glob(pattern) if p.is_file()]
 
 
-def mix_voice_and_bgm(voice_path: str, bgm_path: str, output_path: str, bgm_volume: float = DEFAULT_BGM_VOL) -> bool:
+def mix_voice_and_bgm(voice_path: str, bgm_path: str, output_path: str,
+                      bgm_volume: float = DEFAULT_BGM_VOL, voice_volume: float = 1.15) -> bool:
     """
     Mix background music under the voiceover with ducking using FFmpeg.
-    Music is looped seamlessly and clamped to voice duration.
+    Uses normalize=0 to guarantee the music is clearly audible without clipping.
     """
     ffmpeg = find_ffmpeg()
     if not ffmpeg:
         return False
 
     try:
-        # Loop music indefinitely, scale volume to ~-21 dB, mix with voice, end when voice ends
         cmd = [
             ffmpeg, "-y",
             "-i", voice_path,
             "-stream_loop", "-1", "-i", bgm_path,
             "-filter_complex",
-            f"[1:a]volume={bgm_volume}[bg];[0:a]volume=1.0[v];[v][bg]amix=inputs=2:duration=first:dropout_transition=2[out]",
+            f"[1:a]volume={bgm_volume}[bg];[0:a]volume={voice_volume}[v];[v][bg]amix=inputs=2:duration=first:dropout_transition=2:normalize=0[out]",
             "-map", "[out]",
             "-c:a", "libmp3lame", "-b:a", "192k",
             output_path
@@ -329,9 +368,10 @@ def generate_voiceover(script_data: dict, voice: str = DEFAULT_VOICE, rate: str 
 
     # 4. Mix Background Music
     if enable_music:
-        bgm_track = get_bgm_track()
-        print(f"  Mixing BGM: {os.path.basename(bgm_track)} (ducked at -21 dB)...")
-        mixed = mix_voice_and_bgm(dry_path, bgm_track, final_path)
+        seed = script_data.get("story", {}).get("title", datetime.now().strftime("%Y-%m-%d"))
+        bgm_track = get_bgm_track(seed=seed)
+        print(f"  Mixing BGM: {os.path.basename(bgm_track)} (audible gaming mix, normalize=0)...")
+        mixed = mix_voice_and_bgm(dry_path, bgm_track, final_path, bgm_volume=DEFAULT_BGM_VOL, voice_volume=1.15)
         if mixed and os.path.exists(final_path):
             print(f"  Voice + BGM mixed successfully: {final_path}")
             return final_path

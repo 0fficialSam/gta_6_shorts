@@ -38,6 +38,7 @@ load_dotenv()
 
 DEFAULT_CONFIG = {
     "project_name": "GTA 6 YouTube Shorts Automation",
+    "creator_handle": "@SamWithJoystick",
     "target_release_date": "2026-11-19",
     "llm": {
         "provider": "auto",
@@ -121,3 +122,8 @@ def get_youtube_settings() -> dict:
 
 def get_video_settings() -> dict:
     return get_config().get("video", DEFAULT_CONFIG["video"])
+
+
+def get_creator_handle() -> str:
+    return get_config().get("creator_handle", DEFAULT_CONFIG["creator_handle"])
+

@@ -7,18 +7,18 @@ GTA 6 Video Assembler - High-Performance Streaming Pipeline
 - Hardware-accelerated encoding auto-detection (NVENC -> Windows Media Foundation -> libx264 ultrafast)
 - Pre-cached procedural Vice City graphics & font rendering
 """
-import json, os, sys, re, glob, subprocess, shutil, time, math
+import json, os, sys, re, glob, subprocess, shutil, time, math, hashlib, random
 from datetime import datetime, date as _date
 from functools import lru_cache
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 
 try:
-    from scripts.config import get_target_launch_date, get_video_settings
+    from scripts.config import get_target_launch_date, get_video_settings, get_creator_handle
 except ImportError:
     import sys
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from scripts.config import get_target_launch_date, get_video_settings
+    from scripts.config import get_target_launch_date, get_video_settings, get_creator_handle
 
 _vid_cfg = get_video_settings()
 WIDTH, HEIGHT, FPS = _vid_cfg.get("width", 1080), _vid_cfg.get("height", 1920), _vid_cfg.get("fps", 30)
@@ -55,7 +55,7 @@ def get_countdown_text(days: int) -> str:
 
 
 # ── FONT CACHE ─────────────────────────────────────────────────────────────────
-@lru_cache(maxsize=32)
+@lru_cache(maxsize=64)
 def get_font(size: int, bold: bool = False):
     candidates = [
         "C:/Windows/Fonts/arialbd.ttf"  if bold else "C:/Windows/Fonts/arial.ttf",
@@ -196,7 +196,8 @@ def get_active_chunk(chunks: list, elapsed_t: float):
     return chunks[0]
 
 
-def draw_kinetic_caption(img: Image.Image, chunk: dict, elapsed_t: float) -> Image.Image:
+def draw_kinetic_caption(img: Image.Image, chunk: dict, elapsed_t: float,
+                         highlight_color: tuple = (255, 230, 0)) -> Image.Image:
     words = chunk["words"]
     font = get_font(74, bold=True)
     d = ImageDraw.Draw(img)
@@ -227,7 +228,7 @@ def draw_kinetic_caption(img: Image.Image, chunk: dict, elapsed_t: float) -> Ima
         w_text = w_info["w"].upper()
         # Word is active if elapsed_t is within its window, or keep last word highlighted until chunk changes
         is_active = (w_info["s"] <= elapsed_t < w_info["e"]) or (i == len(words) - 1 and elapsed_t >= w_info["s"])
-        fill_col = (255, 230, 0) if is_active else (255, 255, 255)
+        fill_col = highlight_color if is_active else (255, 255, 255)
 
         d.text((cur_x, top_y), w_text, font=font, fill=fill_col,
                stroke_width=5, stroke_fill=(0, 0, 0), anchor="lt")
@@ -237,63 +238,196 @@ def draw_kinetic_caption(img: Image.Image, chunk: dict, elapsed_t: float) -> Ima
     return img
 
 
-# ── PRE-RENDERED COUNTDOWN BANNER BASE ─────────────────────────────────────────
-_COUNTDOWN_BAR_BASE = None
+# ── DAILY VICE CITY THEME ENGINE ──────────────────────────────────────────────
+DAILY_THEMES = [
+    {
+        "name": "Vice Neon",
+        "primary": (255, 20, 147),      # Hot Magenta
+        "secondary": (0, 240, 255),     # Electric Cyan
+        "highlight": (255, 230, 0),     # Electric Yellow
+        "bar_c1": (220, 15, 120),
+        "bar_c2": (0, 200, 240),
+        "badge_border": (255, 20, 147),
+        "badge_tag": (255, 235, 100),
+        "progress_color": (255, 20, 147),
+    },
+    {
+        "name": "Miami Sunset",
+        "primary": (255, 90, 0),        # Sunset Red-Orange
+        "secondary": (255, 200, 0),     # Amber Gold
+        "highlight": (255, 230, 0),     # Bright Yellow
+        "bar_c1": (210, 40, 0),
+        "bar_c2": (255, 180, 0),
+        "badge_border": (255, 100, 0),
+        "badge_tag": (255, 220, 50),
+        "progress_color": (255, 150, 0),
+    },
+    {
+        "name": "Ocean Drive",
+        "primary": (0, 220, 215),       # Tropical Turquoise
+        "secondary": (255, 60, 130),    # Flamingo Coral
+        "highlight": (220, 255, 0),     # Electric Lime
+        "bar_c1": (10, 70, 180),
+        "bar_c2": (0, 220, 215),
+        "badge_border": (0, 220, 215),
+        "badge_tag": (255, 80, 150),
+        "progress_color": (0, 220, 215),
+    },
+    {
+        "name": "Vice City Gold",
+        "primary": (255, 215, 0),       # Luxury Gold
+        "secondary": (150, 30, 210),    # Royal Violet
+        "highlight": (255, 235, 80),    # Golden Yellow
+        "bar_c1": (120, 15, 170),
+        "bar_c2": (255, 200, 0),
+        "badge_border": (255, 215, 0),
+        "badge_tag": (255, 235, 100),
+        "progress_color": (255, 210, 0),
+    },
+]
 
-def get_countdown_bar_base():
-    global _COUNTDOWN_BAR_BASE
-    if _COUNTDOWN_BAR_BASE is None:
-        bar = Image.new("RGB", (WIDTH, 90))
-        d = ImageDraw.Draw(bar)
-        for x in range(0, WIDTH, 2):
-            ratio = abs(x - WIDTH // 2) / (WIDTH // 2)
-            r = int(180 + (1 - ratio) * 60)
-            g = int(30 + (1 - ratio) * 20)
-            d.rectangle([(x, 0), (x + 2, 90)], fill=(min(r, 255), min(g, 255), 0))
-        _COUNTDOWN_BAR_BASE = bar
-    return _COUNTDOWN_BAR_BASE
+def get_daily_theme(seed: str = None) -> dict:
+    if not seed:
+        seed = datetime.now().strftime("%Y-%m-%d")
+    idx = int(hashlib.md5(seed.encode()).hexdigest(), 16) % len(DAILY_THEMES)
+    return DAILY_THEMES[idx]
 
 
-def draw_countdown_banner(img: Image.Image, t: float, days: int) -> Image.Image:
-    pulse = 0.85 + 0.15 * math.sin(t * 3.0)
-    bar_base = get_countdown_bar_base()
-    bar = ImageEnhance.Brightness(bar_base).enhance(pulse)
-    img.paste(bar, (0, 0))
+def draw_countdown_banner(img: Image.Image, t: float, days: int, theme: dict = None, prog_ratio: float = 0.0) -> Image.Image:
+    """
+    Renders a broadcast-grade GTA VI countdown header strip:
+    - Left: Official-style 'GTA VI' gradient pill badge
+    - Center: Prominent glowing remaining days counter + 'DAYS REMAINING'
+    - Right: 'FALL 2026' launch window with live pulsing neon status dot
+    - Bottom: Seamlessly integrated glowing neon progress bar
+    """
+    if theme is None:
+        theme = DAILY_THEMES[0]
 
-    d = ImageDraw.Draw(img)
-    glow_c = int(255 * pulse)
-    d.rectangle([(0, 87), (WIDTH, 90)], fill=(glow_c, glow_c // 2, 0))
+    h = 104
+    bar = Image.new("RGBA", (WIDTH, h), (10, 8, 20, 235))
+    d = ImageDraw.Draw(bar)
 
-    text = get_countdown_text(days)
-    num_str = str(days) if days > 0 else ""
-    bar_h = 90
+    # Top neon double accent line
+    d.line([(0, 0), (WIDTH, 0)], fill=(*theme["primary"], 255), width=3)
+    d.line([(0, 2), (WIDTH, 2)], fill=(*theme["bar_c2"], 160), width=1)
 
-    if num_str and num_str in text:
-        parts = text.split(num_str, 1)
-        font_sm = get_font(32, bold=True)
-        font_num = get_font(62, bold=True)
-        font_sf = get_font(32, bold=True)
+    # Left Pill Badge: "GTA VI"
+    bw, bh = 144, 52
+    bx, by = 40, (h - 4 - bh) // 2
+    for gx in range(bw):
+        gr = gx / bw
+        col = (
+            int(theme["primary"][0] * (1 - gr) + theme["bar_c1"][0] * gr),
+            int(theme["primary"][1] * (1 - gr) + theme["bar_c1"][1] * gr),
+            int(theme["primary"][2] * (1 - gr) + theme["bar_c1"][2] * gr),
+            255
+        )
+        d.line([(bx + gx, by), (bx + gx, by + bh)], fill=col)
+    d.rounded_rectangle([(bx, by), (bx + bw, by + bh)], radius=12, outline=(255, 255, 255, 220), width=2)
+    d.text((bx + bw // 2, by + bh // 2), "GTA VI", font=get_font(32, bold=True), fill=(255, 255, 255),
+           anchor="mm", stroke_width=1, stroke_fill=(50, 0, 30))
 
-        pre_w = d.textbbox((0, 0), parts[0], font=font_sm)[2] if parts[0] else 0
-        num_w = d.textbbox((0, 0), num_str, font=font_num)[2]
-        suf_w = d.textbbox((0, 0), parts[1], font=font_sf)[2] if parts[1] else 0
-        total_w = pre_w + num_w + suf_w
-        start_x = (WIDTH - total_w) // 2
-        cy = bar_h // 2
+    # Center Countdown Content
+    cy = (h - 4) // 2
+    font_num = get_font(58, bold=True)
+    font_lbl = get_font(32, bold=True)
+    font_tag = get_font(24, bold=True)
 
-        if parts[0]:
-            stroke_text(d, parts[0], start_x + pre_w // 2, cy,
-                        font_sm, (255, 255, 255), (0, 0, 0), 2, "mm")
-        num_x = start_x + pre_w + num_w // 2
-        stroke_text(d, num_str, num_x, cy,
-                    font_num, (255, 230, 0), (120, 60, 0), 3, "mm")
-        if parts[1]:
-            suf_x = start_x + pre_w + num_w + suf_w // 2
-            stroke_text(d, parts[1], suf_x, cy,
-                        font_sf, (255, 255, 255), (0, 0, 0), 2, "mm")
+    if days > 0:
+        num_str = str(days)
+        lbl_str = "DAYS REMAINING"
+        nw = d.textbbox((0, 0), num_str, font=font_num)[2]
+        lw = d.textbbox((0, 0), lbl_str, font=font_lbl)[2]
+        total_w = nw + 16 + lw
+        center_x = 580
+        sx = center_x - total_w // 2
+
+        d.text((sx + nw // 2, cy), num_str, font=font_num, fill=theme["highlight"],
+               stroke_width=3, stroke_fill=(0, 0, 0), anchor="mm")
+        d.text((sx + nw + 16 + lw // 2, cy), lbl_str, font=font_lbl, fill=(255, 255, 255),
+               stroke_width=2, stroke_fill=(0, 0, 0), anchor="mm")
     else:
-        stroke_text(d, text, WIDTH // 2, bar_h // 2,
-                    get_font(40, bold=True), (255, 230, 0), (0, 0, 0), 3, "mm")
+        out_str = "GTA 6 IS OUT NOW!"
+        d.text((580, cy), out_str, font=font_lbl, fill=theme["highlight"],
+               stroke_width=3, stroke_fill=(0, 0, 0), anchor="mm")
+
+    # Right Tag (Release Window & Live Indicator)
+    tag_str = "FALL 2026"
+    tw = d.textbbox((0, 0), tag_str, font=font_tag)[2]
+    rx = WIDTH - 42
+    d.text((rx - tw, cy), tag_str, font=font_tag, fill=(210, 220, 240),
+           stroke_width=1, stroke_fill=(0, 0, 0), anchor="lm")
+    dot_x = rx - tw - 18
+    d.ellipse([(dot_x - 5, cy - 5), (dot_x + 5, cy + 5)], fill=(*theme["secondary"], 255))
+
+    # Integrated progress bar at bottom of header strip (y = h - 5 to h)
+    pw = int(WIDTH * min(max(prog_ratio, 0.0), 1.0))
+    bar_y1, bar_y2 = h - 5, h
+    d.rectangle([(0, bar_y1), (WIDTH, bar_y2)], fill=(25, 22, 35, 240))
+    d.rectangle([(0, bar_y1), (pw, bar_y2)], fill=(*theme["progress_color"], 255))
+    if 6 < pw < WIDTH - 6:
+        d.ellipse([(pw - 5, bar_y1 - 2), (pw + 5, bar_y2 + 2)], fill=(255, 255, 255, 255))
+
+    img.paste(bar, (0, 0), bar)
+    return img
+
+
+def draw_creator_footer(img: Image.Image, t: float, theme: dict = None, is_cta: bool = False,
+                        handle: str = "@SamWithJoystick") -> Image.Image:
+    """
+    Renders the modern creator footer at the bottom of the short:
+    - Normal state: Frosted glass bar with @SamWithJoystick branding & GTA 6 tagline
+    - CTA state (last 7s): High-energy call to action to subscribe / follow
+    """
+    if theme is None:
+        theme = DAILY_THEMES[0]
+
+    font_handle = get_font(40, bold=True)
+    font_sub = get_font(20, bold=True)
+
+    if not is_cta:
+        h = 96
+        by = HEIGHT - h
+        bar = Image.new("RGBA", (WIDTH, h), (10, 8, 20, 238))
+        d = ImageDraw.Draw(bar)
+
+        # Top double neon border line
+        d.line([(0, 0), (WIDTH, 0)], fill=(*theme["secondary"], 255), width=2)
+        d.line([(0, 2), (WIDTH, 2)], fill=(*theme["primary"], 140), width=1)
+
+        # Creator handle: @SamWithJoystick
+        d.text((WIDTH // 2, 34), handle, font=font_handle,
+               fill=(255, 255, 255), stroke_width=3, stroke_fill=(0, 0, 0), anchor="mm")
+
+        # Subtitle: DAILY GTA 6 NEWS • LEAKS • COUNTDOWN
+        d.text((WIDTH // 2, 72), "DAILY GTA 6 NEWS  •  LEAKS  •  COUNTDOWN", font=font_sub,
+               fill=theme["highlight"], stroke_width=1, stroke_fill=(0, 0, 0), anchor="mm")
+
+        img.paste(bar, (0, by), bar)
+    else:
+        # CTA State (last 7s)
+        h = 135
+        by = HEIGHT - h
+        pulse = 0.9 + 0.1 * math.sin(t * 5.0)
+        bar = Image.new("RGBA", (WIDTH, h), (18, 10, 28, 245))
+        d = ImageDraw.Draw(bar)
+
+        c_pulse = tuple(min(255, int(c * pulse)) for c in theme["primary"])
+        d.line([(0, 0), (WIDTH, 0)], fill=(*c_pulse, 255), width=3)
+        d.line([(0, 3), (WIDTH, 3)], fill=(*theme["highlight"], 180), width=1)
+
+        cta_font_lg = get_font(44, bold=True)
+        cta_font_sm = get_font(26, bold=True)
+
+        cta_title = f"SUBSCRIBE TO {handle}"
+        d.text((WIDTH // 2, 42), cta_title, font=cta_font_lg,
+               fill=(255, 255, 255), stroke_width=3, stroke_fill=(50, 0, 30), anchor="mm")
+
+        d.text((WIDTH // 2, 94), "NEW GTA 6 SHORTS & LEAKS EVERY DAY!", font=cta_font_sm,
+               fill=theme["highlight"], stroke_width=2, stroke_fill=(0, 0, 0), anchor="mm")
+
+        img.paste(bar, (0, by), bar)
 
     return img
 
@@ -443,18 +577,24 @@ class VideoClipStreamReader:
             self.process = None
 
 
-# ── DYNAMIC 4K IMAGE BACKGROUND ENGINE (KEN BURNS & SCENE CUTS) ───────────────
+# ── DYNAMIC 4K IMAGE BACKGROUND ENGINE (KEN BURNS & DAILY VARIETY) ───────────
 class DynamicImageBackgroundEngine:
     """
     Renders authentic 4K GTA 6 screenshots with cinematic camera motion:
-    - Dynamic cuts to a new GTA 6 scene every ~3.2 seconds
-    - Smooth camera panning and slow zooming (Ken Burns) across 4K resolution
-    - Pristine clarity: Full resolution, vibrant colors, subtle top/bottom contrast gradients
+    - Shuffles/curates scenes daily based on date & story so videos never look identical
+    - Variable shot durations (2.6s - 3.4s) for an organic, human editing pace
+    - Alternating Ken Burns camera motion (pan left/right, slow zoom-in, slow zoom-out)
+    - Full 4K resolution clarity with subtle top/bottom contrast gradients
     """
-    def __init__(self, image_paths: list, shot_dur: float = 3.2):
-        self.shot_dur = shot_dur
+    def __init__(self, image_paths: list, seed: str = None):
         self.images = []
-        for p in image_paths:
+        rng = random.Random(seed) if seed else random.Random()
+
+        # Shuffle available 4K screenshots uniquely for each day / story
+        shuffled_paths = list(image_paths)
+        rng.shuffle(shuffled_paths)
+
+        for p in shuffled_paths:
             try:
                 im = Image.open(p).convert("RGB")
                 iw, ih = im.size
@@ -467,6 +607,17 @@ class DynamicImageBackgroundEngine:
 
         if not self.images:
             self.images.append(Image.new("RGB", (WIDTH, HEIGHT), (20, 16, 36)))
+
+        # Dynamic variable shot durations per scene
+        n_shots = max(len(self.images), 1)
+        self.shot_durs = [round(rng.uniform(2.7, 3.4), 2) for _ in range(n_shots)]
+        self.patterns = [rng.randint(0, 3) for _ in range(n_shots)]
+
+        # Pre-calculate cumulative transition timestamps
+        self.shot_starts = [0.0]
+        for d in self.shot_durs:
+            self.shot_starts.append(round(self.shot_starts[-1] + d, 2))
+        self.total_cycle = max(self.shot_starts[-1], 1.0)
 
         # Pre-render subtle top & bottom contrast gradient overlays
         self.top_grad = Image.new("RGBA", (WIDTH, 220), (0, 0, 0, 0))
@@ -482,9 +633,19 @@ class DynamicImageBackgroundEngine:
             d_bot.line([(0, y), (WIDTH, y)], fill=(0, 0, 0, a))
 
     def get_frame(self, t: float) -> Image.Image:
-        shot_idx = int(t // self.shot_dur) % len(self.images)
-        shot_prog = (t % self.shot_dur) / self.shot_dur  # 0.0 to 1.0
-        src = self.images[shot_idx]
+        cycle_t = t % self.total_cycle
+        shot_idx = 0
+        for i, s_t in enumerate(self.shot_starts[:-1]):
+            if cycle_t >= s_t:
+                shot_idx = i
+            else:
+                break
+
+        shot_start = self.shot_starts[shot_idx]
+        cur_dur = max(self.shot_durs[shot_idx], 0.1)
+        shot_prog = min(max((cycle_t - shot_start) / cur_dur, 0.0), 1.0)
+
+        src = self.images[shot_idx % len(self.images)]
         sw, sh = src.size
 
         target_aspect = WIDTH / HEIGHT  # 1080 / 1920 = 0.5625
@@ -495,7 +656,7 @@ class DynamicImageBackgroundEngine:
             base_h = int(base_w / target_aspect)
 
         max_pan_x = max(sw - base_w, 0)
-        pattern = shot_idx % 4
+        pattern = self.patterns[shot_idx % len(self.patterns)]
 
         if pattern == 0:
             # Smooth pan left to right
@@ -534,17 +695,20 @@ class DynamicImageBackgroundEngine:
         return frame
 
 
-def draw_hook_badge(img: Image.Image, story_title: str, t: float, max_dur: float = 3.6) -> Image.Image:
+def draw_hook_badge(img: Image.Image, story_title: str, t: float, max_dur: float = 3.6,
+                    theme: dict = None) -> Image.Image:
     """
     Renders a punchy, translucent breaking news badge at the top of the video
     during the first 3.6 seconds to hook viewers without obscuring subtitles or gameplay.
     """
     if t >= max_dur:
         return img
+    if theme is None:
+        theme = DAILY_THEMES[0]
 
     alpha = 220 if t < (max_dur - 0.6) else int(220 * (max_dur - t) / 0.6)
     badge_h = 74
-    badge_y = 115
+    badge_y = 118
     h_font = get_font(38, bold=True)
 
     clean_title = re.sub(r'#\w+', '', story_title).strip()
@@ -559,15 +723,16 @@ def draw_hook_badge(img: Image.Image, story_title: str, t: float, max_dur: float
     badge_w = min(tw + pad_x * 2, WIDTH - 40)
     bx = (WIDTH - badge_w) // 2
 
+    border_c = (*theme["badge_border"], alpha)
     badge = Image.new("RGBA", (badge_w, badge_h), (0, 0, 0, 0))
     d_b = ImageDraw.Draw(badge)
     d_b.rounded_rectangle([(0, 0), (badge_w, badge_h)], radius=16,
-                          fill=(20, 10, 35, alpha), outline=(255, 60, 140, alpha), width=2)
+                          fill=(18, 12, 30, alpha), outline=border_c, width=2)
     img.paste(badge, (bx, badge_y), badge)
 
     d = ImageDraw.Draw(img)
     stroke_text(d, title_upper, WIDTH // 2, badge_y + badge_h // 2, h_font,
-                fill=(255, 230, 100), sfill=(0, 0, 0), sw=3, anchor="mm")
+                fill=theme["badge_tag"], sfill=(0, 0, 0), sw=3, anchor="mm")
     return img
 
 
@@ -734,15 +899,21 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
         stderr=subprocess.PIPE
     )
 
-    # 4. Initialize resources
+    # 4. Initialize resources & daily aesthetic theme
+    daily_seed = f"{datetime.now().strftime('%Y-%m-%d')}_{story_title}"
+    theme = get_daily_theme(daily_seed)
+    creator_handle = get_creator_handle()
+    print(f"  Daily Visual Theme: {theme['name']}")
+    print(f"  Creator Branding: {creator_handle}")
+
     bg_reader = None
     if bg_source == "clip" and clip_path:
         bg_reader = VideoClipStreamReader(ffmpeg, clip_path, WIDTH, HEIGHT, FPS)
 
     dynamic_img_engine = None
     if bg_source == "images" and bg_imgs:
-        dynamic_img_engine = DynamicImageBackgroundEngine(bg_imgs, shot_dur=3.2)
-        print(f"  BG: dynamic 4K GTA 6 engine active ({len(dynamic_img_engine.images)} frames, Ken Burns & cuts)")
+        dynamic_img_engine = DynamicImageBackgroundEngine(bg_imgs, seed=daily_seed)
+        print(f"  BG: dynamic 4K GTA 6 engine active ({len(dynamic_img_engine.images)} frames, daily shuffle & cuts)")
 
     proc_engine = ProceduralBackgroundEngine() if bg_source == "generate" or not (bg_reader or dynamic_img_engine) else None
 
@@ -766,36 +937,21 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
             if img is None:
                 img = Image.new("RGB", (WIDTH, HEIGHT), (15, 12, 28))
 
-            # Countdown banner (top y=0..90)
-            img = draw_countdown_banner(img, t, days_left)
-            d = ImageDraw.Draw(img)
+            # 1. Countdown banner (top y=0..104 with integrated progress bar)
+            prog_ratio = t / max(audio_dur, 0.1)
+            img = draw_countdown_banner(img, t, days_left, theme=theme, prog_ratio=prog_ratio)
 
-            # Progress bar (top y=93..100)
-            prog = int(WIDTH * (t / audio_dur))
-            d.rectangle([(0, 93), (prog, 100)], fill=(255, 200, 0))
-            d.rectangle([(prog, 93), (WIDTH, 100)], fill=(30, 30, 30))
+            # 2. Floating hook breaking news badge for first 3.6s
+            img = draw_hook_badge(img, story_title, t, max_dur=3.6, theme=theme)
 
-            # Floating hook breaking news badge for first 3.6s
-            img = draw_hook_badge(img, story_title, t, max_dur=3.6)
-
-            # Dynamic Kinetic Subtitles (2-3 words with active word highlight) at exact speech time t
+            # 3. Dynamic Kinetic Subtitles (2-3 words with active word highlight) at exact speech time t
             active_chunk = get_active_chunk(kinetic_chunks, t)
             if active_chunk:
-                img = draw_kinetic_caption(img, active_chunk, t)
+                img = draw_kinetic_caption(img, active_chunk, t, highlight_color=theme["highlight"])
 
-            # Footer
-            d = ImageDraw.Draw(img)
-            show_cta = t >= audio_dur - 8
-            if show_cta:
-                d.rectangle([(0, HEIGHT - 140), (WIDTH, HEIGHT)], fill=(220, 0, 0))
-                stroke_text(d, "FOLLOW FOR DAILY GTA 6 NEWS!",
-                            WIDTH // 2, HEIGHT - 70,
-                            get_font(44, True), (255, 255, 255), (100, 0, 0), 2, "mm")
-            else:
-                d.rectangle([(0, HEIGHT - 80), (WIDTH, HEIGHT)], fill=(0, 0, 0))
-                stroke_text(d, "GTA6 DAILY  |  LIKE & FOLLOW  |  2026",
-                            WIDTH // 2, HEIGHT - 40,
-                            get_font(28), (130, 130, 130), (0, 0, 0), 1, "mm")
+            # 4. Creator branding footer (@SamWithJoystick) & end CTA
+            show_cta = t >= audio_dur - 7.0
+            img = draw_creator_footer(img, t, theme=theme, is_cta=show_cta, handle=creator_handle)
 
             pipe_out.stdin.write(img.tobytes())
 
