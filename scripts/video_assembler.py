@@ -577,17 +577,85 @@ class VideoClipStreamReader:
             self.process = None
 
 
+# ── GTA 6 TRAILER FOCAL POINTS (CALIBRATED SUBJECT CENTERING) ──────────────────
+FOCAL_POINTS = {
+    "gta6_trailer_01.jpg": (0.45, 0.55),  # Highway sunset panorama
+    "gta6_trailer_02.jpg": (0.40, 0.50),  # Prison fence sunset
+    "gta6_trailer_03.jpg": (0.28, 0.45),  # Lucia looking out prison window (left)
+    "gta6_trailer_04.jpg": (0.42, 0.45),  # Prison counselor & Lucia discussion (left)
+    "gta6_trailer_05.jpg": (0.50, 0.45),  # Lucia orange jumpsuit interview
+    "gta6_trailer_06.jpg": (0.58, 0.48),  # Catamaran yacht & swimming dolphins
+    "gta6_trailer_07.jpg": (0.50, 0.50),  # Vice Beach crowded coastline
+    "gta6_trailer_08.jpg": (0.50, 0.45),  # Vice City skyline title card
+    "gta6_trailer_09.jpg": (0.45, 0.50),  # Skyscrapers & palm trees low angle
+    "gta6_trailer_10.jpg": (0.25, 0.55),  # Airboat skimming swamp at golden hour (left)
+    "gta6_trailer_11.jpg": (0.50, 0.50),  # Flamingos taking flight over wetlands
+    "gta6_trailer_12.jpg": (0.30, 0.55),  # Trio of beachgoers walking forward (left)
+    "gta6_trailer_13.jpg": (0.52, 0.60),  # Speedboat in foreground, container ship in bay
+    "gta6_trailer_14.jpg": (0.65, 0.55),  # Speedboat catching air over ocean wake (right)
+    "gta6_trailer_15.jpg": (0.35, 0.55),  # Girl driving convertible under neon highway sign (left)
+    "gta6_trailer_16.jpg": (0.28, 0.52),  # Iconic girl dancing in yellow dress on convertible (left)
+    "gta6_trailer_17.jpg": (0.72, 0.60),  # Slammed emerald green lowrider sedan (right)
+    "gta6_trailer_18.jpg": (0.50, 0.55),  # Pink lowrider donk street gathering
+    "gta6_trailer_19.jpg": (0.50, 0.50),  # Vice City nightclub packed dance floor
+    "gta6_trailer_20.jpg": (0.52, 0.45),  # Two street characters fist bumping up close
+    "gta6_trailer_21.jpg": (0.50, 0.50),  # Night aerial cityscape & highway grid
+    "gta6_trailer_22.jpg": (0.50, 0.55),  # Ocean Drive neon supercars cruising
+    "gta6_trailer_23.jpg": (0.42, 0.45),  # DJ stage performance in nightclub (center-left)
+    "gta6_trailer_24.jpg": (0.50, 0.45),  # Overseas highway bridges & seaplane
+    "gta6_trailer_25.jpg": (0.50, 0.45),  # Bikini influencer on luxury rooftop pool
+    "gta6_trailer_26.jpg": (0.50, 0.50),  # Massive VICE letters silhouette at sunset
+    "gta6_trailer_27.jpg": (0.50, 0.50),  # Social media yacht party live stream
+    "gta6_trailer_28.jpg": (0.40, 0.55),  # Florida man pulling alligator from swimming pool (left)
+    "gta6_trailer_29.jpg": (0.42, 0.55),  # Social clip car roof dancer
+    "gta6_trailer_30.jpg": (0.48, 0.50),  # Drone night view of intersection smoke burnout
+    "gta6_trailer_31.jpg": (0.50, 0.50),  # Neon live stream dancers on mobile UI
+    "gta6_trailer_32.jpg": (0.58, 0.55),  # Convenience store alligator crawling inside (right)
+    "gta6_trailer_33.jpg": (0.60, 0.50),  # Police bodycam tactical room entry (right)
+    "gta6_trailer_34.jpg": (0.55, 0.50),  # Police officer battering door
+}
+
+
+def detect_focal_point(img: Image.Image) -> tuple:
+    """
+    Fast visual saliency fallback for any custom or new image:
+    Finds center of visual energy / high-frequency detail in the 16:9 canvas,
+    avoiding sky, bottom letterboxes, and watermarks.
+    """
+    try:
+        import numpy as np
+        small = img.convert("L").resize((320, 180))
+        edges = small.filter(ImageFilter.FIND_EDGES)
+        arr = np.array(edges, dtype=float)
+        h, w = arr.shape
+        mask = np.zeros_like(arr)
+        mask[int(h * 0.15):int(h * 0.85), int(w * 0.05):int(w * 0.95)] = 1.0
+        mask[int(h * 0.75):, int(w * 0.7):] = 0.0
+        weighted = arr * mask
+        col_sums = weighted.sum(axis=0)
+        smoothed_x = np.convolve(col_sums, np.ones(25) / 25, mode="same")
+        peak_x = float(np.argmax(smoothed_x)) / w
+        row_sums = weighted.sum(axis=1)
+        smoothed_y = np.convolve(row_sums, np.ones(25) / 25, mode="same")
+        peak_y = float(np.argmax(smoothed_y)) / h
+        return (max(0.20, min(peak_x, 0.80)), max(0.35, min(peak_y, 0.65)))
+    except Exception:
+        return (0.50, 0.50)
+
+
 # ── DYNAMIC 4K IMAGE BACKGROUND ENGINE (KEN BURNS & DAILY VARIETY) ───────────
 class DynamicImageBackgroundEngine:
     """
     Renders authentic 4K GTA 6 screenshots with cinematic camera motion:
+    - Subject-anchored framing: characters, cars & action are NEVER cropped offscreen in 9:16
     - Shuffles/curates scenes daily based on date & story so videos never look identical
-    - Variable shot durations (2.6s - 3.4s) for an organic, human editing pace
-    - Alternating Ken Burns camera motion (pan left/right, slow zoom-in, slow zoom-out)
+    - Organic shot durations (3.8s - 4.6s) giving ample breathing room for visual storytelling
+    - 4 Subject-anchored camera patterns: Hero Push-In, Hero Pull-Back, Foreground Reveal Sweep, Tracking Drift
     - Full 4K resolution clarity with subtle top/bottom contrast gradients
     """
     def __init__(self, image_paths: list, seed: str = None):
         self.images = []
+        self.focal_points = []
         rng = random.Random(seed) if seed else random.Random()
 
         # Shuffle available 4K screenshots uniquely for each day / story
@@ -601,16 +669,39 @@ class DynamicImageBackgroundEngine:
                 if ih > 2160:
                     scale = 2160 / ih
                     im = im.resize((int(iw * scale), 2160), Image.BILINEAR)
+
+                fname = os.path.basename(p)
+                fname_lower = fname.lower()
+                if fname in FOCAL_POINTS:
+                    focal = FOCAL_POINTS[fname]
+                else:
+                    m_fx = re.search(r'_fx([0-1]\.?\d*)', fname_lower)
+                    if m_fx:
+                        try:
+                            focal = (float(m_fx.group(1)), 0.50)
+                        except:
+                            focal = detect_focal_point(im)
+                    elif "_left" in fname_lower:
+                        focal = (0.28, 0.50)
+                    elif "_right" in fname_lower:
+                        focal = (0.72, 0.50)
+                    elif "_center" in fname_lower:
+                        focal = (0.50, 0.50)
+                    else:
+                        focal = detect_focal_point(im)
+
                 self.images.append(im)
-            except:
+                self.focal_points.append(focal)
+            except Exception:
                 pass
 
         if not self.images:
             self.images.append(Image.new("RGB", (WIDTH, HEIGHT), (20, 16, 36)))
+            self.focal_points.append((0.50, 0.50))
 
-        # Dynamic variable shot durations per scene
+        # Organic variable shot durations (3.8s - 4.6s) to let foreground action breathe
         n_shots = max(len(self.images), 1)
-        self.shot_durs = [round(rng.uniform(2.7, 3.4), 2) for _ in range(n_shots)]
+        self.shot_durs = [round(rng.uniform(3.8, 4.6), 2) for _ in range(n_shots)]
         self.patterns = [rng.randint(0, 3) for _ in range(n_shots)]
 
         # Pre-calculate cumulative transition timestamps
@@ -643,9 +734,12 @@ class DynamicImageBackgroundEngine:
 
         shot_start = self.shot_starts[shot_idx]
         cur_dur = max(self.shot_durs[shot_idx], 0.1)
-        shot_prog = min(max((cycle_t - shot_start) / cur_dur, 0.0), 1.0)
+        raw_prog = min(max((cycle_t - shot_start) / cur_dur, 0.0), 1.0)
+        # Smooth sinusoidal ease in/out for camera movement
+        smooth_prog = 0.5 - 0.5 * math.cos(raw_prog * math.pi)
 
         src = self.images[shot_idx % len(self.images)]
+        fx, fy = self.focal_points[shot_idx % len(self.focal_points)]
         sw, sh = src.size
 
         target_aspect = WIDTH / HEIGHT  # 1080 / 1920 = 0.5625
@@ -656,32 +750,45 @@ class DynamicImageBackgroundEngine:
             base_h = int(base_w / target_aspect)
 
         max_pan_x = max(sw - base_w, 0)
+        max_pan_y = max(sh - base_h, 0)
+        anchor_x = max(0, min(int(fx * sw - base_w / 2), max_pan_x))
+        anchor_y = max(0, min(int(fy * sh - base_h / 2), max_pan_y))
+
         pattern = self.patterns[shot_idx % len(self.patterns)]
 
         if pattern == 0:
-            # Smooth pan left to right
-            cx = int(max_pan_x * (0.2 + 0.6 * shot_prog))
-            cy = (sh - base_h) // 2
-            cw, ch = base_w, base_h
+            # Hero Subject Push-In (smooth Ken Burns zoom into subject)
+            zoom = 1.0 - 0.09 * smooth_prog
+            cw = int(base_w * zoom)
+            ch = int(base_h * zoom)
+            cx = int(fx * sw - cw / 2)
+            cy = int(fy * sh - ch / 2)
         elif pattern == 1:
-            # Ken Burns slow zoom in
-            zoom = 1.0 - 0.07 * shot_prog
+            # Hero Subject Pull-Back (starts on subject, smoothly reveals surroundings)
+            zoom = 0.91 + 0.09 * smooth_prog
             cw = int(base_w * zoom)
             ch = int(base_h * zoom)
-            cx = (sw - cw) // 2
-            cy = (sh - ch) // 2
+            cx = int(fx * sw - cw / 2)
+            cy = int(fy * sh - ch / 2)
         elif pattern == 2:
-            # Smooth pan right to left
-            cx = int(max_pan_x * (0.8 - 0.6 * shot_prog))
-            cy = (sh - base_h) // 2
-            cw, ch = base_w, base_h
-        else:
-            # Ken Burns slow zoom out
-            zoom = 0.93 + 0.07 * shot_prog
+            # Foreground Reveal Sweep (sweeps directly onto foreground subject)
+            zoom = 0.96 - 0.04 * smooth_prog
             cw = int(base_w * zoom)
             ch = int(base_h * zoom)
-            cx = (sw - cw) // 2
-            cy = (sh - ch) // 2
+            if anchor_x <= max_pan_x * 0.5:
+                start_cx = min(anchor_x + 160, sw - cw)
+            else:
+                start_cx = max(anchor_x - 160, 0)
+            cx = int(start_cx + (anchor_x - start_cx) * smooth_prog)
+            cy = int(fy * sh - ch / 2)
+        else:
+            # Subject Tracking Drift (gentle drift across action while keeping subject in frame)
+            zoom = 0.94
+            cw = int(base_w * zoom)
+            ch = int(base_h * zoom)
+            drift_offset = 120 if anchor_x < max_pan_x / 2 else -120
+            cx = int(anchor_x + drift_offset * smooth_prog)
+            cy = int(fy * sh - ch / 2)
 
         cx = max(0, min(cx, sw - cw))
         cy = max(0, min(cy, sh - ch))
@@ -842,11 +949,14 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
             clip_path, bg_source = clips[0], "clip"
             print(f"  BG: clip from assets/clips/ -> {clip_path}")
         else:
-            imgs = list(Path("assets/backgrounds").glob("*.jpg")) + list(Path("assets/backgrounds").glob("*.png"))
+            extensions = ["*.jpg", "*.jpeg", "*.png", "*.webp"]
+            imgs = []
+            for ext in extensions:
+                imgs.extend(Path("assets/backgrounds").glob(ext))
             if imgs:
                 bg_imgs = [str(p) for p in imgs]
                 bg_source = "images"
-                print(f"  BG: {len(bg_imgs)} downloaded image(s)")
+                print(f"  BG: {len(bg_imgs)} background image(s)")
             else:
                 try:
                     from scripts.background_fetcher import fetch_backgrounds
