@@ -56,6 +56,14 @@ def get_authenticated_service():
     return build('youtube', 'v3', credentials=credentials)
 
 
+try:
+    from scripts.config import get_youtube_settings
+except ImportError:
+    import sys
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from scripts.config import get_youtube_settings
+
+
 def upload_video(video_path: str, script_data: dict, mode: str = "upload") -> str:
     """Upload video to YouTube as a Short."""
     
@@ -73,9 +81,12 @@ def upload_video(video_path: str, script_data: dict, mode: str = "upload") -> st
         print(f"💾 Video saved locally: {video_path}")
         return video_path
     
+    yt_cfg = get_youtube_settings()
     title = script_data.get("title", "GTA 6 HUGE News Update! 🎮")
     description = script_data.get("description", "#GTA6 #Shorts")
-    tags = script_data.get("tags", ["GTA6", "Shorts", "Gaming"])
+    tags = script_data.get("tags") or yt_cfg.get("default_tags", ["GTA6", "Shorts", "Gaming"])
+    privacy = yt_cfg.get("privacy_status", "unlisted")
+    category = yt_cfg.get("category_id", "20")
     
     # Ensure title isn't too long
     title = title[:90] if len(title) > 90 else title
@@ -89,11 +100,11 @@ def upload_video(video_path: str, script_data: dict, mode: str = "upload") -> st
             'title': title,
             'description': description,
             'tags': tags,
-            'categoryId': '20',  # Gaming category
+            'categoryId': category,  # Gaming category
             'defaultLanguage': 'en',
         },
         'status': {
-            'privacyStatus': 'public',
+            'privacyStatus': privacy,
             'selfDeclaredMadeForKids': False,
         }
     }

@@ -1,0 +1,37 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Video output & test renders
+output/
+*.mp4
+*.mov
+
+# Auto-downloaded / transient assets
+assets/backgrounds/
+assets/*.mp3
+assets/*.wav
+assets/music/*.wav
+!assets/music/.gitkeep
+assets/subtitles_timing.json
+assets/current_script.json
+assets/today_stories.json
+assets/youtube_token.pkl
+
+# Credentials & environment
+client_secrets.json
+.env
+.env.local
+
+# Operating System files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Logs
+logs/*.log
+!logs/2026-*.log

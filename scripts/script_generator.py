@@ -1,51 +1,146 @@
 """
-GTA 6 Script Generator
-- Fully dynamic: no predefined topic categories
-- Reads whatever article content is available and summarises it naturally
-- Falls back to pure headline expansion when article is thin
-- Always 170-200 words (58-65s at 1.1x TTS speed)
+GTA 6 Script Generator - Viral Hook Engine & Multi-LLM Orchestrator
+===================================================================
+- Priority 1: Google Gemini 2.0 / 1.5 Flash API (100% Free Tier, zero credit card)
+- Priority 2: Claude Haiku API (if ANTHROPIC_API_KEY set)
+- Priority 3: Local Ollama (if installed & running)
+- Priority 4: Dynamic Rule-Based Free Builder (works 100% offline, zero APIs)
+- Viral Retention: 3 proven Shorts hook frameworks (Curiosity Gap, Contrarian Take, High-Stakes Reveal)
+- Target Length: Strictly 160-185 words (52-58s at high-energy pacing)
 """
-import json, os, random, re, subprocess, urllib.request, urllib.error
+import json
+import os
+import random
+import re
+import subprocess
+import urllib.request
+import urllib.error
 from datetime import datetime
 
-CLAUDE_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
-CLAUDE_MODEL   = "claude-haiku-4-5-20251001"
+try:
+    from scripts.config import get_config, get_llm_settings
+except ImportError:
+    import sys
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from scripts.config import get_config, get_llm_settings
 
-HOOKS = [
-    "This GTA 6 story just dropped and you need to hear this.",
-    "Stop scrolling. This GTA 6 update just hit.",
-    "Okay so this just came out and I have to break it down.",
-    "GTA 6 fans, pay attention because this just happened.",
-    "Something significant just dropped in the GTA 6 world.",
-    "Real talk — this GTA 6 news just shifted the conversation.",
-    "A new GTA 6 report just went live and the details matter.",
-    "The GTA 6 news keeps coming and this one is a big deal.",
-    "You need to hear this GTA 6 update right now.",
-    "The gaming world is talking about this GTA 6 story today.",
-    "Rockstar Games is back in the headlines and here is why.",
-    "Every GTA 6 fan needs to hear what just came out.",
-]
+# ── VIRAL RETENTION HOOK FRAMEWORKS ───────────────────────────────────────────
+VIRAL_HOOK_FORMULAS = {
+    "curiosity_gap": [
+        "Rockstar Games just quietly updated something massive, and barely anyone noticed.",
+        "There is a hidden detail in the latest GTA 6 report that changes everything.",
+        "Nobody was supposed to see this GTA 6 leak yet, but here it is.",
+        "Rockstar just made a silent move that has the entire community digging for answers.",
+        "A covert GTA 6 development just surfaced, and the implications are crazy.",
+        "Stop scrolling. A quiet change from Rockstar just leaked the biggest GTA 6 clue yet.",
+    ],
+    "contrarian_take": [
+        "Everyone thinks GTA 6 is getting delayed, but this latest update proves the opposite.",
+        "Gamers are panicking about GTA 6 rumors, but they are looking at the completely wrong clue.",
+        "You think you know what Rockstar is planning for Vice City, but this leak says otherwise.",
+        "Most people completely misunderstood the latest GTA 6 announcement.",
+        "The internet is reacting to this GTA 6 rumor all wrong — here is the actual reality.",
+        "Everyone is convinced this GTA 6 feature is cancelled, but new evidence just proved them wrong.",
+    ],
+    "high_stakes_reveal": [
+        "If this new GTA 6 report is accurate, Rockstar just changed open-world gaming forever.",
+        "This GTA 6 leak just dropped, and it might be the biggest gaming reveal of 2026.",
+        "Stop scrolling right now, because GTA 6 just hit a massive new milestone.",
+        "This GTA 6 news just shifted the entire conversation around Rockstar's next masterpiece.",
+        "The gaming world just stopped in its tracks over this GTA 6 update.",
+        "Take-Two executives just confirmed something about GTA 6 that breaks every record.",
+    ]
+}
 
+# Standard CTA closers for high YouTube Shorts subscriber conversion
 CTAS = [
-    "Follow for daily GTA 6 updates.",
-    "Subscribe so you never miss a GTA 6 drop.",
-    "Follow and drop your thoughts in the comments.",
-    "Hit follow — more GTA 6 news coming every day.",
-    "Follow for daily coverage and comment your reaction.",
-    "Subscribe and let me know what you think below.",
-    "Follow now. The GTA 6 era is moving fast.",
-    "Drop a comment with your reaction and hit follow.",
-    "Let me know in the comments — and follow for daily updates.",
+    "Subscribe for daily GTA 6 leaks and drops.",
+    "Follow so you never miss another GTA 6 update.",
+    "Drop your reaction in the comments and hit subscribe.",
+    "Subscribe now — more GTA 6 news coming every single day.",
+    "Let me know what you think in the comments and subscribe.",
+    "Hit subscribe and stay ahead of every GTA 6 reveal.",
 ]
+
+
+def get_viral_hook(formula_type: str = None) -> tuple[str, str]:
+    """Select a viral hook and its formula category."""
+    if not formula_type or formula_type not in VIRAL_HOOK_FORMULAS:
+        formula_type = random.choice(list(VIRAL_HOOK_FORMULAS.keys()))
+    hook_sentence = random.choice(VIRAL_HOOK_FORMULAS[formula_type])
+    return formula_type, hook_sentence
+
+
+# ── GOOGLE GEMINI FLASH API (100% FREE TIER) ──────────────────────────────────
+def call_gemini(prompt: str, model: str = None) -> str:
+    """
+    Calls Google Gemini Flash API via official REST endpoint.
+    Zero external dependencies required.
+    Free tier allows 15 RPM / 1,500 requests per day with zero billing required.
+    """
+    llm_cfg = get_llm_settings()
+    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY") or llm_cfg.get("gemini_api_key", "")
+    if not api_key:
+        return None
+
+    preferred_model = model or llm_cfg.get("gemini_model", "gemini-2.0-flash")
+    models_to_try = [preferred_model, "gemini-2.0-flash", "gemini-1.5-flash"]
+    # Preserve order while deduplicating
+    seen = set()
+    models = [m for m in models_to_try if m and not (m in seen or seen.add(m))]
+
+    for m in models:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={api_key}"
+        payload = json.dumps({
+            "contents": [
+                {
+                    "parts": [{"text": prompt}]
+                }
+            ],
+            "generationConfig": {
+                "temperature": llm_cfg.get("temperature", 0.7),
+                "maxOutputTokens": 800
+            }
+        }).encode("utf-8")
+
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            headers={"Content-Type": "application/json"},
+            method="POST"
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=25) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                candidates = data.get("candidates", [])
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    if parts:
+                        text = parts[0].get("text", "").strip()
+                        if text and len(text.split()) >= 120:
+                            print(f"  Gemini Flash ({m}): {len(text.split())} words generated successfully")
+                            return text
+        except urllib.error.HTTPError as e:
+            err = e.read().decode("utf-8", errors="replace")
+            print(f"  Gemini ({m}) HTTP {e.code}: {err[:120]}")
+            continue
+        except Exception as e:
+            print(f"  Gemini ({m}) error: {e}")
+            continue
+
+    return None
 
 
 # ── CLAUDE API ─────────────────────────────────────────────────────────────────
 def call_claude(prompt: str, max_tokens: int = 700) -> str:
-    if not CLAUDE_API_KEY:
+    llm_cfg = get_llm_settings()
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "") or llm_cfg.get("claude_api_key", "")
+    if not api_key:
         return None
-    import json as _j
-    payload = _j.dumps({
-        "model": CLAUDE_MODEL,
+    model = llm_cfg.get("claude_model", "claude-haiku-4-5-20251001")
+
+    payload = json.dumps({
+        "model": model,
         "max_tokens": max_tokens,
         "messages": [{"role": "user", "content": prompt}]
     }).encode("utf-8")
@@ -53,7 +148,7 @@ def call_claude(prompt: str, max_tokens: int = 700) -> str:
         "https://api.anthropic.com/v1/messages",
         data=payload,
         headers={
-            "x-api-key": CLAUDE_API_KEY,
+            "x-api-key": api_key,
             "anthropic-version": "2023-06-01",
             "content-type": "application/json",
         },
@@ -61,12 +156,12 @@ def call_claude(prompt: str, max_tokens: int = 700) -> str:
     )
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
-            data = _j.loads(resp.read().decode())
+            data = json.loads(resp.read().decode("utf-8"))
             return data["content"][0]["text"].strip()
     except urllib.error.HTTPError as e:
-        err = e.read().decode()
+        err = e.read().decode("utf-8", errors="replace")
         if "credit" in err.lower() or "billing" in err.lower():
-            print("  Claude: out of credits — using free generator")
+            print("  Claude: out of credits — falling back to next provider")
         else:
             print(f"  Claude error {e.code}: {err[:100]}")
         return None
@@ -75,52 +170,66 @@ def call_claude(prompt: str, max_tokens: int = 700) -> str:
         return None
 
 
-def build_claude_prompt(story: dict) -> str:
+# ── OLLAMA LOCAL FALLBACK ──────────────────────────────────────────────────────
+def generate_with_ollama(prompt: str) -> str:
+    try:
+        result = subprocess.run(
+            ["ollama", "run", "mistral", prompt],
+            capture_output=True, text=True, timeout=90
+        )
+        out = result.stdout.strip()
+        if result.returncode == 0 and len(out.split()) >= 120:
+            print(f"  Ollama: {len(out.split())} words generated")
+            return out
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass
+    return None
+
+
+# ── PROMPT BUILDER ─────────────────────────────────────────────────────────────
+def build_llm_prompt(story: dict, formula_name: str, hook: str, cta: str) -> str:
     title  = story.get("title", "")
     text   = story.get("text", story.get("summary", ""))[:2500]
     source = story.get("source", "")
     date   = story.get("date", "2026")
-    hook   = random.choice(HOOKS)
-    cta    = random.choice(CTAS)
 
-    return f"""You are writing a YouTube Shorts voiceover script about a GTA 6 news article.
+    return f"""You are an elite YouTube Shorts scriptwriter specializing in high-retention gaming content for Grand Theft Auto VI (GTA 6).
 
-ARTICLE HEADLINE: {title}
-SOURCE: {source} | DATE: {date}
-FULL ARTICLE:
-{text if text else "(no article body — work from headline only)"}
+VIRAL HOOK FORMULA: {formula_name.upper().replace('_', ' ')}
+MANDATORY OPENING SENTENCE: "{hook}"
 
-Write a natural flowing voiceover script that covers this news fully.
+ARTICLE CONTEXT:
+Headline: {title}
+Source: {source} | Date: {date}
+Body details:
+{text if text else "(No full article body available - thoroughly expand on the headline facts and implications for GTA 6 players)"}
 
-STRUCTURE:
-1. Hook (1 punchy sentence): {hook}
-2. Body (8-10 sentences): Summarise the article naturally in your own words. Cover every key detail — numbers, dates, names, what happened, why it matters to GTA 6 fans. Write as flowing speech, not bullet points.
-3. CTA (1 sentence): {cta}
+MANDATORY CLOSING SENTENCE: "{cta}"
 
-STRICT RULES:
-- Exactly 170 to 200 words total
-- If article body is missing, expand the headline into a full detailed discussion
-- Every sentence must add new information — no repetition
-- Do NOT mention the source name anywhere in the script
-- No hashtags, no emojis, no "In conclusion", no "That's all"
-- Do NOT start with "Hey guys" or "Welcome back"
-- Short sentences that flow naturally when read aloud
-- Output ONLY the final script text, nothing else"""
+SCRIPT REQUIREMENTS:
+1. Pacing & Length: Strictly 128 to 136 words total (timed for 51-55 seconds for YouTube Shorts at natural pacing).
+2. Structure:
+   - Line 1: Use the exact Opening Sentence provided above.
+   - Body (7-8 flowing sentences): Break down the news with high excitement. Highlight concrete names, leaks, numbers, map details, dates, or console impact. Keep sentences punchy and conversational.
+   - Line Last: Use the exact Closing Sentence provided above.
+3. Strict Prohibitions:
+   - Do NOT say "Hey guys", "Welcome back", or mention sources like "Kotaku" or "IGN".
+   - Do NOT use hashtags, emojis, or markdown markup (no asterisks, bolding, brackets).
+   - Do NOT output preamble, labels (like 'Hook:', 'Body:'), or notes. Output ONLY spoken voiceover dialogue.
+"""
 
 
-# ── FREE SUMMARISER (no API needed) ───────────────────────────────────────────
+# ── DYNAMIC FREE SUMMARISER (OFFLINE RULE-BASED BUILDER) ───────────────────────
 def score_sentence(s: str) -> int:
-    """Score a sentence by how informative and specific it is."""
+    """Score a sentence by its informativeness and GTA relevance."""
     sl = s.lower()
-    sc = len(s) // 8  # base: longer = more content
+    sc = len(s) // 8
 
-    # High value: numbers, prices, dates, specific facts
     if re.search(r'\$[\d,.]+|\d+\s*(?:billion|million|dollars|usd)', sl): sc += 35
     if re.search(r'\b202[5-9]\b', s): sc += 20
     if re.search(r'\b\d{1,3}(?:\.\d+)?\s*(?:million|billion|thousand)\b', sl): sc += 20
     if re.search(r'\b\d+\b', s): sc += 8
 
-    # GTA 6 relevant terms
     for kw in ['confirmed','leaked','revealed','announced','official','reportedly',
                'exclusive','insider','according','stated','launch','release','price',
                'trailer','gameplay','feature','map','online','ps5','xbox','pc',
@@ -129,28 +238,21 @@ def score_sentence(s: str) -> int:
                'rating','esrb','pegi','sequel','protagonist','open world']:
         if kw in sl: sc += 10
 
-    # Penalise boilerplate
     if re.search(r'cookie|newsletter|subscribe|advertisement|sign.?up|'
                  r'read more|click here|related:|also read|share this|'
                  r'terms of|privacy policy|all rights|copyright|\d+ (?:shares?|views?)',
                  sl): sc -= 200
 
-    # Penalise very short or very long
     if len(s) < 35: sc -= 20
     if len(s) > 250: sc -= 10
-
     return sc
 
 
 def clean_sentence(s: str) -> str:
-    """Trim and clean a sentence for TTS."""
     s = s.strip()
-    # Remove source attribution phrases
     s = re.sub(r'^(?:according to|per|via|reported by|as per)\s+[\w\s]{1,25},?\s*',
                '', s, flags=re.IGNORECASE)
-    # Remove parenthetical references
     s = re.sub(r'\([^)]{0,100}\)', '', s)
-    # Cap at readable length
     if len(s) > 160:
         cut = s[:160].rfind(' ')
         s = (s[:cut] if cut > 60 else s[:160]) + '.'
@@ -160,107 +262,69 @@ def clean_sentence(s: str) -> str:
 
 
 def expand_headline(title: str) -> list:
-    """
-    Dynamically expand ANY headline into 3-5 fact statements.
-    Fully dynamic — no hardcoded topic categories.
-    """
+    """Dynamically expands any headline into high-relevance, natural conversational GTA 6 statements."""
     facts = []
     tl = title.lower()
 
-    # Extract years / months mentioned in headline
     years  = re.findall(r'\b(202[5-9]|203\d)\b', title)
     months = re.findall(r'\b(january|february|march|april|may|june|july|'
                         r'august|september|october|november|december)\b', tl)
-    numbers = re.findall(r'\$[\d,.]+|\b\d{2,}(?:\.\d+)?\s*(?:billion|million|thousand)?\b', title)
 
-    # Opening fact from headline
-    clean_title = re.sub(r'\s*[|:–—]\s*.+$', '', title).strip().rstrip('.')
-    facts.append(f"{clean_title}.")
-
-    # Time-based context
     if months and years:
-        facts.append(f"This puts GTA 6 on track for a {months[0].capitalize()} {years[0]} window, which aligns with the holiday gaming season.")
+        facts.append(f"This targets GTA 6 right in a {months[0].capitalize()} {years[0]} launch window, lining up perfectly with the massive holiday season.")
     elif years:
-        facts.append(f"The discussion around GTA 6 in {years[0]} continues to build as fans wait for an official announcement from Rockstar.")
+        facts.append(f"The countdown to {years[0]} is officially ticking, and Rockstar is entering the final stretch of development.")
 
-    # Number-based context
-    if numbers:
-        facts.append(f"The specific figure of {numbers[0]} is what has the GTA 6 community talking loudest right now.")
-
-    # Keyword-driven contextual expansion — fully dynamic
     expansions = {
-        "price":      "Pricing has become one of the most debated topics around GTA 6, with fans split on what is a fair ask for a decade in the making.",
-        "cost":       "The cost of GTA 6 is a hotly debated topic given the scale and budget of its development.",
-        "delay":      "A potential delay would be a significant blow to fans who have already waited over a decade since GTA 5 launched in 2013.",
-        "leak":       "This leak is drawing attention because the level of specific detail suggests the source has genuine inside knowledge.",
-        "leaked":     "Leaked information of this specificity tends to be credible, which is why the community is reacting so strongly.",
-        "trailer":    "The GTA 6 trailer previously broke YouTube records within hours, so any new footage will have an enormous audience ready.",
-        "gameplay":   "Gameplay details for GTA 6 have been highly guarded by Rockstar, making any confirmed information a major event.",
-        "map":        "The GTA 6 map is widely expected to be the largest and most detailed open world Rockstar has ever built.",
-        "online":     "GTA Online has generated over eight billion dollars since 2013, making GTA 6's online component one of gaming's most anticipated launches.",
-        "ps5":        "PS5 and Xbox Series X are the confirmed launch platforms, with a PC version expected to arrive at a later date.",
-        "xbox":       "Xbox players have been watching GTA 6 news closely given the console's strong GTA Online player base.",
-        "pc":         "Whether GTA 6 launches simultaneously on PC or arrives later has been a major point of discussion among the gaming community.",
-        "rating":     "An official age rating submission is one of the clearest signals that a game is approaching its final release stages.",
-        "esrb":       "An ESRB submission is a strong indicator that a game is close to launch, as ratings are required before release.",
-        "pre-order":  "Pre-order listings from major retailers are often the first real indicator of an upcoming release window.",
-        "rockstar":   "Rockstar Games has maintained near-total silence beyond the original trailer, making every piece of new information significant.",
-        "confirmed":  "Official confirmation from Rockstar or a verified source carries far more weight than typical rumours in the GTA 6 space.",
-        "insider":    "Industry insiders with a track record of accurate predictions have earned credibility in the GTA 6 community over years of coverage.",
-        "character":  "The confirmed protagonists Lucia and Jason represent a major shift for the GTA series, bringing a dual lead dynamic for the first time.",
-        "vice city":  "Vice City's return as a setting is one of the most celebrated confirmed details about GTA 6 among long-time franchise fans.",
-        "edition":    "Special edition and bundle announcements for major releases typically signal that a launch date is not far away.",
-        "graphics":   "GTA 6's visual ambition has been described by those who have seen it as unlike anything previously released in gaming.",
-        "music":      "The GTA series is famous for its licensed soundtracks, and GTA 6's music selection has been a frequent topic of fan speculation.",
-        "story":      "The narrative of GTA 6 has been kept almost completely under wraps by Rockstar, making any story detail a major revelation.",
-        "multiplayer":"The multiplayer component of GTA 6 is expected to be the most ambitious online gaming experience ever attempted.",
+        "price":      "Discussions around the launch price are already exploding across the community, with fans debating what a billion-dollar game should cost.",
+        "cost":       "With an estimated development budget crossing two billion dollars, Rockstar is aiming to completely redefine the entertainment industry.",
+        "delay":      "Even rumors of a slight shift have players on high alert, because the gaming world has already waited over a decade for this sequel.",
+        "leak":       "These leaked details are turning heads everywhere because the insider production info looks shockingly authentic.",
+        "leaked":     "The details emerging from this leak give us our clearest look yet at how next-gen systems will handle Rockstar's massive world.",
+        "trailer":    "After the record-breaking debut trailer, any fresh gameplay footage or teaser from Rockstar is guaranteed to break the entire internet.",
+        "gameplay":   "Under the hood, new AI physics and dynamic police interactions are reportedly going to make Vice City feel like a living breathing city.",
+        "map":        "The new map is widely expected to dwarf both GTA 5 and Red Dead 2 combined, packed with dense interiors and endless coastlines.",
+        "online":     "Multiplayer is where GTA truly shines, and the next evolution of GTA Online is poised to become the biggest gaming playground in history.",
+        "ps5":        "PlayStation 5 and Xbox Series X are set to push hardware to its absolute limit, featuring realistic volumetric clouds and ray-traced lighting.",
+        "xbox":       "Current-gen console owners are counting down the days, with Rockstar optimizing specifically for maximum immersion and 60 FPS performance.",
+        "pc":         "PC gamers are watching closely to see if Rockstar surprises us with a simultaneous release, or follows the traditional console-first launch.",
+        "rating":     "Official production milestones are quietly locking into place, signaling that Rockstar is gearing up for the marketing storm.",
+        "vice city":  "Returning to Vice City with modern neon lighting, saturated sunset skies, and hyper-detailed neighborhoods is going to feel incredible.",
+        "lucia":      "Lucia and Jason bring a gripping criminal duo dynamic to the storyline, creating the most emotional and cinematic GTA campaign yet.",
+        "release":    "Every single piece of evidence shows Rockstar is locking down the release timeline to make this the biggest launch event of the decade.",
     }
 
-    added = set()
-    for keyword, expansion in expansions.items():
-        if keyword in tl and expansion not in facts and keyword not in added:
-            facts.append(expansion)
-            added.add(keyword)
-            if len(facts) >= 5:
+    for kw, exp in expansions.items():
+        if kw in tl and exp not in facts:
+            facts.append(exp)
+            if len(facts) >= 4:
                 break
 
-    # General GTA 6 context if still short
     general = [
-        "Rockstar Games has built enormous anticipation over years of near-silence, making every development significant.",
-        "GTA 6 carries the weight of being the most anticipated sequel in gaming history, following GTA 5's unprecedented success.",
-        "The GTA franchise has a combined install base of hundreds of millions of players worldwide.",
-        "Every piece of GTA 6 news goes viral almost instantly, reflecting the global appetite for any information about the game.",
+        "The level of anticipation behind GTA 6 is unprecedented, with hundreds of millions of players tracking every subtle clue.",
+        "Rockstar has spent over ten years perfecting this world, and expectations could not be higher.",
+        "From lifelike NPC routines to breathtaking visual fidelity, this is shaping up to be an absolute masterpiece.",
+        "Every single detail we learn proves that Vice City is going to be an unforgettable experience."
     ]
     random.shuffle(general)
     for g in general:
         if len(facts) >= 6: break
-        if g not in facts:
-            facts.append(g)
+        if g not in facts: facts.append(g)
 
     return facts
 
 
-def build_free_script(story: dict) -> str:
-    """
-    Fully dynamic free script builder.
-    Uses real article sentences when available, expands headline when not.
-    No hardcoded topic categories or predefined filler.
-    """
+def build_free_script(story: dict, hook: str, cta: str) -> str:
+    """Offline rule-based script builder using viral hook structure."""
     title  = story.get("title", "GTA 6 Update")
     text   = story.get("text", story.get("summary", "")).strip()
-    hook   = random.choice(HOOKS)
-    cta    = random.choice(CTAS)
-    target = 185  # words
+    target = 132
 
     body_sentences = []
     word_count = len(hook.split()) + len(cta.split())
 
-    # ── CASE 1: Real article content available ────────────────────────────────
     if len(text) > 300:
-        raw_sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', text)
-                         if len(s.strip()) > 30]
-
-        # Score and sort by informativeness
+        raw_sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', text) if len(s.strip()) > 30]
         scored = sorted(raw_sentences, key=score_sentence, reverse=True)
         good   = [s for s in scored if score_sentence(s) > 0]
 
@@ -268,51 +332,39 @@ def build_free_script(story: dict) -> str:
         for s in good:
             if word_count >= target: break
             cleaned = clean_sentence(s)
+            sw = len(cleaned.split())
+            if word_count + sw > target + 5:
+                continue
             key = cleaned[:50].lower()
             if cleaned and key not in seen_text:
                 body_sentences.append(cleaned)
                 seen_text.add(key)
-                word_count += len(cleaned.split())
+                word_count += sw
 
-    # ── CASE 2: Thin / no article content — expand headline dynamically ───────
-    if word_count < target - 20:
+    if word_count < target - 10:
         expanded = expand_headline(title)
         seen_keys = {s[:50].lower() for s in body_sentences}
-        for fact in expanded:
+        for f in expanded:
             if word_count >= target: break
-            key = fact[:50].lower()
+            fw = len(f.split())
+            if word_count + fw > target + 5:
+                continue
+            key = f[:50].lower()
             if key not in seen_keys:
-                body_sentences.append(fact)
+                body_sentences.append(f)
                 seen_keys.add(key)
-                word_count += len(fact.split())
+                word_count += fw
 
-    body = ' '.join(body_sentences)
-
-    # Remove source attributions one more time
-    body = re.sub(r'(?:according to|per|via|reported by)\s+[\w\s]{1,25},?\s*',
-                  '', body, flags=re.IGNORECASE)
-    body = re.sub(r'\([^)]{0,100}\)', '', body)
-    body = re.sub(r'\s+', ' ', body).strip()
-
-    return f"{hook}\n\n{body}\n\n{cta}"
-
-
-def generate_with_ollama(story: dict) -> str:
-    try:
-        result = subprocess.run(
-            ["ollama", "run", "mistral", build_claude_prompt(story)],
-            capture_output=True, text=True, timeout=90
-        )
-        out = result.stdout.strip()
-        if result.returncode == 0 and len(out.split()) >= 120:
-            print(f"  Ollama: {len(out.split())} words")
-            return out
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        pass
-    return None
+    script = f"{hook}\n\n" + " ".join(body_sentences) + f"\n\n{cta}"
+    return script
 
 
 def clean_script(text: str) -> str:
+    """Cleans raw LLM or template output for voice narration."""
+    # Remove markdown headers and markers
+    text = re.sub(r'^(?:hook|body|cta|intro|outro):\s*', '', text, flags=re.IGNORECASE | re.MULTILINE)
+    text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+    text = re.sub(r'\*(.*?)\*', r'\1', text)
     text = re.sub(r'(?:according to|per|via)\s+[\w\s]{1,25},?\s*', '', text, flags=re.IGNORECASE)
     text = re.sub(r'\([^)]{0,100}\)', '', text)
     text = re.sub(r'#\w+', '', text)
@@ -322,46 +374,60 @@ def clean_script(text: str) -> str:
     return text.strip()
 
 
+# ── MASTER SCRIPT GENERATOR ────────────────────────────────────────────────────
 def generate_script(story: dict) -> dict:
     print("Generating script...")
     article_len = len(story.get("text", ""))
     summary_len = len(story.get("summary", ""))
     print(f"  Content: {article_len} chars article | {summary_len} chars summary")
 
+    formula_name, hook = get_viral_hook()
+    cta = random.choice(CTAS)
+    print(f"  Viral Hook Formula: {formula_name.upper().replace('_', ' ')}")
+    print(f"  Opening Hook: \"{hook}\"")
+
+    llm_prompt = build_llm_prompt(story, formula_name, hook, cta)
     script_text = None
     method = ""
 
-    # 1. Claude API
-    if CLAUDE_API_KEY:
+    # Priority 1: Google Gemini Flash API (100% Free tier)
+    if os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY"):
+        print("  Trying Google Gemini Flash API...")
+        script_text = call_gemini(llm_prompt)
+        if script_text:
+            method = "Google Gemini Flash (Free)"
+
+    # Priority 2: Claude API
+    if not script_text and os.environ.get("ANTHROPIC_API_KEY"):
         print("  Trying Claude API...")
-        script_text = call_claude(build_claude_prompt(story))
-        method = "Claude API"
+        script_text = call_claude(llm_prompt)
+        if script_text:
+            method = "Claude API"
 
-    # 2. Ollama
-    if not script_text or len(script_text.split()) < 120:
-        print("  Trying Ollama...")
-        script_text = generate_with_ollama(story)
-        method = "Ollama"
+    # Priority 3: Local Ollama
+    if not script_text or len(script_text.split()) < 95:
+        script_text = generate_with_ollama(llm_prompt)
+        if script_text:
+            method = "Ollama Local"
 
-    # 3. Free dynamic builder — always works
-    if not script_text or len(script_text.split()) < 120:
-        print("  Using free dynamic builder...")
-        script_text = build_free_script(story)
-        method = "Free Builder"
+    # Priority 4: Dynamic Free Offline Builder
+    if not script_text or len(script_text.split()) < 95:
+        print("  Using dynamic free builder with viral hook...")
+        script_text = build_free_script(story, hook, cta)
+        method = f"Dynamic Free Builder ({formula_name})"
 
     script_text = clean_script(script_text)
 
-    # Pad if still short — deduplicate strictly using full sentence tracking
+    # Balance word count strictly around 105-125 words for 50-55s YouTube Shorts duration
     pad_attempts = 0
     existing_keys = {s.strip()[:50].lower() for s in re.split(r'[.!?]', script_text) if s.strip()}
-    while len(script_text.split()) < 155 and pad_attempts < 10:
+    while len(script_text.split()) < 105 and pad_attempts < 10:
         extras = expand_headline(story.get("title", ""))
         random.shuffle(extras)
         added = False
         for e in extras:
             key = e[:50].lower()
             if key not in existing_keys and e[:30].lower() not in script_text.lower():
-                # Insert before the CTA (last line)
                 lines = script_text.rsplit("\n\n", 1)
                 if len(lines) == 2:
                     script_text = lines[0] + " " + e + "\n\n" + lines[1]
@@ -374,9 +440,9 @@ def generate_script(story: dict) -> dict:
         if not added:
             break
 
-    wc  = len(script_text.split())
-    est = round(wc / 2.9)
-    print(f"\n  Method: {method} | Words: {wc} | ~{est}s spoken at 1.1x speed")
+    wc = len(script_text.split())
+    est_sec = round(wc / 2.25)
+    print(f"\n  Method: {method} | Words: {wc} | ~{est_sec}s spoken at Shorts pacing")
     print(f"\n  SCRIPT:\n{'='*55}")
     print(script_text)
     print('='*55)
@@ -394,6 +460,13 @@ def generate_script(story: dict) -> dict:
         "GTA 6 Update That Has Everyone Talking Right Now",
     ]
 
+    cfg_youtube = get_config().get("youtube", {})
+    default_tags = cfg_youtube.get("default_tags", [
+        "GTA6", "GTA VI", "Grand Theft Auto 6", "GTA 6 news", "GTA 6 leak",
+        "GTA 6 release date", "GTA 6 trailer", "GTA 6 gameplay", "GTA 6 2026",
+        "Rockstar Games", "Shorts"
+    ])
+
     result = {
         "story":   story,
         "script":  script_text,
@@ -405,14 +478,9 @@ def generate_script(story: dict) -> dict:
             f"Subscribe for daily GTA 6 news, leaks, trailers and updates!\n\n"
             f"#Shorts #GTA6 #GTA6News #RockstarGames #Gaming"
         ),
-        "tags": [
-            "GTA6","GTA VI","Grand Theft Auto 6","GTA 6 news","GTA 6 leak",
-            "GTA 6 release date","GTA 6 trailer","GTA 6 gameplay","GTA 6 2026",
-            "GTA 6 map","GTA 6 update","Rockstar Games","GTA 6 PS5","GTA 6 Xbox",
-            "GTA 6 online","GTA 6 price","GTA 6 Lucia","GTA 6 Vice City",
-            "gaming news 2026","GTA 6 India","GTA 6 PC","GTA 6 delay",
-        ],
+        "tags": default_tags,
         "method": method,
+        "hook_formula": formula_name,
     }
 
     os.makedirs("assets", exist_ok=True)
@@ -424,15 +492,12 @@ def generate_script(story: dict) -> dict:
 
 if __name__ == "__main__":
     os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-    # Test with various news types
-    for test in [
-        {"title": "GTA 6 Music Soundtrack Rumoured to Feature 200 Licensed Songs",
-         "text": "", "summary": "", "source": "VG247", "date": "Feb 2026"},
-        {"title": "GTA 6 ESRB Rating Submitted — Launch Getting Very Close",
-         "text": "Rockstar Games has submitted Grand Theft Auto 6 to the ESRB for an official age rating. The submission was spotted by eagle-eyed fans on the ESRB database. Games typically receive their rating 3 to 6 months before launch. This strongly suggests GTA 6 is in final stages of development. The rating category is expected to be Mature 17+.",
-         "summary": "", "source": "Kotaku", "date": "Feb 2026"},
-    ]:
-        print(f"\n{'='*60}")
-        print(f"Testing: {test['title']}")
-        generate_script(test)
+    test_story = {
+        "title": "GTA 6 ESRB Rating Submitted — Launch Getting Very Close",
+        "text": "Rockstar Games has submitted Grand Theft Auto 6 to the ESRB for an official age rating. The submission was spotted by eagle-eyed fans on the ESRB database. Games typically receive their rating 3 to 6 months before launch. This strongly suggests GTA 6 is in final stages of development. The rating category is expected to be Mature 17+.",
+        "summary": "",
+        "source": "Kotaku",
+        "date": "2026"
+    }
+    print(f"\nTesting script generation:")
+    generate_script(test_story)
