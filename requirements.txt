@@ -9,16 +9,16 @@ requests>=2.31.0         # HTTP requests (Google News, IGN, Kotaku etc.)
 gTTS>=2.4.0              # Google Text-to-Speech (free, needs internet)
 pyttsx3>=2.90            # Offline TTS (free, no internet needed)
 
-# ── AUDIO PROCESSING ─────────────────────────────────────────
+# ── AUDIO PROCESSING & TTS ───────────────────────────────────
 pydub>=0.25.1            # Audio manipulation
-# NOTE: pydub needs ffmpeg installed separately:
-# Windows: https://ffmpeg.org/download.html → add to PATH
-# OR: pip install imageio[ffmpeg]
+edge-tts>=6.1.0          # Studio neural TTS voices (free)
 
-# ── VIDEO CREATION ───────────────────────────────────────────
+# ── VIDEO CREATION & FFMPEG ──────────────────────────────────
+imageio-ffmpeg>=0.5.0    # Bundled standalone FFmpeg binary for Windows
 moviepy>=1.0.3           # Video editing (free)
 Pillow>=10.0.0           # Image manipulation
 numpy>=1.24.0            # Array operations
+
 
 # ── YOUTUBE UPLOAD ───────────────────────────────────────────
 google-api-python-client>=2.100.0  # YouTube Data API
