@@ -778,12 +778,18 @@ def find_ffmpeg():
 def get_audio_duration(ffmpeg, audio_path):
     try:
         r = subprocess.run([
-            ffmpeg, "-v", "error", "-show_entries", "format=duration",
-            "-of", "default=noprint_wrappers=1:nokey=1", audio_path
+            ffmpeg, "-i", audio_path, "-f", "null", "-"
         ], capture_output=True, text=True, timeout=15)
-        return min(float(r.stdout.strip()), 58.0)
-    except:
-        return 58.0
+        for line in r.stderr.splitlines():
+            if "Duration:" in line:
+                m = re.search(r"Duration:\s*(\d+):(\d+):(\d+\.?\d*)", line)
+                if m:
+                    h, mn, s = float(m.group(1)), float(m.group(2)), float(m.group(3))
+                    dur = h * 3600 + mn * 60 + s
+                    return min(round(dur, 2), 58.0)
+    except Exception as e:
+        pass
+    return 58.0
 
 
 # ── MAIN VIDEO ASSEMBLER ───────────────────────────────────────────────────────

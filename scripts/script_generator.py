@@ -207,7 +207,7 @@ Body details:
 MANDATORY CLOSING SENTENCE: "{cta}"
 
 SCRIPT REQUIREMENTS:
-1. Pacing & Length: Strictly 160 to 180 words total (timed for 52-58 seconds at high-energy speech).
+1. Pacing & Length: Strictly 125 to 135 words total (timed for 50-55 seconds for YouTube Shorts).
 2. Structure:
    - Line 1: Use the exact Opening Sentence provided above.
    - Body (7-8 flowing sentences): Break down the news with high excitement. Highlight concrete names, leaks, numbers, map details, dates, or console impact. Keep sentences punchy and conversational.
@@ -329,7 +329,7 @@ def build_free_script(story: dict, hook: str, cta: str) -> str:
     """Offline rule-based script builder using viral hook structure."""
     title  = story.get("title", "GTA 6 Update")
     text   = story.get("text", story.get("summary", "")).strip()
-    target = 175
+    target = 110
 
     body_sentences = []
     word_count = len(hook.split()) + len(cta.split())
@@ -410,23 +410,23 @@ def generate_script(story: dict) -> dict:
             method = "Claude API"
 
     # Priority 3: Local Ollama
-    if not script_text or len(script_text.split()) < 120:
+    if not script_text or len(script_text.split()) < 95:
         script_text = generate_with_ollama(llm_prompt)
         if script_text:
             method = "Ollama Local"
 
     # Priority 4: Dynamic Free Offline Builder
-    if not script_text or len(script_text.split()) < 120:
+    if not script_text or len(script_text.split()) < 95:
         print("  Using dynamic free builder with viral hook...")
         script_text = build_free_script(story, hook, cta)
         method = f"Dynamic Free Builder ({formula_name})"
 
     script_text = clean_script(script_text)
 
-    # Balance word count strictly around 160-185 words for YouTube Shorts duration
+    # Balance word count strictly around 105-125 words for 50-55s YouTube Shorts duration
     pad_attempts = 0
     existing_keys = {s.strip()[:50].lower() for s in re.split(r'[.!?]', script_text) if s.strip()}
-    while len(script_text.split()) < 155 and pad_attempts < 10:
+    while len(script_text.split()) < 105 and pad_attempts < 10:
         extras = expand_headline(story.get("title", ""))
         random.shuffle(extras)
         added = False
@@ -446,8 +446,8 @@ def generate_script(story: dict) -> dict:
             break
 
     wc = len(script_text.split())
-    est_sec = round(wc / 2.9)
-    print(f"\n  Method: {method} | Words: {wc} | ~{est_sec}s spoken at 1.12x speed")
+    est_sec = round(wc / 2.25)
+    print(f"\n  Method: {method} | Words: {wc} | ~{est_sec}s spoken at Shorts pacing")
     print(f"\n  SCRIPT:\n{'='*55}")
     print(script_text)
     print('='*55)

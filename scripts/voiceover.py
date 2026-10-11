@@ -20,9 +20,9 @@ except ImportError:
 
 _tts_cfg = get_tts_settings()
 _mus_cfg = get_music_settings()
-DEFAULT_VOICE = _tts_cfg.get("voice", "en-US-ChristopherNeural")   # High-energy, crisp gaming narration
-DEFAULT_RATE  = _tts_cfg.get("rate", "+12%")                      # Punchy YouTube Shorts pacing
-DEFAULT_BGM_VOL = 0.28                                             # Audible gaming mix ratio
+DEFAULT_VOICE = _tts_cfg.get("voice", "en-IN-PrabhatNeural")       # High-energy, natural Indian English narration
+DEFAULT_RATE  = _tts_cfg.get("rate", "+13%")                          # Punchy YouTube Shorts pacing
+DEFAULT_BGM_VOL = 0.28                                                 # Audible gaming mix ratio
 DEFAULT_ENABLE_MUSIC = _mus_cfg.get("enabled", True)
 
 
@@ -181,6 +181,48 @@ def mix_voice_and_bgm(voice_path: str, bgm_path: str, output_path: str,
         return False
 
 
+def apply_studio_vocal_chain(input_path: str, output_path: str) -> bool:
+    """
+    Applies professional studio microphone audio mastering to the voiceover:
+    - Highpass (80 Hz): removes synthetic sub-rumble
+    - Proximity warmth EQ (+2.2 dB at 220 Hz): rich radio presence
+    - Consonant clarity EQ (+3.8 dB at 3400 Hz): crisp intelligibility over music
+    - Studio air EQ (+1.8 dB at 8000 Hz): high-end clarity
+    - Broadcast dynamic compressor: evens out quiet and punchy syllables
+    - Output volume leveling
+    """
+    ffmpeg = find_ffmpeg()
+    if not ffmpeg:
+        shutil.copy2(input_path, output_path)
+        return False
+
+    vocal_filter = (
+        "highpass=f=80,"
+        "equalizer=f=220:width_type=o:width=1.0:g=2.2,"
+        "equalizer=f=3400:width_type=o:width=1.2:g=3.8,"
+        "equalizer=f=8200:width_type=o:width=1.0:g=1.8,"
+        "acompressor=threshold=-18dB:ratio=3.5:attack=15:release=120:makeup=2.5dB,"
+        "volume=1.2"
+    )
+
+    try:
+        cmd = [
+            ffmpeg, "-y",
+            "-i", input_path,
+            "-af", vocal_filter,
+            "-c:a", "libmp3lame", "-b:a", "192k",
+            output_path
+        ]
+        result = subprocess.run(cmd, capture_output=True, timeout=30)
+        if result.returncode == 0 and os.path.exists(output_path):
+            return True
+    except Exception as e:
+        print(f"  Vocal mastering error: {e}")
+
+    shutil.copy2(input_path, output_path)
+    return False
+
+
 # ── EDGE-TTS IMPLEMENTATION ───────────────────────────────────────────────────
 async def _async_edge_tts(script: str, output_path: str, voice: str, rate: str):
     import edge_tts
@@ -304,6 +346,7 @@ def generate_voiceover(script_data: dict, voice: str = DEFAULT_VOICE, rate: str 
     os.makedirs("assets/music", exist_ok=True)
 
     script = script_data.get("script", "")
+    raw_path = "assets/voiceover_raw.mp3"
     dry_path = "assets/voiceover_dry.mp3"
     final_path = "assets/voiceover.mp3"
     timing_file = "assets/subtitles_timing.json"
@@ -315,21 +358,25 @@ def generate_voiceover(script_data: dict, voice: str = DEFAULT_VOICE, rate: str 
     success = False
 
     # 1. Edge-TTS (Primary)
-    success, timings = generate_voice_edge_tts(script, dry_path, voice=voice, rate=rate)
+    success, timings = generate_voice_edge_tts(script, raw_path, voice=voice, rate=rate)
 
     # 2. gTTS Fallback
     if not success:
         print("  Falling back to gTTS...")
-        success = generate_voice_gtts(script, dry_path)
+        success = generate_voice_gtts(script, raw_path)
 
     # 3. pyttsx3 Fallback
     if not success:
         print("  Falling back to pyttsx3 (offline)...")
-        success = generate_voice_pyttsx3(script, dry_path)
+        success = generate_voice_pyttsx3(script, raw_path)
 
-    if not success or not os.path.exists(dry_path):
+    if not success or not os.path.exists(raw_path):
         print("ERROR: All TTS engines failed.")
         sys.exit(1)
+
+    # Professional Studio Vocal Chain (EQ + Broadcast Compression)
+    print("  Applying studio vocal mastering (EQ, presence boost & broadcast compression)...")
+    apply_studio_vocal_chain(raw_path, dry_path)
 
     # Save timings to assets/subtitles_timing.json & script_data
     if timings:
