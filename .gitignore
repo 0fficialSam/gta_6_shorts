@@ -10,7 +10,6 @@ output/
 *.mov
 
 # Auto-downloaded / transient assets
-assets/backgrounds/
 assets/*.mp3
 assets/*.wav
 assets/music/*.wav
