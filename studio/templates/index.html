@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GTA VI Creator Studio Pro</title>
+    <title>Gaming Content Studio | @{{ creator_handle }}</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons CDN -->
@@ -14,12 +14,17 @@
             theme: {
                 extend: {
                     colors: {
-                        stage: {
-                            bg: '#08080a',
-                            card: '#101014',
-                            elevated: '#17171d',
-                            border: 'rgba(255, 255, 255, 0.08)',
-                            borderLight: 'rgba(255, 255, 255, 0.16)',
+                        studio: {
+                            bg: '#0B0D12',
+                            panel: '#14171F',
+                            border: '#222733',
+                            card: '#181C26',
+                            hover: '#1F2432',
+                            input: '#0F1118',
+                        },
+                        accent: {
+                            yellow: '#FFE600',
+                            yellowHover: '#E6CF00',
                         },
                         vice: {
                             pink: '#ff2a6d',
@@ -29,8 +34,9 @@
                         }
                     },
                     fontFamily: {
-                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Segoe UI"', 'Roboto', 'sans-serif'],
-                        impact: ['Impact', '"Arial Black"', 'Montserrat', 'sans-serif'],
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+                        display: ['"Inter Tight"', 'Montserrat', 'sans-serif'],
+                        headline: ['"Arial Black"', 'Montserrat', 'sans-serif'],
                     }
                 }
             }
@@ -38,26 +44,15 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Inter+Tight:wght@700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #08080a;
-            color: #fafafa;
+            background-color: #0B0D12;
+            color: #F3F4F6;
             -webkit-font-smoothing: antialiased;
         }
         .canvas-shadow {
-            box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.08);
-        }
-        .vignette-overlay {
-            background: linear-gradient(
-                to bottom,
-                rgba(5, 6, 10, 0.82) 0%,
-                rgba(5, 6, 10, 0.25) 18%,
-                rgba(5, 6, 10, 0.12) 36%,
-                rgba(5, 6, 10, 0.65) 54%,
-                rgba(5, 6, 10, 0.92) 75%,
-                rgba(5, 6, 10, 0.99) 100%
-            );
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.08);
         }
         ::-webkit-scrollbar {
             width: 5px;
@@ -67,496 +62,216 @@
             background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.12);
+            background: #222733;
             border-radius: 999px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.25);
+            background: #333A4D;
         }
         .text-headline-clean {
             letter-spacing: 0.015em;
             filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.95)) drop-shadow(0 4px 14px rgba(0, 0, 0, 0.98));
             -webkit-text-stroke: 0.8px rgba(0, 0, 0, 0.7);
         }
-        .text-outline {
-            text-shadow: 
-                -1px -1px 0 #000,  
-                 1px -1px 0 #000,
-                -1px  1px 0 #000,
-                 1px  1px 0 #000,
-                 0 2px 4px rgba(0,0,0,0.85);
+        .scrollbar-none::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-none {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .active-strip-card {
+            border-color: #FFE600 !important;
+            box-shadow: 0 0 0 2px #FFE600;
+        }
+        .gallery-shot-card {
+            width: 100% !important;
+            height: 180px !important;
+            min-height: 180px !important;
+            border-radius: 0.75rem !important;
+            overflow: hidden !important;
+            position: relative !important;
+            background-color: #14171F !important;
+            border: 1px solid #222733 !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease-in-out !important;
+            display: block !important;
+            flex-shrink: 0 !important;
+        }
+        .gallery-shot-card:hover {
+            border-color: #FFE600 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+        }
+        .gallery-shot-card.is-active {
+            border-color: #FFE600 !important;
+            box-shadow: 0 0 0 2px #FFE600, 0 8px 24px rgba(255, 230, 0, 0.25) !important;
+        }
+        .gallery-shot-card img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            display: block !important;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-vice-pink selection:text-white">
+<body class="min-h-screen flex flex-col bg-[#0B0D12] text-zinc-100 font-sans selection:bg-[#FFE600] selection:text-black">
 
-    <!-- TOP CONTROL DOCK -->
-    <header class="border-b border-stage-border bg-stage-bg/90 backdrop-blur-md sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
-            
-            <!-- BRAND -->
-            <div class="flex items-center gap-3">
-                <div class="flex items-center gap-2">
-                    <span class="font-black text-sm tracking-widest text-white uppercase select-none">
-                        GAMING STUDIO
-                    </span>
-                    <span class="text-[10px] bg-vice-cyan/20 text-vice-cyan px-2 py-0.5 rounded-full border border-vice-cyan/30 font-extrabold uppercase tracking-wider">
-                        UNIVERSAL PRO
-                    </span>
+    <!-- =================================================================== -->
+    <!-- TOP SLIM WORKSTATION HEADER (h-12)                                  -->
+    <!-- =================================================================== -->
+    <header class="h-12 border-b border-[#222733] bg-[#14171F] px-4 flex items-center justify-between sticky top-0 z-40">
+        
+        <!-- BRAND & CREATOR STATUS -->
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-md bg-[#FFE600] text-black font-black flex items-center justify-center text-xs shadow-sm">
+                    SJ
                 </div>
-                <span class="h-3 w-[1px] bg-zinc-800 hidden sm:inline"></span>
-                <span class="text-[11px] text-zinc-400 font-medium hidden sm:flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    {{ creator_handle }}
+                <span class="font-black text-xs sm:text-sm tracking-wider text-white uppercase select-none">
+                    Studio Pro
                 </span>
             </div>
+            <span class="h-3 w-[1px] bg-[#222733] hidden sm:inline"></span>
+            <span class="text-xs text-zinc-400 font-semibold hidden sm:flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>{{ creator_handle }}</span>
+            </span>
+        </div>
 
-            <!-- MAC-STYLE WORKFLOW SELECTOR -->
-            <div class="flex items-center p-0.5 rounded-lg bg-zinc-900 border border-stage-border text-xs">
-                <button id="modeBtnBoth" onclick="setMode('both')" class="mode-tab px-3 py-1 rounded-md font-bold text-white bg-zinc-800 shadow-sm transition">
-                    Complete Pack
-                </button>
-                <button id="modeBtnImage" onclick="setMode('image')" class="mode-tab px-3 py-1 rounded-md font-medium text-zinc-400 hover:text-white transition">
-                    Instagram 4:5
-                </button>
-                <button id="modeBtnVideo" onclick="setMode('video')" class="mode-tab px-3 py-1 rounded-md font-medium text-zinc-400 hover:text-white transition">
-                    Short Video 9:16
-                </button>
-                <button id="modeBtnVault" onclick="setMode('vault')" class="mode-tab px-3 py-1 rounded-md font-medium text-zinc-400 hover:text-white transition">
-                    Vault Archive
-                </button>
-            </div>
+        <!-- CENTER: PRIMARY WORKFLOW MODE SELECTOR (POST 4:5 vs SHORT 9:16) -->
+        <div class="flex items-center p-0.5 rounded-lg bg-[#0B0D12] border border-[#222733] text-xs">
+            <button id="modeBtnImage" onclick="setMode('image')" class="mode-tab px-3 py-1 rounded-md font-bold text-black bg-[#FFE600] shadow-sm transition flex items-center gap-1.5">
+                <i data-lucide="image" class="w-3.5 h-3.5"></i>
+                <span>Instagram 4:5</span>
+            </button>
+            <button id="modeBtnVideo" onclick="setMode('video')" class="mode-tab px-3 py-1 rounded-md font-semibold text-zinc-400 hover:text-white transition flex items-center gap-1.5">
+                <i data-lucide="video" class="w-3.5 h-3.5"></i>
+                <span>YouTube Short 9:16</span>
+            </button>
+            <button id="modeBtnBoth" onclick="setMode('both')" class="mode-tab px-3 py-1 rounded-md font-semibold text-zinc-400 hover:text-white transition hidden md:flex items-center gap-1.5">
+                <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                <span>Complete Pack</span>
+            </button>
+        </div>
 
-            <!-- STAGE ACTIONS -->
-            <div class="flex items-center gap-2">
-                <!-- Social Mockup Toggle -->
-                <button id="mockupToggleBtn" onclick="toggleSocialMockup()" class="h-8 px-2.5 rounded-md bg-zinc-900 hover:bg-zinc-800 border border-stage-border text-xs font-semibold text-zinc-300 hover:text-white transition flex items-center gap-1.5" title="Toggle real in-feed social media frame">
-                    <i id="mockupToggleIcon" data-lucide="smartphone" class="w-3.5 h-3.5 text-vice-cyan"></i>
-                    <span id="mockupToggleLabel" class="hidden sm:inline">Feed Mockup: ON</span>
-                </button>
+        <!-- RIGHT: SHORTCUTS & ACTIONS -->
+        <div class="flex items-center gap-2">
+            <!-- Feed Mockup Toggle -->
+            <button id="mockupToggleBtn" onclick="toggleSocialMockup()" class="h-8 px-2.5 rounded-lg bg-[#0B0D12] hover:bg-[#181C26] border border-[#222733] text-xs font-semibold text-zinc-300 hover:text-white transition flex items-center gap-1.5" title="Toggle social media UI frame">
+                <i id="mockupToggleIcon" data-lucide="smartphone" class="w-3.5 h-3.5 text-[#FFE600]"></i>
+                <span id="mockupToggleLabel" class="hidden md:inline">Feed Mockup: ON</span>
+            </button>
 
-                <button onclick="openOutputFolder()" class="h-8 px-2.5 rounded-md bg-zinc-900 hover:bg-zinc-800 border border-stage-border text-xs font-medium text-zinc-300 hover:text-white transition flex items-center gap-1.5" title="Open output files on disk">
-                    <i data-lucide="folder" class="w-3.5 h-3.5"></i>
-                    <span class="hidden md:inline">Output Folder</span>
-                </button>
-            </div>
+            <!-- Keyboard Shortcuts Button -->
+            <button onclick="toggleShortcutsModal()" class="h-8 px-2.5 rounded-lg bg-[#0B0D12] hover:bg-[#181C26] border border-[#222733] text-xs font-semibold text-zinc-400 hover:text-white transition hidden sm:flex items-center gap-1" title="Keyboard shortcuts: S, G, D, C">
+                <i data-lucide="keyboard" class="w-3.5 h-3.5"></i>
+                <span class="font-mono text-[11px]">Shortcuts</span>
+            </button>
+
+            <!-- Output Folder Button -->
+            <button onclick="openOutputFolder()" class="h-8 px-2.5 rounded-lg bg-[#0B0D12] hover:bg-[#181C26] border border-[#222733] text-xs font-semibold text-zinc-300 hover:text-white transition flex items-center gap-1.5" title="Open output files on PC">
+                <i data-lucide="folder-open" class="w-3.5 h-3.5 text-zinc-400"></i>
+                <span class="hidden lg:inline">Explorer</span>
+            </button>
         </div>
     </header>
 
-    <!-- MAIN 3-ZONE STUDIO WORKSPACE -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-
-        <!-- =============================================================== -->
-        <!-- ZONE 1: THE CREATOR INSPECTOR (LEFT TOOL SUITE - 5 COLS)        -->
-        <!-- =============================================================== -->
-        <div class="lg:col-span-5 flex flex-col gap-4">
+    <!-- =================================================================== -->
+    <!-- 3-ZONE STUDIO WORKSPACE CONTAINER                                   -->
+    <!-- =================================================================== -->
+    <div class="flex-1 flex flex-col lg:flex-row w-full overflow-hidden min-h-[calc(100vh-3rem)]">
+        
+        <!-- --------------------------------------------------------------- -->
+        <!-- ZONE 1: LEFT NAVIGATION SIDEBAR (NARROW ICON DOCK)              -->
+        <!-- --------------------------------------------------------------- -->
+        <aside class="w-full lg:w-20 border-b lg:border-b-0 lg:border-r border-[#222733] bg-[#14171F] flex lg:flex-col items-center justify-between p-2 lg:py-4 gap-1 flex-shrink-0 z-30">
             
-            <div class="p-5 rounded-2xl bg-stage-card border border-stage-border shadow-xl flex flex-col gap-4">
+            <!-- Top Nav Items -->
+            <div class="flex lg:flex-col items-center gap-1.5 w-full justify-around lg:justify-start">
                 
-                <!-- ------------------------------------------------------- -->
-                <!-- TARGET VIDEO GAME & ON-DEMAND ENGINE DOCK               -->
-                <!-- ------------------------------------------------------- -->
-                <div class="p-3.5 rounded-xl bg-zinc-950 border border-stage-border space-y-2.5">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-vice-cyan animate-pulse"></span>
-                            <span class="text-xs font-black uppercase tracking-wider text-white">Target Video Game</span>
-                        </div>
-                        <span id="gameSourceBadge" class="text-[10px] font-mono text-vice-cyan">Multi-Source On-Demand</span>
-                    </div>
+                <!-- 1. CREATE / EDITOR (HERO) -->
+                <button id="navItemCreate" onclick="switchNavView('create')" class="nav-btn w-full py-2.5 px-2 rounded-xl flex flex-col items-center justify-center gap-1 transition bg-[#FFE600]/10 text-[#FFE600] border border-[#FFE600]/30" title="Studio Editor">
+                    <i data-lucide="pen-tool" class="w-5 h-5"></i>
+                    <span class="text-[11px] font-bold">Create</span>
+                </button>
 
-                    <!-- Game Input & On-Demand Fetcher -->
-                    <div class="flex gap-2">
-                        <div class="relative flex-1">
-                            <input id="inputGameTitle" oninput="handleGameTitleInput()" type="text" value="GTA VI" placeholder="Enter ANY game (e.g. Ghost of Yōtei, Witcher 4...)" class="w-full bg-zinc-900 border border-stage-border rounded-lg px-3 py-2 text-xs font-black text-white uppercase focus:outline-none focus:border-vice-cyan transition placeholder:text-zinc-600">
-                        </div>
-                        <button id="btnFetchGameShots" onclick="fetchShotsForCurrentGame()" class="px-3 py-2 rounded-lg bg-vice-cyan hover:bg-cyan-400 text-black font-black text-xs transition active:scale-95 flex items-center gap-1.5 whitespace-nowrap shadow-md">
-                            <i data-lucide="download-cloud" class="w-3.5 h-3.5" id="fetchGameIcon"></i>
-                            <span id="btnFetchGameText">Fetch 4K Shots</span>
-                        </button>
-                    </div>
+                <!-- 2. NEWS FEED -->
+                <button id="navItemNews" onclick="switchNavView('news')" class="nav-btn w-full py-2.5 px-2 rounded-xl flex flex-col items-center justify-center gap-1 transition text-zinc-400 hover:text-white hover:bg-[#181C26]" title="Live News Feed (17 Outlets)">
+                    <i data-lucide="rss" class="w-5 h-5 text-vice-pink"></i>
+                    <span class="text-[11px] font-bold">News</span>
+                </button>
 
-                    <!-- Popular Franchise Quick Selector Chips -->
-                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-[10px] scrollbar-none">
-                        <button onclick="selectGamePreset('GTA VI')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-vice-cyan text-vice-cyan font-bold whitespace-nowrap transition">GTA VI</button>
-                        <button onclick="selectGamePreset('Ghost of Yōtei')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Ghost of Yōtei</button>
-                        <button onclick="selectGamePreset('The Witcher 4')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">The Witcher 4</button>
-                        <button onclick="selectGamePreset('Cyberpunk 2077')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Cyberpunk 2077</button>
-                        <button onclick="selectGamePreset('Elden Ring')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Elden Ring</button>
-                        <button onclick="selectGamePreset('Marvel\'s Wolverine')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Wolverine</button>
-                        <button onclick="selectGamePreset('Black Ops 6')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Black Ops 6</button>
-                        <button onclick="selectGamePreset('Assassin\'s Creed Shadows')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">AC Shadows</button>
-                        <button onclick="selectGamePreset('Doom: The Dark Ages')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Doom Dark Ages</button>
-                        <button onclick="selectGamePreset('Death Stranding 2')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Death Stranding 2</button>
-                    </div>
-                </div>
+                <!-- 3. 4K GALLERY (SHOTS) -->
+                <button id="navItemGallery" onclick="switchNavView('gallery')" class="nav-btn w-full py-2.5 px-2 rounded-xl flex flex-col items-center justify-center gap-1 transition text-zinc-400 hover:text-white hover:bg-[#181C26]" title="4K Screenshot Vault">
+                    <i data-lucide="image" class="w-5 h-5 text-vice-cyan"></i>
+                    <span class="text-[11px] font-bold">Gallery</span>
+                </button>
 
-                <!-- TOOL SUITE TABS -->
-                <div class="flex items-center justify-between border-b border-stage-border pb-3">
-                    <div class="flex gap-1 bg-zinc-950 p-1 rounded-lg border border-stage-border text-xs w-full">
-                        <button id="toolTabBtnStory" onclick="setToolTab('story')" class="tool-tab flex-1 py-1.5 rounded-md font-bold text-white bg-zinc-800 transition flex items-center justify-center gap-1.5">
-                            <i data-lucide="pen-tool" class="w-3.5 h-3.5 text-vice-pink"></i>
-                            <span>Story</span>
-                        </button>
-                        <button id="toolTabBtnMedia" onclick="setToolTab('media')" class="tool-tab flex-1 py-1.5 rounded-md font-medium text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5">
-                            <i data-lucide="image" class="w-3.5 h-3.5 text-vice-cyan"></i>
-                            <span>4K Shots (98)</span>
-                        </button>
-                        <button id="toolTabBtnAudio" onclick="setToolTab('audio')" class="tool-tab flex-1 py-1.5 rounded-md font-medium text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5">
-                            <i data-lucide="music" class="w-3.5 h-3.5 text-vice-yellow"></i>
-                            <span>Audio</span>
-                        </button>
-                        <button id="toolTabBtnStyle" onclick="setToolTab('style')" class="tool-tab flex-1 py-1.5 rounded-md font-medium text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5">
-                            <i data-lucide="sliders" class="w-3.5 h-3.5 text-purple-400"></i>
-                            <span>Theme</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- ------------------------------------------------------- -->
-                <!-- TOOL 1: STORY & LIVE TYPOGRAPHY                         -->
-                <!-- ------------------------------------------------------- -->
-                <div id="toolPanelStory" class="space-y-4">
-                    
-                    <!-- LIVE RSS AUTO-SCRAPER QUICK ACCESS DOCK -->
-                    <div class="p-3 rounded-xl bg-zinc-950 border border-stage-border space-y-2">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-1.5">
-                                <i data-lucide="rss" class="w-3.5 h-3.5 text-vice-pink"></i>
-                                <span class="text-xs font-black uppercase text-white tracking-wider">Live News: <span id="currentNewsGameLabel" class="text-vice-cyan">GTA VI</span></span>
-                            </div>
-                            <span class="text-[10px] font-mono text-zinc-400">17 Outlets + Google RSS</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button type="button" onclick="autoScrapeTopStory()" id="btnAutoScrapeTop" class="py-2 px-3 rounded-lg bg-gradient-to-r from-vice-pink to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 shadow-md">
-                                <i data-lucide="zap" class="w-3.5 h-3.5 fill-white"></i>
-                                <span>⚡ Auto-Scrape Story</span>
-                            </button>
-                            <button type="button" onclick="toggleScrapedModal()" class="py-2 px-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-stage-border text-zinc-300 hover:text-white font-bold text-xs transition flex items-center justify-center gap-1.5">
-                                <i data-lucide="newspaper" class="w-3.5 h-3.5 text-vice-cyan"></i>
-                                <span id="btnBrowseRssLabel">Browse RSS (15)</span>
-                            </button>
-                        </div>
-                        <div class="text-[9px] text-zinc-500 leading-tight flex items-center gap-1">
-                            <i data-lucide="info" class="w-3 h-3 text-zinc-400"></i>
-                            <span id="autoScrapeDescLabel">Pulls live news for GTA VI and auto-matches 4K screenshot.</span>
-                        </div>
-                    </div>
-
-                    <!-- Trending Leak Carousel -->
-                    <div>
-                        <div class="flex items-center justify-between text-[11px] mb-1.5">
-                            <span class="text-zinc-400 font-semibold uppercase tracking-wider">Trending Leaks (1-Click)</span>
-                            <button onclick="toggleScrapedModal()" class="text-vice-cyan hover:underline font-bold flex items-center gap-1">
-                                <i data-lucide="globe" class="w-3 h-3"></i>
-                                <span>Browse RSS</span>
-                            </button>
-                        </div>
-                        <div class="grid grid-cols-2 gap-1.5">
-                            <button onclick="applyPreset(0)" class="p-2 rounded-lg bg-zinc-950 hover:bg-zinc-900 border border-stage-border text-left transition flex flex-col">
-                                <span class="text-[10px] font-bold text-vice-pink uppercase">Cyberleak 25m</span>
-                                <span class="text-[9px] text-zinc-500 truncate">Lucia & Jason gameplay</span>
-                            </button>
-                            <button onclick="applyPreset(1)" class="p-2 rounded-lg bg-zinc-950 hover:bg-zinc-900 border border-stage-border text-left transition flex flex-col">
-                                <span class="text-[10px] font-bold text-vice-cyan uppercase">Release Window</span>
-                                <span class="text-[9px] text-zinc-500 truncate">September 2026 launch</span>
-                            </button>
-                            <button onclick="applyPreset(2)" class="p-2 rounded-lg bg-zinc-950 hover:bg-zinc-900 border border-stage-border text-left transition flex flex-col">
-                                <span class="text-[10px] font-bold text-vice-yellow uppercase">Weather Engine</span>
-                                <span class="text-[9px] text-zinc-500 truncate">Hurricanes & flood physics</span>
-                            </button>
-                            <button onclick="applyPreset(3)" class="p-2 rounded-lg bg-zinc-950 hover:bg-zinc-900 border border-stage-border text-left transition flex flex-col">
-                                <span class="text-[10px] font-bold text-purple-400 uppercase">Map Size 2.5x</span>
-                                <span class="text-[9px] text-zinc-500 truncate">Coordinate mapping project</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Headline Input with Live WYSIWYG Trigger -->
-                    <div>
-                        <div class="flex justify-between items-center text-xs mb-1">
-                            <label class="font-extrabold text-white uppercase tracking-wider">News Headline</label>
-                            <span id="charCountLabel" class="text-zinc-500 font-mono text-[11px]">82 chars</span>
-                        </div>
-                        <textarea id="inputHeadline" oninput="handleHeadlineInput()" rows="3" class="w-full bg-zinc-950 border border-stage-border rounded-xl p-3 text-xs sm:text-sm font-extrabold text-white uppercase focus:outline-none focus:border-zinc-500 transition leading-snug resize-none placeholder:text-zinc-700">CYBERLEAK CONFIRMS 25 MINUTES OF UNCENSORED GTA 6 GAMEPLAY FEATURING LUCIA & JASON</textarea>
-                    </div>
-
-                    <!-- INTERACTIVE WORD-LEVEL HIGHLIGHT STRIP (CANVAS CONTROL) -->
-                    <div class="p-3 rounded-xl bg-zinc-950 border border-stage-border space-y-1.5">
-                        <div class="flex items-center justify-between text-[10px]">
-                            <span class="text-zinc-400 font-bold uppercase tracking-wider flex items-center gap-1">
-                                <i data-lucide="sparkles" class="w-3 h-3 text-vice-yellow"></i>
-                                Click words to Highlight in Yellow:
-                            </span>
-                            <span class="text-vice-yellow font-mono">Electric Yellow</span>
-                        </div>
-                        <!-- Dynamic word chips injected here -->
-                        <div id="interactiveWordChips" class="flex flex-wrap gap-1 pt-1"></div>
-                    </div>
-
-                    <!-- Hook Word & Category Row -->
-                    <div class="grid grid-cols-2 gap-2.5">
-                        <div>
-                            <label class="block text-[10px] font-bold text-zinc-400 uppercase mb-1">Category Pill</label>
-                            <input id="inputCategory" oninput="renderLiveCanvas()" type="text" value="EXCLUSIVE LEAK" class="w-full bg-zinc-950 border border-stage-border rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-vice-pink">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-zinc-400 uppercase mb-1">Hook Word</label>
-                            <input id="inputHook" oninput="renderLiveCanvas()" type="text" value="LEAKED" class="w-full bg-zinc-950 border border-stage-border rounded-lg px-2.5 py-1.5 text-xs font-bold text-vice-pink focus:outline-none focus:border-vice-pink">
-                        </div>
-                    </div>
-
-                    <!-- Hook Word Suggestions -->
-                    <div class="flex items-center gap-1 overflow-x-auto text-[10px]">
-                        <span class="text-zinc-500">Quick:</span>
-                        <button onclick="setHookWord('LEAKED')" class="px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-300">LEAKED</button>
-                        <button onclick="setHookWord('CONFIRMED')" class="px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-300">CONFIRMED</button>
-                        <button onclick="setHookWord('REVEALED')" class="px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-300">REVEALED</button>
-                        <button onclick="setHookWord('DELAYED?')" class="px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-300">DELAYED?</button>
-                        <button onclick="setHookWord('TRAILER 2')" class="px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-300">TRAILER 2</button>
-                    </div>
-
-                    <!-- Context Subtext & Script -->
-                    <div>
-                        <div class="flex justify-between items-center text-xs mb-1">
-                            <label class="font-semibold text-zinc-300">Story Context (Spoken in Video)</label>
-                            <span class="text-[10px] text-zinc-500">Subtext on post</span>
-                        </div>
-                        <textarea id="inputSummary" oninput="renderLiveCanvas()" rows="2" class="w-full bg-zinc-950 border border-stage-border rounded-xl p-2.5 text-xs text-zinc-300 focus:outline-none focus:border-zinc-500 transition resize-none placeholder:text-zinc-700">Internal development footage surfaces online showing realistic vehicle physics, high-speed police chases, and new Vice City map details.</textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-[10px] font-bold text-zinc-400 uppercase mb-1">Source Attribution</label>
-                        <input id="inputSource" oninput="renderLiveCanvas()" type="text" value="ROCKSTAR INTEL / REDDIT" class="w-full bg-zinc-950 border border-stage-border rounded-lg px-2.5 py-1.5 text-xs text-zinc-400 focus:outline-none">
-                    </div>
-
-                </div>
-
-                <!-- ------------------------------------------------------- -->
-                <!-- TOOL 2: 4K ASSET VAULT (98 SCREENSHOTS GALLERY)         -->
-                <!-- ------------------------------------------------------- -->
-                <div id="toolPanelMedia" class="space-y-3 hidden">
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="font-extrabold text-white uppercase tracking-wider">4K Screenshot Vault</span>
-                        <div class="flex items-center gap-2">
-                            <button onclick="document.getElementById('fileUploadInput').click()" class="text-xs text-vice-yellow font-bold flex items-center gap-1 hover:underline" title="Upload an image from your PC">
-                                <i data-lucide="upload" class="w-3 h-3"></i>
-                                <span>Upload</span>
-                            </button>
-                            <button onclick="promptImageUrlUpload()" class="text-xs text-vice-pink font-bold flex items-center gap-1 hover:underline" title="Paste any direct image URL">
-                                <i data-lucide="link" class="w-3 h-3"></i>
-                                <span>Image URL</span>
-                            </button>
-                            <button onclick="autoMatchScreenshot()" class="text-xs text-vice-cyan font-bold flex items-center gap-1 hover:underline">
-                                <i data-lucide="sparkles" class="w-3 h-3"></i>
-                                <span>Auto-Match</span>
-                            </button>
-                        </div>
-                    </div>
-                    <input id="fileUploadInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" onchange="handleFileCustomUpload(event)">
-
-                    <!-- Filter Chips (Dynamically populated by JS) -->
-                    <div id="mediaFilterBar" class="flex items-center gap-1 overflow-x-auto text-[11px] pb-1 scrollbar-none">
-                        <button onclick="filterScreenshots('All')" class="media-filter-btn px-2.5 py-1 rounded-md bg-white text-black font-bold whitespace-nowrap">All (98)</button>
-                    </div>
-
-                    <!-- High-Density Visual Grid -->
-                    <div id="screenshotGrid" class="grid grid-cols-2 gap-2 max-h-[380px] overflow-y-auto pr-1">
-                        <div class="col-span-2 text-center py-8 text-xs text-zinc-500">Loading 4K asset vault...</div>
-                    </div>
-                </div>
-
-                <!-- ------------------------------------------------------- -->
-                <!-- TOOL 3: SOUNDTRACK & AUDIO STUDIO                       -->
-                <!-- ------------------------------------------------------- -->
-                <div id="toolPanelAudio" class="space-y-4 hidden">
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="font-extrabold text-white uppercase tracking-wider">Music Track Studio</span>
-                        <span id="activeMusicBadge" class="text-[10px] text-emerald-400 font-mono">Outrun Boulevard Active</span>
-                    </div>
-
-                    <!-- 4 Audio Tracks -->
-                    <div id="musicTrackList" class="space-y-2">
-                        <!-- Populated by JS -->
-                    </div>
-
-                    <!-- Voice Engine Selector -->
-                    <div class="pt-2 border-t border-stage-border space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-zinc-300 block">Voiceover Profile</span>
-                            <span id="activeVoiceBadge" class="text-[10px] font-mono text-vice-cyan">Brian (+4%)</span>
-                        </div>
-                        <div class="grid grid-cols-3 gap-1.5 text-xs">
-                            <!-- Brian -->
-                            <div id="voiceCardBrian" onclick="selectVoiceProfile('en-US-BrianMultilingualNeural', 'Brian (+4%)')" class="voice-card p-2.5 rounded-lg bg-zinc-950 border border-vice-cyan bg-vice-cyan/10 flex flex-col justify-between gap-1 cursor-pointer transition select-none">
-                                <div>
-                                    <div class="flex items-center justify-between">
-                                        <span class="font-bold text-white text-[11px]">Brian</span>
-                                        <i data-lucide="check" class="w-3 h-3 text-vice-cyan voice-check"></i>
-                                    </div>
-                                    <span class="text-[9px] text-zinc-400 leading-tight block mt-0.5">YouTuber (+4%)</span>
-                                </div>
-                                <button type="button" onclick="previewVoiceSample(event, 'brian')" class="mt-1 text-[9px] text-vice-cyan hover:underline flex items-center gap-1 font-bold pt-1 border-t border-stage-border/50">
-                                    <i data-lucide="volume-2" class="w-2.5 h-2.5" id="voiceSampleIconBrian"></i>
-                                    <span>Preview</span>
-                                </button>
-                            </div>
-                            <!-- Christopher -->
-                            <div id="voiceCardChristopher" onclick="selectVoiceProfile('en-US-ChristopherNeural', 'Christopher (+12%)')" class="voice-card p-2.5 rounded-lg bg-zinc-950 border border-stage-border hover:border-zinc-500 flex flex-col justify-between gap-1 cursor-pointer transition select-none">
-                                <div>
-                                    <div class="flex items-center justify-between">
-                                        <span class="font-bold text-white text-[11px]">Christopher</span>
-                                        <i data-lucide="check" class="w-3 h-3 text-vice-cyan voice-check hidden"></i>
-                                    </div>
-                                    <span class="text-[9px] text-zinc-400 leading-tight block mt-0.5">Broadcast (+12%)</span>
-                                </div>
-                                <button type="button" onclick="previewVoiceSample(event, 'christopher')" class="mt-1 text-[9px] text-zinc-400 hover:text-white flex items-center gap-1 font-bold pt-1 border-t border-stage-border/50">
-                                    <i data-lucide="volume-2" class="w-2.5 h-2.5" id="voiceSampleIconChristopher"></i>
-                                    <span>Preview</span>
-                                </button>
-                            </div>
-                            <!-- Prabhat -->
-                            <div id="voiceCardPrabhat" onclick="selectVoiceProfile('en-IN-PrabhatNeural', 'Prabhat (+13%)')" class="voice-card p-2.5 rounded-lg bg-zinc-950 border border-stage-border hover:border-zinc-500 flex flex-col justify-between gap-1 cursor-pointer transition select-none">
-                                <div>
-                                    <div class="flex items-center justify-between">
-                                        <span class="font-bold text-white text-[11px]">Prabhat</span>
-                                        <i data-lucide="check" class="w-3 h-3 text-vice-cyan voice-check hidden"></i>
-                                    </div>
-                                    <span class="text-[9px] text-zinc-400 leading-tight block mt-0.5">Indian Neural (+13%)</span>
-                                </div>
-                                <button type="button" onclick="previewVoiceSample(event, 'prabhat')" class="mt-1 text-[9px] text-zinc-400 hover:text-white flex items-center gap-1 font-bold pt-1 border-t border-stage-border/50">
-                                    <i data-lucide="volume-2" class="w-2.5 h-2.5" id="voiceSampleIconPrabhat"></i>
-                                    <span>Preview</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ------------------------------------------------------- -->
-                <!-- TOOL 4: STYLE & THEME LAB                               -->
-                <!-- ------------------------------------------------------- -->
-                <div id="toolPanelStyle" class="space-y-4 hidden">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-extrabold text-white uppercase tracking-wider block">Color Aesthetic</span>
-                        <span id="activeThemeBadge" class="text-[10px] font-mono text-vice-pink">Vice Neon Active</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 text-xs">
-                        <button id="themeBtnVice" onclick="setThemePalette('vice')" class="theme-preset-btn p-3 rounded-lg bg-zinc-950 border border-vice-pink ring-2 ring-vice-pink/30 text-left flex items-center justify-between transition">
-                            <div>
-                                <span class="font-bold text-white block">Vice Neon</span>
-                                <span class="text-[10px] text-zinc-500">Cyan & Pink</span>
-                            </div>
-                            <div class="w-3.5 h-3.5 rounded-full bg-vice-pink shadow-md"></div>
-                        </button>
-                        <button id="themeBtnSunset" onclick="setThemePalette('sunset')" class="theme-preset-btn p-3 rounded-lg bg-zinc-950 border border-stage-border hover:border-orange-500 text-left flex items-center justify-between transition">
-                            <div>
-                                <span class="font-bold text-white block">Miami Sunset</span>
-                                <span class="text-[10px] text-zinc-500">Orange & Violet</span>
-                            </div>
-                            <div class="w-3.5 h-3.5 rounded-full bg-orange-500 shadow-md"></div>
-                        </button>
-                        <button id="themeBtnOcean" onclick="setThemePalette('ocean')" class="theme-preset-btn p-3 rounded-lg bg-zinc-950 border border-stage-border hover:border-teal-400 text-left flex items-center justify-between transition">
-                            <div>
-                                <span class="font-bold text-white block">Ocean Drive</span>
-                                <span class="text-[10px] text-zinc-500">Teal & Yellow</span>
-                            </div>
-                            <div class="w-3.5 h-3.5 rounded-full bg-teal-400 shadow-md"></div>
-                        </button>
-                        <button id="themeBtnGold" onclick="setThemePalette('gold')" class="theme-preset-btn p-3 rounded-lg bg-zinc-950 border border-stage-border hover:border-amber-400 text-left flex items-center justify-between transition">
-                            <div>
-                                <span class="font-bold text-white block">Vice Gold</span>
-                                <span class="text-[10px] text-zinc-500">Amber & Crimson</span>
-                            </div>
-                            <div class="w-3.5 h-3.5 rounded-full bg-amber-400 shadow-md"></div>
-                        </button>
-                    </div>
-                </div>
-
-
-                <!-- ------------------------------------------------------- -->
-                <!-- PRIMARY ACTION BUTTON (CONFIDENT & FAST)                -->
-                <!-- ------------------------------------------------------- -->
-                <div class="pt-2 border-t border-stage-border space-y-2">
-                    
-                    <!-- Video Auto-Scrape Toggle -->
-                    <div class="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-zinc-950/80 border border-stage-border text-[11px]">
-                        <label for="checkAutoScrapeVideo" class="flex items-center gap-2 cursor-pointer select-none text-zinc-300 hover:text-white transition">
-                            <input type="checkbox" id="checkAutoScrapeVideo" class="w-3.5 h-3.5 rounded border-zinc-700 bg-zinc-900 text-vice-pink focus:ring-0 cursor-pointer">
-                            <span class="font-bold">⚡ Auto-Scrape fresh leak on render</span>
-                        </label>
-                        <span class="text-[9px] font-mono text-vice-cyan uppercase font-bold">Gemini AI</span>
-                    </div>
-
-                    <button id="masterActionBtn" onclick="handleMasterAction()" class="w-full h-12 rounded-xl bg-white hover:bg-zinc-200 text-black font-black text-xs sm:text-sm shadow-xl transition-all active:scale-[0.99] flex items-center justify-between px-4 group">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="sparkles" class="w-4 h-4 text-black group-hover:scale-110 transition"></i>
-                            <span id="masterActionLabel">GENERATE COMPLETE PACK</span>
-                        </div>
-                        <span id="masterActionBadge" class="text-[10px] font-bold bg-black/10 px-2 py-0.5 rounded-full uppercase">1-CLICK</span>
-                    </button>
-
-                    <!-- Hairline Render Progress Bar -->
-                    <div id="renderProgressWidget" class="hidden space-y-1.5 pt-1">
-                        <div class="flex justify-between items-center text-[11px] text-zinc-400">
-                            <span id="renderStatusText">Assembling Short video...</span>
-                            <span id="renderPercentText" class="font-mono text-white">0%</span>
-                        </div>
-                        <div class="w-full bg-zinc-900 rounded-full h-1 overflow-hidden">
-                            <div id="renderProgressBar" class="bg-white h-1 rounded-full w-0 transition-all duration-300"></div>
-                        </div>
-                    </div>
-                </div>
+                <!-- 4. ARCHIVE (OUTPUTS) -->
+                <button id="navItemArchive" onclick="switchNavView('archive')" class="nav-btn w-full py-2.5 px-2 rounded-xl flex flex-col items-center justify-center gap-1 transition text-zinc-400 hover:text-white hover:bg-[#181C26]" title="Generated Media Archive">
+                    <i data-lucide="archive" class="w-5 h-5 text-vice-yellow"></i>
+                    <span class="text-[11px] font-bold">Archive</span>
+                </button>
 
             </div>
 
-        </div>
+            <!-- Bottom Settings Nav Item -->
+            <div class="hidden lg:flex flex-col items-center gap-1 w-full">
+                <button id="navItemSettings" onclick="toggleShortcutsModal()" class="nav-btn w-full py-2.5 px-2 rounded-xl flex flex-col items-center justify-center gap-1 transition text-zinc-400 hover:text-white hover:bg-[#181C26]" title="Studio Settings & Shortcuts">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                    <span class="text-[11px] font-bold">Settings</span>
+                </button>
+            </div>
 
-        <!-- =============================================================== -->
-        <!-- ZONE 2: CENTER STAGE (THE INTERACTIVE LIVE CANVAS - 7 COLS)     -->
-        <!-- =============================================================== -->
-        <div class="lg:col-span-7 flex flex-col gap-4">
+        </aside>
+
+        <!-- --------------------------------------------------------------- -->
+        <!-- ZONE 2: CENTER STAGE (THE HERO - LARGEST LIVE PREVIEW AREA)     -->
+        <!-- --------------------------------------------------------------- -->
+        <section id="centerStageSection" class="flex-1 min-w-0 bg-[#0B0D12] p-4 lg:p-6 overflow-y-auto flex flex-col items-center justify-between relative">
             
-            <div class="p-6 rounded-2xl bg-stage-card border border-stage-border shadow-2xl min-h-[580px] flex flex-col items-center justify-center relative">
+            <!-- VIEW A: STUDIO EDITOR (DEFAULT ACTIVE STAGE) -->
+            <div id="stageViewEditor" class="w-full flex-1 flex flex-col items-center justify-between max-w-2xl mx-auto">
                 
                 <!-- STAGE TOP BAR -->
-                <div class="w-full flex items-center justify-between border-b border-stage-border/60 pb-3 mb-6">
+                <div class="w-full flex items-center justify-between border-b border-[#222733] pb-3 mb-4">
                     <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-vice-cyan"></span>
-                        <span class="text-xs font-black uppercase tracking-wider text-white">Interactive Live Stage</span>
-                        <!-- View Mode Switch: Live Canvas vs Rendered Output -->
-                        <div id="renderTogglePill" class="hidden ml-2 flex items-center bg-zinc-950 border border-zinc-800 rounded-lg p-0.5 text-[10px] font-bold">
-                            <button type="button" id="btnViewMockup" onclick="setCanvasViewMode('mockup')" class="px-2 py-0.5 rounded bg-zinc-800 text-white transition">Live Canvas</button>
-                            <button type="button" id="btnViewRendered" onclick="setCanvasViewMode('rendered')" class="px-2 py-0.5 rounded text-zinc-400 hover:text-white transition">Rendered PNG</button>
+                        <span class="w-2.5 h-2.5 rounded-full bg-[#FFE600] animate-pulse"></span>
+                        <span id="stageTitleLabel" class="text-xs font-black uppercase tracking-wider text-white">Interactive 4:5 Instagram Canvas</span>
+                        
+                        <!-- Toggle Real Rendered vs DOM Preview -->
+                        <div id="renderTogglePill" class="hidden ml-2 flex items-center bg-[#14171F] border border-[#222733] rounded-lg p-0.5 text-xs font-bold">
+                            <button type="button" id="btnViewMockup" onclick="setCanvasViewMode('mockup')" class="px-2.5 py-1 rounded-md bg-[#222733] text-white transition">Live Canvas</button>
+                            <button type="button" id="btnViewRendered" onclick="setCanvasViewMode('rendered')" class="px-2.5 py-1 rounded-md text-zinc-400 hover:text-white transition">Rendered Output</button>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 text-[11px] text-zinc-400 font-mono">
+                    
+                    <div class="flex items-center gap-2 text-xs text-zinc-400 font-mono">
                         <span id="canvasDimBadge">1080 × 1350 • 4:5 PORTRAIT</span>
                     </div>
                 </div>
 
-                <!-- ------------------------------------------------------- -->
-                <!-- LIVE WYSIWYG CANVAS / STAGE VIEWPORT                    -->
-                <!-- ------------------------------------------------------- -->
+                <!-- STAGE CANVAS CONTAINER (FIXED ASPECT RATIO - NEVER CLIPPED) -->
                 <div id="stageViewport" class="flex items-center justify-center my-auto w-full">
                     
-                    <!-- 1. INSTAGRAM FEED MOCKUP CONTAINER -->
-                    <div id="mockupInstagramFrame" class="w-full max-w-[340px] bg-black rounded-2xl border border-zinc-800 shadow-2xl overflow-hidden flex flex-col">
+                    <!-- 1. INSTAGRAM FEED MOCKUP CONTAINER (4:5) -->
+                    <div id="mockupInstagramFrame" class="w-full max-w-[440px] bg-black rounded-2xl border border-[#222733] canvas-shadow overflow-hidden flex flex-col transition-all">
                         
                         <!-- Mockup Top Bar (Instagram iOS Style) -->
-                        <div class="px-3 py-2.5 bg-black border-b border-zinc-900 flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-yellow-500 to-pink-600 p-[1.5px]">
-                                    <div id="mockAvatarInitial" class="w-full h-full rounded-full bg-black flex items-center justify-center font-black text-[9px] text-white">
+                        <div class="px-3.5 py-2.5 bg-black border-b border-zinc-900 flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-500 to-pink-600 p-[1.5px]">
+                                    <div id="mockAvatarInitial" class="w-full h-full rounded-full bg-black flex items-center justify-center font-black text-xs text-white">
                                         VI
                                     </div>
                                 </div>
                                 <div>
-                                    <div class="flex items-center gap-1 leading-none">
-                                        <span class="text-[11px] font-bold text-white">{{ creator_handle }}</span>
-                                        <span class="text-[9px] text-blue-400">●</span>
+                                    <div class="flex items-center gap-1.5 leading-none">
+                                        <span class="text-xs font-bold text-white">{{ creator_handle }}</span>
+                                        <span class="text-xs text-blue-400">●</span>
                                     </div>
-                                    <span id="mockLocationText" class="text-[9px] text-zinc-500 leading-none">Leonida, Vice City</span>
+                                    <span id="mockLocationText" class="text-[11px] font-medium text-zinc-400 leading-none mt-0.5 block">Leonida, Vice City</span>
                                 </div>
                             </div>
                             <i data-lucide="more-horizontal" class="w-4 h-4 text-zinc-400"></i>
@@ -565,50 +280,50 @@
                         <!-- THE 4:5 CARD (REAL-TIME WYSIWYG DOM CANVAS & RENDERED PREVIEW) -->
                         <div id="liveWysiwygCard" class="w-full aspect-[4/5] relative overflow-hidden bg-zinc-950 select-none">
                             
-                            <!-- 1. Real Rendered High-Resolution Image Layer (Displayed when rendered) -->
+                            <!-- Real Rendered High-Resolution Image Layer -->
                             <img id="stageRenderedImg" src="" class="hidden w-full h-full object-cover">
 
-                            <!-- 2. Interactive Live DOM Mockup Layer -->
+                            <!-- Interactive Live DOM Mockup Layer -->
                             <div id="stageMockupLayer" class="w-full h-full relative">
                                 <!-- Background Image Layer with Subject-Anchored Crop Position -->
                                 <img id="liveBgImg" src="/assets/backgrounds/ULTIMATE_EDITION_STOCK_305_04.jpg" class="w-full h-full object-cover" style="object-position: 50% 45%;">
                                 
                                 <!-- Content Overlay -->
-                                <div class="absolute inset-0 p-3.5 flex flex-col justify-between pointer-events-none">
+                                <div class="absolute inset-0 p-4 flex flex-col justify-between pointer-events-none">
                                     
-                                    <!-- Top Header Bar (Symmetrical Twin Capsules: Same Font Size, Same Height) -->
+                                    <!-- Top Header Bar: Symmetrical Twin Capsules -->
                                     <div class="flex items-center justify-between w-full">
-                                        <!-- Left: Game Name Badge [ ● GAME_TITLE ] -->
-                                        <div class="h-7 px-3 rounded-full bg-black/75 border border-white/20 backdrop-blur-md shadow-md flex items-center gap-1.5 flex-shrink-0">
+                                        <!-- Left Badge: Game Name [ ● GAME_TITLE ] -->
+                                        <div class="h-8 px-3.5 rounded-full bg-black/75 border border-white/20 backdrop-blur-md shadow-md flex items-center gap-2 flex-shrink-0">
                                             <span id="liveGameDot" class="w-2 h-2 rounded-full bg-vice-cyan flex-shrink-0 animate-pulse shadow-[0_0_8px_#05d9e8]"></span>
-                                            <span id="liveGameText" class="text-[10px] font-bold text-white tracking-wider uppercase font-mono">GTA VI</span>
+                                            <span id="liveGameText" class="text-xs font-bold text-white tracking-wider uppercase font-mono">GTA VI</span>
                                         </div>
 
-                                        <!-- Right: Creator Watermark [ @CREATOR_HANDLE ] (EXACT SAME FONT SIZE & HEIGHT) -->
-                                        <div class="h-7 px-3 rounded-full bg-black/75 border border-white/20 backdrop-blur-md shadow-md flex items-center flex-shrink-0">
-                                            <span class="text-[10px] font-bold text-white tracking-wider font-mono">{{ creator_handle }}</span>
+                                        <!-- Right Badge: Creator Watermark [ @CREATOR_HANDLE ] -->
+                                        <div class="h-8 px-3.5 rounded-full bg-black/75 border border-white/20 backdrop-blur-md shadow-md flex items-center flex-shrink-0">
+                                            <span class="text-xs font-bold text-white tracking-wider font-mono">{{ creator_handle }}</span>
                                         </div>
                                     </div>
 
                                     <!-- Lower Typography Block: Velvet Dark Gradient Scrim -->
-                                    <div class="flex flex-col items-center text-center w-full pt-10 pb-2 px-2 bg-gradient-to-t from-black/95 via-black/75 to-transparent rounded-b-xl">
-                                        <!-- Hook Badge (Tight 6px gap to headline!) -->
-                                        <div id="liveHookText" class="inline-flex items-center px-2.5 py-0.5 rounded-md bg-zinc-950/90 border border-vice-pink text-vice-pink text-[9.5px] font-black tracking-widest uppercase mb-1.5 shadow-[0_0_10px_rgba(255,42,109,0.3)]">
+                                    <div class="flex flex-col items-center text-center w-full pt-14 pb-3.5 px-4 bg-gradient-to-t from-black/95 via-black/80 to-transparent rounded-b-xl">
+                                        <!-- Hook Badge -->
+                                        <div id="liveHookText" class="h-7 px-3.5 rounded-md bg-zinc-950/90 border border-vice-pink text-vice-pink text-xs font-black tracking-widest uppercase mb-2 shadow-[0_0_12px_rgba(255,42,109,0.35)] inline-flex items-center">
                                             LEAKED
                                         </div>
 
-                                        <!-- Headline (Arial Black / Montserrat 900 Heavyweight Display Font) -->
-                                        <div id="liveHeadlineDisplay" class="font-['Arial_Black',Montserrat,sans-serif] font-black uppercase text-white leading-[1.14] tracking-tight text-headline-clean px-1 text-[16px] sm:text-[18px]">
-                                            CYBERLEAK CONFIRMS <span class="text-vice-yellow">25 MINUTES</span> OF <span class="text-vice-yellow">UNCENSORED</span> GTA 6 GAMEPLAY FEATURING <span class="text-vice-yellow">LUCIA & JASON</span>
+                                        <!-- Headline (Arial Black Heavyweight Display) -->
+                                        <div id="liveHeadlineDisplay" class="font-['Arial_Black',Montserrat,sans-serif] font-black uppercase text-white leading-[1.18] tracking-tight text-headline-clean px-1 text-[19px] sm:text-[21px]">
+                                            CYBERLEAK CONFIRMS <span class="text-[#FFE600]">25 MINUTES</span> OF <span class="text-[#FFE600]">UNCENSORED</span> GTA 6 GAMEPLAY FEATURING <span class="text-[#FFE600]">LUCIA & JASON</span>
                                         </div>
 
-                                        <!-- Context Subtext (Unified Arial Bold Editorial Weight & Clean Breathing Room) -->
-                                        <p id="liveSummaryText" class="font-['Arial',sans-serif] font-bold text-zinc-100 text-[10.5px] sm:text-[11px] leading-relaxed line-clamp-2 px-2 mt-3 mb-2.5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                                        <!-- Context Subtext (Clean Editorial Bold) -->
+                                        <p id="liveSummaryText" class="font-['Arial',sans-serif] font-bold text-zinc-100 text-xs sm:text-[13px] leading-relaxed line-clamp-2 px-1 mt-3.5 mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
                                             Internal development footage surfaces online showing realistic vehicle physics and new Vice City map details.
                                         </p>
 
-                                        <!-- Footer Attribution (Sleek Sans-Serif Tracking & Distinct Clearance) -->
-                                        <div id="liveSourceText" class="text-[7.5px] sm:text-[8px] font-['Arial',sans-serif] font-bold text-zinc-400 uppercase tracking-widest pt-1.5 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
+                                        <!-- Footer Attribution -->
+                                        <div id="liveSourceText" class="text-[11px] sm:text-xs font-['Arial',sans-serif] font-bold text-zinc-400 uppercase tracking-wider pt-2 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
                                             VIA: ROCKSTAR INTEL / REDDIT • FOLLOW {{ creator_handle }}
                                         </div>
                                     </div>
@@ -619,7 +334,7 @@
                         </div>
 
                         <!-- Mockup Bottom Action Rail (Instagram Style) -->
-                        <div id="mockupActionRail" class="p-3 bg-black border-t border-zinc-900 space-y-2">
+                        <div id="mockupActionRail" class="p-3 bg-black border-t border-zinc-900 space-y-1.5">
                             <div class="flex items-center justify-between text-white">
                                 <div class="flex items-center gap-3">
                                     <i data-lucide="heart" class="w-4 h-4 text-vice-pink fill-vice-pink"></i>
@@ -628,131 +343,457 @@
                                 </div>
                                 <i data-lucide="bookmark" class="w-4 h-4"></i>
                             </div>
-                            <div class="text-[10px] font-semibold text-zinc-300">
+                            <div class="text-xs font-medium text-zinc-300">
                                 Liked by <span class="text-white font-bold">rockstarintel</span> and <span class="text-white font-bold">18,420 others</span>
                             </div>
                         </div>
 
                     </div>
 
-                    <!-- 2. YOUTUBE SHORT VIDEO PLAYER CONTAINER (HIDDEN UNLESS IN VIDEO MODE) -->
-                    <div id="mockupVideoFrame" class="hidden w-full max-w-[280px] aspect-[9/16] bg-black rounded-2xl border border-zinc-800 shadow-2xl overflow-hidden relative flex items-center justify-center">
+                    <!-- 2. YOUTUBE SHORT VIDEO PLAYER CONTAINER (9:16) -->
+                    <div id="mockupVideoFrame" class="hidden w-full max-w-[320px] aspect-[9/16] bg-black rounded-2xl border border-[#222733] canvas-shadow overflow-hidden relative flex items-center justify-center">
                         <video id="stageVideoPlayer" controls playsinline class="w-full h-full object-cover">
                             <source id="stageVideoSource" src="" type="video/mp4">
                         </video>
-                        <div id="stageVideoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-zinc-950 text-zinc-500">
-                            <i data-lucide="film" class="w-10 h-10 mb-2 stroke-[1.5] text-zinc-600"></i>
-                            <span class="text-xs font-bold text-zinc-300">Short Video Ready on Render</span>
-                            <span class="text-[10px] text-zinc-600 mt-1">Click Generate to build 50s Short with voiceover and subtitles.</span>
+                        <div id="stageVideoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-zinc-950 text-zinc-400">
+                            <i data-lucide="film" class="w-10 h-10 mb-2 stroke-[1.5] text-zinc-500"></i>
+                            <span class="text-xs font-bold text-zinc-200">Short Video Ready on Render</span>
+                            <span class="text-xs text-zinc-500 mt-1">Click Generate to build 50s Short with voiceover and kinetic subtitles.</span>
                         </div>
                     </div>
-
-                    <!-- 3. PRODUCTION VAULT ARCHIVE FRAME (HIDDEN UNLESS IN VAULT MODE) -->
-                    <div id="stageVaultFrame" class="hidden w-full max-w-xl bg-zinc-950 rounded-2xl border border-zinc-800 shadow-2xl p-4 flex flex-col gap-3">
-                        <div class="flex items-center justify-between border-b border-stage-border pb-2.5">
-                            <div class="flex items-center gap-2">
-                                <i data-lucide="archive" class="w-4 h-4 text-vice-cyan"></i>
-                                <span class="text-xs font-black uppercase text-white tracking-wider">Output Archive Gallery</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="flex items-center bg-zinc-900 rounded-lg p-0.5 border border-stage-border text-[10px]">
-                                    <button onclick="filterVaultMedia('all')" id="vaultFilterAll" class="vault-filter-btn px-2.5 py-1 rounded bg-white text-black font-bold">All</button>
-                                    <button onclick="filterVaultMedia('video')" id="vaultFilterVideo" class="vault-filter-btn px-2.5 py-1 rounded text-zinc-400 hover:text-white font-medium">Videos</button>
-                                    <button onclick="filterVaultMedia('image')" id="vaultFilterImage" class="vault-filter-btn px-2.5 py-1 rounded text-zinc-400 hover:text-white font-medium">Images</button>
-                                </div>
-                                <button onclick="openOutputFolder()" class="h-7 px-2.5 rounded bg-zinc-900 hover:bg-zinc-800 border border-stage-border text-[10px] font-bold text-zinc-300 hover:text-white flex items-center gap-1 transition" title="Open output folder on PC">
-                                    <i data-lucide="folder-open" class="w-3 h-3 text-vice-yellow"></i>
-                                    <span>Explorer</span>
-                                </button>
-                                <button onclick="loadVaultMedia()" class="h-7 w-7 rounded bg-zinc-900 hover:bg-zinc-800 border border-stage-border text-zinc-300 hover:text-white flex items-center justify-center transition" title="Refresh">
-                                    <i data-lucide="refresh-cw" class="w-3 h-3"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Vault Media Grid -->
-                        <div id="vaultMediaGrid" class="grid grid-cols-2 gap-2.5 max-h-[460px] overflow-y-auto pr-1">
-                            <div class="col-span-2 text-center py-10 text-xs text-zinc-500">Loading output media...</div>
-                        </div>
-                    </div>
-
 
                 </div>
 
-                <!-- ------------------------------------------------------- -->
-                <!-- STAGE FOOTER DOCK (EXPORT & CAPTION ACTIONS)            -->
-                <!-- ------------------------------------------------------- -->
-                <div class="w-full mt-6 pt-4 border-t border-stage-border/60 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <!-- ----------------------------------------------------------- -->
+                <!-- KEY FEATURE: HORIZONTAL THUMBNAIL STRIP DIRECTLY UNDER STAGE -->
+                <!-- ----------------------------------------------------------- -->
+                <div id="horizontalShotStripContainer" class="w-full max-w-[480px] mt-4 p-3 rounded-2xl bg-[#14171F] border border-[#222733] flex flex-col gap-2">
                     
-                    <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <button type="button" id="stageDownloadPostBtn" onclick="handleDownloadPostClick()" class="flex-1 sm:flex-none h-9 px-3.5 rounded-lg bg-white hover:bg-zinc-200 text-black text-xs font-extrabold flex items-center justify-center gap-1.5 transition shadow-sm">
-                            <i data-lucide="image-down" class="w-3.5 h-3.5"></i>
-                            <span id="labelDownloadPost">Download Post (PNG)</span>
-                        </button>
-                        <button type="button" id="stageDownloadVideoBtn" onclick="handleDownloadVideoClick()" class="flex-1 sm:flex-none h-9 px-3.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-stage-border text-zinc-300 hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition">
-                            <i data-lucide="video" class="w-3.5 h-3.5 text-vice-cyan"></i>
-                            <span id="labelDownloadVideo">Download Video (MP4)</span>
-                        </button>
-                        <button onclick="copyGeneratedCaption()" class="h-9 px-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-stage-border text-zinc-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition">
-                            <i id="copyCaptionIcon" data-lucide="copy" class="w-3.5 h-3.5"></i>
-                            <span id="copyCaptionLabel">Copy Caption & Tags</span>
-                        </button>
-                    </div>
-
-                    <!-- Interactive Active Photo Action Bar (Auto-Match & Easy Change Options) -->
-                    <div class="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs w-full max-w-sm">
-                        <div class="flex items-center gap-2 min-w-0">
-                            <span id="activePhotoBadge" class="px-2 py-0.5 rounded bg-vice-pink/20 text-vice-pink border border-vice-pink/40 text-[9px] font-black uppercase whitespace-nowrap">Lucia & Jason</span>
-                            <span id="currentAssetLabel" class="text-zinc-300 font-mono text-[10px] truncate max-w-[140px]" title="Active Background">ULTIMATE_EDITION_STOCK_305_04.jpg</span>
+                    <div class="flex items-center justify-between text-xs px-0.5">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="image" class="w-4 h-4 text-[#FFE600]"></i>
+                            <span class="font-extrabold text-white uppercase tracking-wider text-xs">Background Shots</span>
+                            <span id="stripActiveCountBadge" class="text-[11px] font-mono text-zinc-400">(98 available)</span>
                         </div>
-                        <div class="flex items-center gap-1.5 flex-shrink-0">
-                            <button type="button" onclick="autoMatchScreenshot(null, null, true)" class="px-2 py-1 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-vice-cyan hover:text-white text-[10px] font-bold flex items-center gap-1 transition" title="Auto-match best photo for this news">
-                                <i data-lucide="sparkles" class="w-3 h-3 text-vice-cyan"></i>
-                                <span>Auto-Match</span>
+                        
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="cycleNextMatchingScreenshot()" class="px-2 py-1 rounded-md bg-[#0B0D12] hover:bg-[#1F2432] border border-[#222733] text-zinc-300 hover:text-white text-xs font-bold flex items-center gap-1 transition" title="Cycle to next matching alternative">
+                                <i data-lucide="shuffle" class="w-3 h-3 text-[#FFE600]"></i>
+                                <span>Cycle</span>
                             </button>
-                            <button type="button" onclick="cycleNextMatchingScreenshot()" id="btnCycleMatch" class="px-2 py-1 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white text-[10px] font-bold flex items-center gap-1 transition" title="Cycle to next related photo for this topic">
-                                <i data-lucide="shuffle" class="w-3 h-3"></i>
-                                <span>Next Match</span>
+                            <button type="button" onclick="document.getElementById('fileUploadInput').click()" class="px-2 py-1 rounded-md bg-[#0B0D12] hover:bg-[#1F2432] border border-[#222733] text-zinc-300 hover:text-white text-xs font-bold flex items-center gap-1 transition" title="Upload from PC">
+                                <i data-lucide="upload" class="w-3 h-3 text-cyan-400"></i>
+                                <span>Upload</span>
                             </button>
-                            <button type="button" onclick="setToolTab('media')" class="px-2 py-1 rounded bg-white hover:bg-zinc-200 text-black text-[10px] font-extrabold flex items-center gap-1 transition" title="Browse full 4K photo vault">
-                                <i data-lucide="image" class="w-3 h-3"></i>
-                                <span>Vault</span>
+                            <button type="button" onclick="promptImageUrlUpload()" class="px-2 py-1 rounded-md bg-[#0B0D12] hover:bg-[#1F2432] border border-[#222733] text-zinc-300 hover:text-white text-xs font-bold flex items-center gap-1 transition" title="Paste Image URL">
+                                <i data-lucide="link" class="w-3 h-3 text-pink-400"></i>
+                                <span>URL</span>
                             </button>
                         </div>
                     </div>
 
+                    <!-- Horizontally Scrolling Thumbnail Cards (Injected by JS) -->
+                    <div id="horizontalShotStrip" class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+                        <div class="text-xs text-zinc-500 py-3 text-center w-full">Loading 4K asset strip...</div>
+                    </div>
+
+                    <!-- Hidden File Upload Input -->
+                    <input id="fileUploadInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" onchange="handleFileCustomUpload(event)">
+                </div>
+
+                <!-- ----------------------------------------------------------- -->
+                <!-- STAGE ACTION & DOWNLOAD BAR                                 -->
+                <!-- ----------------------------------------------------------- -->
+                <div class="w-full max-w-[480px] mt-3 pt-3 border-t border-[#222733] flex items-center justify-between gap-2">
+                    <button type="button" id="stageDownloadPostBtn" onclick="handleDownloadPostClick()" class="flex-1 h-10 px-3 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-extrabold flex items-center justify-center gap-1.5 transition shadow-sm">
+                        <i data-lucide="image-down" class="w-4 h-4"></i>
+                        <span id="labelDownloadPost">Download Post (PNG)</span>
+                    </button>
+                    <button type="button" id="stageDownloadVideoBtn" onclick="handleDownloadVideoClick()" class="flex-1 h-10 px-3 rounded-xl bg-[#14171F] hover:bg-[#1F2432] border border-[#222733] text-zinc-300 hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition">
+                        <i data-lucide="video" class="w-4 h-4 text-vice-cyan"></i>
+                        <span id="labelDownloadVideo">Download Video</span>
+                    </button>
+                    <button type="button" onclick="copyGeneratedCaption()" class="h-10 px-3 rounded-xl bg-[#14171F] hover:bg-[#1F2432] border border-[#222733] text-zinc-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition" title="Copy Instagram Caption & Hashtags">
+                        <i id="copyCaptionIcon" data-lucide="copy" class="w-4 h-4"></i>
+                        <span id="copyCaptionLabel" class="hidden sm:inline">Caption</span>
+                    </button>
+                </div>
+
+                <!-- ----------------------------------------------------------- -->
+                <!-- KEY FEATURE: REAL-TIME SOCIAL CAPTION BOX & HASHTAGS        -->
+                <!-- ----------------------------------------------------------- -->
+                <div id="captionBoxContainer" class="w-full max-w-[480px] mt-3 p-3.5 rounded-2xl bg-[#14171F] border border-[#222733] space-y-2">
+                    <div class="flex items-center justify-between text-xs px-0.5">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="file-text" class="w-4 h-4 text-[#FFE600]"></i>
+                            <span class="font-extrabold text-white uppercase tracking-wider text-xs">Caption & Hashtags</span>
+                            <span class="text-[11px] text-zinc-500 font-mono">(Ready to Post)</span>
+                        </div>
+                        <button type="button" id="copyCaptionBoxBtn" onclick="copyGeneratedCaption()" class="px-2.5 py-1 rounded-lg bg-[#0B0D12] hover:bg-[#1F2432] border border-[#222733] text-zinc-300 hover:text-white text-xs font-bold flex items-center gap-1.5 transition">
+                            <i id="copyCaptionBoxIcon" data-lucide="copy" class="w-3.5 h-3.5 text-[#FFE600]"></i>
+                            <span id="copyCaptionBoxLabel">Copy Caption</span>
+                        </button>
+                    </div>
+                    <textarea id="captionBoxText" rows="3" oninput="handleManualCaptionEdit()" class="w-full bg-[#0B0D12] border border-[#222733] rounded-xl p-2.5 text-xs text-zinc-200 focus:outline-none focus:border-[#FFE600] leading-relaxed resize-none font-sans" placeholder="Instagram caption and hashtags will appear here..."></textarea>
                 </div>
 
             </div>
 
-        </div>
-
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="border-t border-stage-border py-4 bg-stage-bg text-center text-xs text-zinc-600 flex items-center justify-center gap-2">
-        <span>GTA VI Studio Pro &copy; 2026 • Windows Engine • Production Workstation for {{ creator_handle }}</span>
-    </footer>
-
-    <!-- RSS MODAL -->
-    <div id="scrapedModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-stage-card border border-stage-border rounded-2xl max-w-lg w-full p-5 max-h-[80vh] flex flex-col shadow-2xl">
-            <div class="flex items-center justify-between pb-3 border-b border-stage-border mb-3">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="rss" class="w-4 h-4 text-vice-pink"></i>
-                    <span id="scrapedModalTitle" class="text-xs font-bold uppercase tracking-wider text-white">Scraped Gaming Outlets (GTA VI)</span>
+            <!-- VIEW B: NEWS FEED VIEW (DISPLAYED WHEN CLICKING NEWS IN NAV) -->
+            <div id="stageViewNews" class="w-full flex-1 hidden flex-col max-w-5xl lg:max-w-6xl mx-auto space-y-4">
+                <div class="flex flex-wrap items-center justify-between border-b border-[#222733] pb-3 gap-2">
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <i data-lucide="rss" class="w-5 h-5 text-vice-pink"></i>
+                        <span class="text-sm font-black uppercase text-white tracking-wider">Live Scraped News Outlets (<span id="newsViewGameLabel" class="text-vice-cyan">GTA VI</span>)</span>
+                        <span id="newsViewLastScrapedBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#14171F] border border-[#222733] text-[11px] font-mono text-zinc-300 font-semibold shadow-sm">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span class="text-zinc-500">Scraped:</span>
+                            <span id="newsLastScrapedText" class="text-emerald-400 font-bold">Just now</span>
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="refreshLiveFeeds()" class="h-8 px-3 rounded-lg bg-[#FFE600] hover:bg-[#E6CF00] text-black font-bold text-xs flex items-center gap-1.5 transition shadow-sm">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="newsFeedRefreshIcon"></i>
+                            <span id="newsFeedRefreshLabel">Fetch Live Feeds</span>
+                        </button>
+                        <button type="button" onclick="switchNavView('create')" class="h-8 px-3 rounded-lg bg-[#14171F] hover:bg-[#1F2432] border border-[#222733] text-xs font-bold text-zinc-300 hover:text-white transition">
+                            Back to Editor
+                        </button>
+                    </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button type="button" onclick="refreshLiveFeeds()" id="btnRefreshRssModal" class="px-2.5 py-1 rounded-md bg-zinc-900 hover:bg-zinc-800 border border-stage-border text-[10px] font-bold text-vice-cyan hover:text-white flex items-center gap-1 transition" title="Fetch fresh RSS feeds right now">
-                        <i data-lucide="refresh-cw" class="w-3 h-3" id="iconRefreshRss"></i>
-                        <span id="labelRefreshRss">Fetch Live</span>
-                    </button>
-                    <button onclick="toggleScrapedModal()" class="text-zinc-400 hover:text-white">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
+                
+                <div id="newsFeedGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[calc(100vh-12rem)] overflow-y-auto pr-1">
+                    <!-- Populated dynamically by JS -->
                 </div>
             </div>
-            <div id="scrapedContainer" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
+
+            <!-- VIEW C: 4K GALLERY VIEW (DISPLAYED WHEN CLICKING GALLERY IN NAV) -->
+            <div id="stageViewGallery" class="w-full flex-1 min-h-0 hidden flex-col max-w-5xl mx-auto space-y-4">
+                <div class="flex items-center justify-between border-b border-[#222733] pb-3 flex-shrink-0">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="image" class="w-5 h-5 text-vice-cyan"></i>
+                        <span class="text-sm font-black uppercase text-white tracking-wider">4K Asset Vault (<span id="galleryViewCountLabel">98 Shots</span>)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="document.getElementById('fileUploadInput').click()" class="h-8 px-3 rounded-lg bg-[#FFE600] hover:bg-[#E6CF00] text-black font-bold text-xs flex items-center gap-1.5 transition">
+                            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                            <span>Upload Shot</span>
+                        </button>
+                        <button type="button" onclick="switchNavView('create')" class="h-8 px-3 rounded-lg bg-[#14171F] hover:bg-[#1F2432] border border-[#222733] text-xs font-bold text-zinc-300 hover:text-white transition">
+                            Back to Editor
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Gallery Filter Chips -->
+                <div id="mediaFilterBar" class="flex items-center gap-2 overflow-x-auto pb-1 text-xs scrollbar-none flex-shrink-0">
+                    <button onclick="filterScreenshots('All')" class="media-filter-btn px-3 py-1.5 rounded-lg bg-white text-black font-bold whitespace-nowrap">All (98)</button>
+                </div>
+
+                <!-- High-Density Gallery Grid (Fixed 16:9 ratio, smooth scroll) -->
+                <div id="screenshotGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto max-h-[calc(100vh-13rem)] pr-2 pb-10 scrollbar-thin">
+                    <!-- Populated dynamically by JS -->
+                </div>
+            </div>
+
+            <!-- VIEW D: ARCHIVE VIEW (DISPLAYED WHEN CLICKING ARCHIVE IN NAV) -->
+            <div id="stageViewArchive" class="w-full flex-1 hidden flex-col max-w-4xl mx-auto space-y-4">
+                <div class="flex items-center justify-between border-b border-[#222733] pb-3">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="archive" class="w-5 h-5 text-vice-yellow"></i>
+                        <span class="text-sm font-black uppercase text-white tracking-wider">Production Output Archive</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-center bg-[#0B0D12] rounded-lg p-0.5 border border-[#222733] text-xs">
+                            <button onclick="filterVaultMedia('all')" id="vaultFilterAll" class="vault-filter-btn px-2.5 py-1 rounded bg-white text-black font-bold">All</button>
+                            <button onclick="filterVaultMedia('video')" id="vaultFilterVideo" class="vault-filter-btn px-2.5 py-1 rounded text-zinc-400 hover:text-white font-medium">Videos</button>
+                            <button onclick="filterVaultMedia('image')" id="vaultFilterImage" class="vault-filter-btn px-2.5 py-1 rounded text-zinc-400 hover:text-white font-medium">Images</button>
+                        </div>
+                        <button onclick="openOutputFolder()" class="h-8 px-3 rounded-lg bg-[#14171F] hover:bg-[#1F2432] border border-[#222733] text-xs font-bold text-zinc-300 hover:text-white flex items-center gap-1.5 transition">
+                            <i data-lucide="folder-open" class="w-3.5 h-3.5 text-[#FFE600]"></i>
+                            <span>Explorer</span>
+                        </button>
+                        <button type="button" onclick="switchNavView('create')" class="h-8 px-3 rounded-lg bg-[#14171F] border border-[#222733] text-xs font-bold text-zinc-300 hover:text-white transition">
+                            Back to Editor
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Archive Grid -->
+                <div id="vaultMediaGrid" class="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-[calc(100vh-14rem)] overflow-y-auto pr-1">
+                    <!-- Populated dynamically by JS -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- --------------------------------------------------------------- -->
+        <!-- ZONE 3: RIGHT CONTROL PANEL (WORKFLOW DRIVEN CREATION DOCK)     -->
+        <!-- --------------------------------------------------------------- -->
+        <aside class="w-full lg:w-[410px] xl:w-[440px] border-t lg:border-t-0 lg:border-l border-[#222733] bg-[#14171F] p-4 lg:p-5 flex flex-col gap-4 overflow-y-auto flex-shrink-0 z-20">
+            
+            <!-- 1. PRIMARY HERO ACTION: AUTO-SCRAPE STORY (BIG & OBVIOUS) -->
+            <button type="button" onclick="autoScrapeTopStory()" id="btnAutoScrapeTop" class="w-full py-3.5 px-4 rounded-xl bg-[#FFE600] hover:bg-[#E6CF00] text-black font-black text-xs sm:text-sm transition-all active:scale-[0.99] flex items-center justify-between shadow-lg shadow-[#FFE600]/10 group">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="zap" class="w-4 h-4 fill-black group-hover:scale-110 transition"></i>
+                    <span>⚡ AUTO-SCRAPE FRESH STORY</span>
+                </div>
+                <span class="text-[11px] font-mono font-bold bg-black/15 px-2 py-0.5 rounded-full uppercase" id="currentNewsGameLabel">GTA VI</span>
+            </button>
+
+            <!-- 2. TARGET VIDEO GAME SELECTOR DOCK -->
+            <div class="p-3.5 rounded-xl bg-[#0B0D12] border border-[#222733] space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-black uppercase tracking-wider text-white">Target Video Game</span>
+                    <span id="gameSourceBadge" class="text-xs font-mono text-cyan-400 font-bold">On-Demand Steam/4K</span>
+                </div>
+
+                <div class="flex gap-2">
+                    <input id="inputGameTitle" oninput="handleGameTitleInput()" type="text" value="GTA VI" placeholder="Game name..." class="flex-1 bg-[#14171F] border border-[#222733] rounded-lg px-3 py-2 text-xs sm:text-sm font-bold text-white uppercase focus:outline-none focus:border-[#FFE600] transition">
+                    <button id="btnFetchGameShots" onclick="fetchShotsForCurrentGame()" class="px-3 py-2 rounded-lg bg-[#14171F] hover:bg-[#1F2432] border border-[#222733] text-zinc-300 hover:text-white font-bold text-xs transition flex items-center gap-1 whitespace-nowrap">
+                        <i data-lucide="download-cloud" class="w-3.5 h-3.5 text-cyan-400"></i>
+                        <span id="btnFetchGameText">Fetch</span>
+                    </button>
+                </div>
+
+                <!-- Quick Franchise Pills -->
+                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs scrollbar-none">
+                    <button onclick="selectGamePreset('GTA VI')" class="game-preset-chip px-2.5 py-1 rounded-full bg-[#14171F] border border-cyan-400 text-cyan-400 font-bold whitespace-nowrap transition">GTA VI</button>
+                    <button onclick="selectGamePreset('Marvel\'s Wolverine')" class="game-preset-chip px-2.5 py-1 rounded-full bg-[#14171F] border border-[#222733] text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Wolverine</button>
+                    <button onclick="selectGamePreset('Ghost of Yōtei')" class="game-preset-chip px-2.5 py-1 rounded-full bg-[#14171F] border border-[#222733] text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Ghost of Yōtei</button>
+                    <button onclick="selectGamePreset('The Witcher 4')" class="game-preset-chip px-2.5 py-1 rounded-full bg-[#14171F] border border-[#222733] text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Witcher 4</button>
+                    <button onclick="selectGamePreset('Cyberpunk 2077')" class="game-preset-chip px-2.5 py-1 rounded-full bg-[#14171F] border border-[#222733] text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Cyberpunk</button>
+                    <button onclick="selectGamePreset('Elden Ring')" class="game-preset-chip px-2.5 py-1 rounded-full bg-[#14171F] border border-[#222733] text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Elden Ring</button>
+                </div>
+            </div>
+
+            <!-- 3. HEADLINE EDITOR & INTERACTIVE WORD HIGHLIGHTS -->
+            <div class="space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                    <label class="font-extrabold text-white uppercase tracking-wider">News Headline</label>
+                    <span id="charCountLabel" class="text-zinc-400 font-mono text-xs">82 chars</span>
+                </div>
+                <textarea id="inputHeadline" oninput="handleHeadlineInput()" rows="3" class="w-full bg-[#0B0D12] border border-[#222733] rounded-xl p-3 text-xs sm:text-sm font-extrabold text-white uppercase focus:outline-none focus:border-[#FFE600] transition leading-snug resize-none placeholder:text-zinc-700">CYBERLEAK CONFIRMS 25 MINUTES OF UNCENSORED GTA 6 GAMEPLAY FEATURING LUCIA & JASON</textarea>
+
+                <!-- CLICKABLE WORD HIGHLIGHT STRIP (TURNS YELLOW INSTANTLY) -->
+                <div class="p-2.5 rounded-xl bg-[#0B0D12] border border-[#222733] space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-zinc-400 font-semibold flex items-center gap-1.5">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#FFE600]"></i>
+                            <span>Click words to highlight in yellow:</span>
+                        </span>
+                        <span class="text-[#FFE600] font-mono text-xs font-bold">#FFE600</span>
+                    </div>
+                    <div id="interactiveWordChips" class="flex flex-wrap gap-1.5 pt-1"></div>
+                </div>
+            </div>
+
+            <!-- 4. HOOK & CATEGORY ROW -->
+            <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                    <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Hook Word</label>
+                    <input id="inputHook" oninput="renderLiveCanvas()" type="text" value="LEAKED" class="w-full bg-[#0B0D12] border border-[#222733] rounded-lg px-3 py-2 text-xs font-bold text-vice-pink focus:outline-none focus:border-vice-pink">
+                    <div class="flex items-center gap-1 overflow-x-auto text-xs pt-1.5 scrollbar-none">
+                        <button onclick="setHookWord('LEAKED')" class="px-2 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[11px] font-semibold">LEAKED</button>
+                        <button onclick="setHookWord('CONFIRMED')" class="px-2 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[11px] font-semibold">CONFIRMED</button>
+                        <button onclick="setHookWord('REVEALED')" class="px-2 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[11px] font-semibold">REVEALED</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Category Pill</label>
+                    <input id="inputCategory" oninput="renderLiveCanvas()" type="text" value="EXCLUSIVE LEAK" class="w-full bg-[#0B0D12] border border-[#222733] rounded-lg px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-[#FFE600]">
+                    <div class="flex items-center gap-1 overflow-x-auto text-xs pt-1.5 scrollbar-none">
+                        <button onclick="document.getElementById('inputCategory').value='EXCLUSIVE LEAK'; renderLiveCanvas();" class="px-2 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[11px] font-semibold">EXCLUSIVE</button>
+                        <button onclick="document.getElementById('inputCategory').value='RELEASE DATE'; renderLiveCanvas();" class="px-2 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[11px] font-semibold">LAUNCH</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. STORY CONTEXT (SPOKEN SCRIPT) -->
+            <div>
+                <div class="flex justify-between items-center text-xs mb-1">
+                    <label class="font-bold text-zinc-300">Story Context / Spoken Voiceover</label>
+                    <span class="text-xs text-zinc-500">Post subtext</span>
+                </div>
+                <textarea id="inputSummary" oninput="renderLiveCanvas()" rows="2" class="w-full bg-[#0B0D12] border border-[#222733] rounded-xl p-3 text-xs sm:text-sm text-zinc-200 focus:outline-none focus:border-[#FFE600] transition resize-none placeholder:text-zinc-700 leading-relaxed">Internal development footage surfaces online showing realistic vehicle physics, high-speed police chases, and new Vice City map details.</textarea>
+            </div>
+
+            <!-- 6. COLLAPSIBLE ADVANCED SETTINGS ACCORDION (KEEPS MAIN UI CLEAN) -->
+            <details class="group rounded-xl bg-[#0B0D12] border border-[#222733] overflow-hidden transition">
+                <summary class="flex items-center justify-between p-3 text-xs font-bold text-zinc-300 cursor-pointer select-none hover:text-white">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="sliders" class="w-3.5 h-3.5 text-[#FFE600]"></i>
+                        <span>Advanced Options (Voice, Music, Theme)</span>
+                    </div>
+                    <i data-lucide="chevron-down" class="w-3.5 h-3.5 group-open:rotate-180 transition-transform"></i>
+                </summary>
+
+                <div class="p-3.5 pt-0 space-y-3.5 border-t border-[#222733]/50 mt-2">
+                    
+                    <!-- Voice Selector -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-bold text-zinc-400">Voiceover Profile</span>
+                            <span id="activeVoiceBadge" class="text-xs font-mono font-bold text-cyan-400">Brian (+4%)</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-1.5 text-xs">
+                            <div id="voiceCardBrian" onclick="selectVoiceProfile('en-US-BrianMultilingualNeural', 'Brian (+4%)')" class="voice-card p-2 rounded-lg bg-[#14171F] border border-cyan-400 bg-cyan-400/10 flex flex-col justify-between cursor-pointer transition">
+                                <span class="font-bold text-white text-xs">Brian</span>
+                                <span class="text-[11px] text-zinc-400">YouTuber (+4%)</span>
+                                <button type="button" onclick="previewVoiceSample(event, 'brian')" class="mt-1 text-xs text-cyan-400 hover:underline font-bold">Preview</button>
+                            </div>
+                            <div id="voiceCardChristopher" onclick="selectVoiceProfile('en-US-ChristopherNeural', 'Christopher (+12%)')" class="voice-card p-2 rounded-lg bg-[#14171F] border border-[#222733] hover:border-zinc-500 flex flex-col justify-between cursor-pointer transition">
+                                <span class="font-bold text-white text-xs">Christopher</span>
+                                <span class="text-[11px] text-zinc-400">Broadcast (+12%)</span>
+                                <button type="button" onclick="previewVoiceSample(event, 'christopher')" class="mt-1 text-xs text-zinc-400 hover:text-white font-bold">Preview</button>
+                            </div>
+                            <div id="voiceCardPrabhat" onclick="selectVoiceProfile('en-IN-PrabhatNeural', 'Prabhat (+13%)')" class="voice-card p-2 rounded-lg bg-[#14171F] border border-[#222733] hover:border-zinc-500 flex flex-col justify-between cursor-pointer transition">
+                                <span class="font-bold text-white text-xs">Prabhat</span>
+                                <span class="text-[11px] text-zinc-400">Indian (+13%)</span>
+                                <button type="button" onclick="previewVoiceSample(event, 'prabhat')" class="mt-1 text-xs text-zinc-400 hover:text-white font-bold">Preview</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Audio Tracks -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-bold text-zinc-400">Background Music (Ducked)</span>
+                            <span id="activeMusicBadge" class="text-xs font-mono font-bold text-emerald-400">Outrun Active</span>
+                        </div>
+                        <div id="musicTrackList" class="space-y-1.5">
+                            <!-- Populated dynamically by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Aesthetic Palette -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-bold text-zinc-400">Color Aesthetic</span>
+                            <span id="activeThemeBadge" class="text-xs font-mono font-bold text-vice-pink">Vice Neon</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-1.5 text-xs">
+                            <button id="themeBtnVice" onclick="setThemePalette('vice')" class="theme-preset-btn p-2 rounded-lg bg-[#14171F] border border-vice-pink text-left transition flex items-center justify-between">
+                                <span class="font-bold text-white text-xs">Vice Neon</span>
+                                <div class="w-3.5 h-3.5 rounded-full bg-vice-pink"></div>
+                            </button>
+                            <button id="themeBtnSunset" onclick="setThemePalette('sunset')" class="theme-preset-btn p-2 rounded-lg bg-[#14171F] border border-[#222733] text-left transition flex items-center justify-between">
+                                <span class="font-bold text-white text-xs">Miami Sunset</span>
+                                <div class="w-3.5 h-3.5 rounded-full bg-orange-500"></div>
+                            </button>
+                            <button id="themeBtnOcean" onclick="setThemePalette('ocean')" class="theme-preset-btn p-2 rounded-lg bg-[#14171F] border border-[#222733] text-left transition flex items-center justify-between">
+                                <span class="font-bold text-white text-xs">Ocean Drive</span>
+                                <div class="w-3.5 h-3.5 rounded-full bg-teal-400"></div>
+                            </button>
+                            <button id="themeBtnGold" onclick="setThemePalette('gold')" class="theme-preset-btn p-2 rounded-lg bg-[#14171F] border border-[#222733] text-left transition flex items-center justify-between">
+                                <span class="font-bold text-white text-xs">Vice Gold</span>
+                                <div class="w-3.5 h-3.5 rounded-full bg-amber-400"></div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Source Credit -->
+                    <div>
+                        <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Source Attribution</label>
+                        <input id="inputSource" oninput="renderLiveCanvas()" type="text" value="ROCKSTAR INTEL / REDDIT" class="w-full bg-[#14171F] border border-[#222733] rounded-lg px-3 py-2 text-xs font-semibold text-zinc-300 focus:outline-none">
+                    </div>
+
+                </div>
+            </details>
+
+            <!-- 7. MASTER ACTION BUTTON & REAL 4-STEP PIPELINE PROGRESS -->
+            <div class="pt-2 border-t border-[#222733] space-y-2.5 mt-auto">
+                
+                <!-- Auto-Scrape on Render Toggle -->
+                <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-[#0B0D12] border border-[#222733] text-xs">
+                    <label for="checkAutoScrapeVideo" class="flex items-center gap-2 cursor-pointer select-none text-zinc-300 hover:text-white transition">
+                        <input type="checkbox" id="checkAutoScrapeVideo" class="w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-[#FFE600] focus:ring-0 cursor-pointer">
+                        <span class="font-bold">Auto-Scrape fresh leak on render</span>
+                    </label>
+                    <span class="text-[11px] font-mono text-cyan-400 uppercase font-bold">Gemini AI</span>
+                </div>
+
+                <!-- Primary Generate Action Button (BRIGHT ACCENT) -->
+                <button id="masterActionBtn" onclick="handleMasterAction()" class="w-full h-12 rounded-xl bg-[#FFE600] hover:bg-[#E6CF00] text-black font-black text-xs sm:text-sm shadow-xl transition-all active:scale-[0.99] flex items-center justify-between px-4 group">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-4 h-4 text-black group-hover:scale-110 transition"></i>
+                        <span id="masterActionLabel">GENERATE INSTAGRAM POST (~1.5s)</span>
+                    </div>
+                    <span id="masterActionBadge" class="text-xs font-bold bg-black/15 px-2.5 py-0.5 rounded-full uppercase">1-CLICK</span>
+                </button>
+
+                <!-- REAL 4-STEP SHORTS PIPELINE PROGRESS WIDGET -->
+                <div id="renderProgressWidget" class="hidden p-3 rounded-xl bg-[#0B0D12] border border-[#222733] space-y-2.5">
+                    <div class="flex justify-between items-center text-xs">
+                        <span id="renderStatusText" class="font-bold text-white">Assembling Short video...</span>
+                        <span id="renderPercentText" class="font-mono text-[#FFE600] font-black">0%</span>
+                    </div>
+
+                    <!-- 4 Visual Step Chips -->
+                    <div class="grid grid-cols-4 gap-1 text-[11px] font-mono">
+                        <div id="stepScript" class="step-chip p-1.5 rounded bg-[#14171F] border border-[#222733] text-center text-zinc-500 font-bold">1. Script</div>
+                        <div id="stepVoice" class="step-chip p-1.5 rounded bg-[#14171F] border border-[#222733] text-center text-zinc-500 font-bold">2. Voice</div>
+                        <div id="stepCaptions" class="step-chip p-1.5 rounded bg-[#14171F] border border-[#222733] text-center text-zinc-500 font-bold">3. Captions</div>
+                        <div id="stepRender" class="step-chip p-1.5 rounded bg-[#14171F] border border-[#222733] text-center text-zinc-500 font-bold">4. Render</div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-[#14171F] rounded-full h-2 overflow-hidden border border-[#222733]">
+                        <div id="renderProgressBar" class="bg-[#FFE600] h-2 rounded-full w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+
+            </div>
+
+        </aside>
+
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- SHORTCUTS & SETTINGS MODAL                                          -->
+    <!-- =================================================================== -->
+    <div id="shortcutsModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-[#14171F] border border-[#222733] rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-[#222733]">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="keyboard" class="w-4 h-4 text-[#FFE600]"></i>
+                    <span class="text-xs font-black uppercase tracking-wider text-white">Keyboard Shortcuts & Settings</span>
+                </div>
+                <button onclick="toggleShortcutsModal()" class="text-zinc-400 hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="space-y-2 text-xs">
+                <div class="flex items-center justify-between p-2 rounded-lg bg-[#0B0D12] border border-[#222733]">
+                    <span class="text-zinc-300">Generate Post / Video</span>
+                    <kbd class="px-2 py-0.5 rounded bg-[#14171F] border border-[#222733] font-mono text-[#FFE600] font-bold">G or Ctrl+Enter</kbd>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded-lg bg-[#0B0D12] border border-[#222733]">
+                    <span class="text-zinc-300">Download Current Post/Video</span>
+                    <kbd class="px-2 py-0.5 rounded bg-[#14171F] border border-[#222733] font-mono text-[#FFE600] font-bold">D</kbd>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded-lg bg-[#0B0D12] border border-[#222733]">
+                    <span class="text-zinc-300">Auto-Scrape Fresh Story</span>
+                    <kbd class="px-2 py-0.5 rounded bg-[#14171F] border border-[#222733] font-mono text-[#FFE600] font-bold">S</kbd>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded-lg bg-[#0B0D12] border border-[#222733]">
+                    <span class="text-zinc-300">Copy Caption & Tags</span>
+                    <kbd class="px-2 py-0.5 rounded bg-[#14171F] border border-[#222733] font-mono text-[#FFE600] font-bold">C</kbd>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded-lg bg-[#0B0D12] border border-[#222733]">
+                    <span class="text-zinc-300">Switch: 4:5 Post Mode</span>
+                    <kbd class="px-2 py-0.5 rounded bg-[#14171F] border border-[#222733] font-mono text-[#FFE600] font-bold">1</kbd>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded-lg bg-[#0B0D12] border border-[#222733]">
+                    <span class="text-zinc-300">Switch: 9:16 Short Mode</span>
+                    <kbd class="px-2 py-0.5 rounded bg-[#14171F] border border-[#222733] font-mono text-[#FFE600] font-bold">2</kbd>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t border-[#222733] text-xs text-zinc-500 text-center">
+                Built for <span class="text-white font-bold">{{ creator_handle }}</span> • 100% Free Engine
+            </div>
         </div>
     </div>
 
@@ -761,12 +802,259 @@
 
     <!-- TOAST NOTIFICATION STACK -->
     <div id="toast" class="fixed bottom-6 right-6 z-50 pointer-events-none transition-all duration-300 opacity-0 translate-y-2">
-        <div id="toastContent" class="px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white shadow-2xl flex items-center gap-2"></div>
+        <div id="toastContent" class="px-4 py-2.5 rounded-xl bg-[#14171F] border border-[#222733] text-xs text-white shadow-2xl flex items-center gap-2"></div>
     </div>
 
     <!-- JAVASCRIPT ENGINE -->
     <script>
-        const PRESETS = [
+
+        // 3-Zone Studio View State
+        let currentNavView = 'create';
+
+        function switchNavView(viewName) {
+            currentNavView = viewName;
+            
+            // Update nav button active states
+            const navItems = {
+                'create': 'navItemCreate',
+                'news': 'navItemNews',
+                'gallery': 'navItemGallery',
+                'archive': 'navItemArchive'
+            };
+
+            for (const [key, btnId] of Object.entries(navItems)) {
+                const btn = document.getElementById(btnId);
+                if (!btn) continue;
+                if (key === viewName) {
+                    btn.className = "nav-btn w-full py-2.5 px-2 rounded-xl flex flex-col items-center justify-center gap-1 transition bg-[#FFE600]/10 text-[#FFE600] border border-[#FFE600]/30 shadow-sm";
+                } else {
+                    btn.className = "nav-btn w-full py-2.5 px-2 rounded-xl flex flex-col items-center justify-center gap-1 transition text-zinc-400 hover:text-white hover:bg-[#181C26]";
+                }
+            }
+
+            // Hide all stage views
+            document.getElementById('stageViewEditor').classList.add('hidden');
+            document.getElementById('stageViewNews').classList.add('hidden');
+            document.getElementById('stageViewGallery').classList.add('hidden');
+            document.getElementById('stageViewArchive').classList.add('hidden');
+
+            if (viewName === 'create') {
+                document.getElementById('stageViewEditor').classList.remove('hidden');
+                document.getElementById('stageViewEditor').classList.add('flex');
+            } else if (viewName === 'news') {
+                document.getElementById('stageViewNews').classList.remove('hidden');
+                document.getElementById('stageViewNews').classList.add('flex');
+                loadNewsFeedGrid();
+            } else if (viewName === 'gallery') {
+                document.getElementById('stageViewGallery').classList.remove('hidden');
+                document.getElementById('stageViewGallery').classList.add('flex');
+                if (allScreenshots.length === 0) fetchShotsForCurrentGame();
+            } else if (viewName === 'archive') {
+                document.getElementById('stageViewArchive').classList.remove('hidden');
+                document.getElementById('stageViewArchive').classList.add('flex');
+                loadVaultMedia();
+            }
+            lucide.createIcons();
+        }
+
+        function toggleShortcutsModal() {
+            const m = document.getElementById('shortcutsModal');
+            if (m) m.classList.toggle('hidden');
+        }
+
+        // Render Horizontal Thumbnail Strip under the Live Preview
+        function renderHorizontalShotStrip(shots) {
+            const strip = document.getElementById('horizontalShotStrip');
+            if (!strip) return;
+            strip.innerHTML = '';
+
+            const badge = document.getElementById('stripActiveCountBadge');
+            if (badge) badge.innerText = `(${shots ? shots.length : 0} available)`;
+
+            if (!shots || shots.length === 0) {
+                strip.innerHTML = '<div class="text-xs text-zinc-500 py-2 text-center w-full">No screenshots loaded yet</div>';
+                return;
+            }
+
+            shots.forEach(s => {
+                const isSelected = s.filename === currentBgFilename;
+                const card = document.createElement('div');
+                card.className = `w-24 h-14 rounded-lg overflow-hidden border flex-shrink-0 cursor-pointer relative group transition-all ${
+                    isSelected ? 'active-strip-card ring-2 ring-[#FFE600] border-[#FFE600]' : 'border-[#222733] hover:border-zinc-400 opacity-70 hover:opacity-100'
+                }`;
+                card.dataset.filename = s.filename;
+                card.onclick = () => selectScreenshot(s.filename, s.url, s.category, s.focal_x, s.focal_y, true);
+                const thumbSrc = s.thumb_url || s.url;
+                card.innerHTML = `
+                    <img src="${thumbSrc}" loading="lazy" class="w-full h-full object-cover">
+                    ${isSelected ? '<span class="absolute top-1 right-1 text-[9px] bg-[#FFE600] text-black px-1 rounded font-black shadow">ACTIVE</span>' : ''}
+                    ${s.category ? `<span class="absolute bottom-1 left-1 text-[8px] bg-black/80 text-zinc-200 px-1 rounded font-mono truncate max-w-[80px]">${s.category}</span>` : ''}
+                `;
+                strip.appendChild(card);
+            });
+        }
+
+        // Render News Cards in the News Feed View
+        async function loadNewsFeedGrid() {
+            const grid = document.getElementById('newsFeedGrid');
+            if (!grid) return;
+            const game = currentSelectedGame || "GTA VI";
+            const lbl = document.getElementById('newsViewGameLabel');
+            if (lbl) lbl.innerText = game;
+
+            // Skeleton Loader cards for news
+            grid.innerHTML = `
+                <div class="p-4 rounded-xl bg-[#14171F] border border-[#222733] space-y-3 animate-pulse">
+                    <div class="flex justify-between">
+                        <div class="h-3 w-20 bg-zinc-800 rounded"></div>
+                        <div class="h-3 w-16 bg-zinc-800 rounded"></div>
+                    </div>
+                    <div class="h-4 w-5/6 bg-zinc-800 rounded"></div>
+                    <div class="h-3 w-full bg-zinc-800/60 rounded"></div>
+                    <div class="h-8 w-full bg-zinc-800/40 rounded-lg mt-2"></div>
+                </div>
+                <div class="p-4 rounded-xl bg-[#14171F] border border-[#222733] space-y-3 animate-pulse">
+                    <div class="flex justify-between">
+                        <div class="h-3 w-20 bg-zinc-800 rounded"></div>
+                        <div class="h-3 w-16 bg-zinc-800 rounded"></div>
+                    </div>
+                    <div class="h-4 w-5/6 bg-zinc-800 rounded"></div>
+                    <div class="h-3 w-full bg-zinc-800/60 rounded"></div>
+                    <div class="h-8 w-full bg-zinc-800/40 rounded-lg mt-2"></div>
+                </div>
+            `;
+            try {
+                const res = await fetch(`/api/news/?game=${encodeURIComponent(game)}`);
+                const data = await res.json();
+                if (data.success && data.stories && data.stories.length > 0) {
+                    if (data.last_scraped) {
+                        const lastScrapedEl = document.getElementById('newsLastScrapedText');
+                        if (lastScrapedEl) lastScrapedEl.innerText = data.last_scraped;
+                    }
+                    grid.innerHTML = '';
+                    data.stories.forEach(s => {
+                        const card = document.createElement('div');
+                        card.className = "p-4 rounded-xl bg-[#14171F] border border-[#222733] hover:border-zinc-500 transition flex flex-col justify-between gap-3 group shadow-sm";
+                        const scrapTimeDisplay = s.scraped_time || (s.scraped_at ? s.scraped_at.split('•').pop().trim() : '');
+                        card.innerHTML = `
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between text-xs text-zinc-400 gap-2 flex-wrap">
+                                    <span class="text-vice-pink font-bold uppercase text-[11px] px-2 py-0.5 rounded-md bg-vice-pink/10 border border-vice-pink/25 tracking-wide">${s.source || 'News'}</span>
+                                    <div class="flex items-center gap-2 flex-wrap justify-end">
+                                        ${scrapTimeDisplay ? `
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-cyan-950/60 border border-vice-cyan/35 text-vice-cyan text-[11px] font-mono font-bold" title="Scraped at ${scrapTimeDisplay}">
+                                            <i data-lucide="clock" class="w-3 h-3 text-vice-cyan"></i>
+                                            <span>Scraped ${scrapTimeDisplay}</span>
+                                        </span>
+                                        ` : ''}
+                                        <span class="text-[11px] font-mono text-zinc-400 flex items-center gap-1">
+                                            <i data-lucide="calendar" class="w-3 h-3 text-zinc-500"></i>
+                                            <span>${s.date || 'Today'}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <h4 class="text-sm font-bold text-white line-clamp-2 leading-snug group-hover:text-[#FFE600] transition">${s.title}</h4>
+                                ${s.summary ? `<p class="text-xs text-zinc-400 line-clamp-2 leading-relaxed">${s.summary}</p>` : ''}
+                            </div>
+                            <button type="button" class="mt-1 w-full py-2 rounded-lg bg-[#0B0D12] hover:bg-[#FFE600] text-zinc-300 hover:text-black font-bold text-xs flex items-center justify-center gap-1.5 transition border border-[#222733] shadow-sm">
+                                <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                                <span>⚡ Use This Story</span>
+                            </button>
+                        `;
+                        card.querySelector('button').onclick = () => {
+                            loadStoryIntoStudio(s);
+                            switchNavView('create');
+                            notify(`Loaded story: "${s.title.slice(0, 36)}..."`);
+                        };
+                        grid.appendChild(card);
+                    });
+                } else {
+                    grid.innerHTML = `<div class="col-span-2 text-center py-12 text-xs text-zinc-500">No stories cached yet for ${game}. Click 'Fetch Live Feeds' above!</div>`;
+                }
+            } catch (e) {
+                grid.innerHTML = `<div class="col-span-2 text-center py-10 text-xs text-zinc-500">Could not load feeds.</div>`;
+            }
+            lucide.createIcons();
+        }
+
+        // Real 4-Stage Shorts Pipeline Progress Indicator
+        function updatePipelineSteps(progressPercent, message) {
+            const pct = parseInt(progressPercent) || 0;
+            const bar = document.getElementById('renderProgressBar');
+            const pctText = document.getElementById('renderPercentText');
+            const statusText = document.getElementById('renderStatusText');
+
+            if (bar) bar.style.width = pct + '%';
+            if (pctText) pctText.innerText = pct + '%';
+            if (statusText && message) statusText.innerText = message;
+
+            const s1 = document.getElementById('stepScript');
+            const s2 = document.getElementById('stepVoice');
+            const s3 = document.getElementById('stepCaptions');
+            const s4 = document.getElementById('stepRender');
+
+            const setChip = (el, state) => {
+                if (!el) return;
+                if (state === 'done') {
+                    el.className = "step-chip p-1.5 rounded bg-emerald-500/10 border border-emerald-500/40 text-center text-emerald-400 font-bold";
+                } else if (state === 'active') {
+                    el.className = "step-chip p-1.5 rounded bg-[#FFE600]/10 border border-[#FFE600] text-center text-[#FFE600] font-black animate-pulse";
+                } else {
+                    el.className = "step-chip p-1.5 rounded bg-[#14171F] border border-[#222733] text-center text-zinc-500 font-bold";
+                }
+            };
+
+            if (pct < 25) {
+                setChip(s1, 'active'); setChip(s2, 'pending'); setChip(s3, 'pending'); setChip(s4, 'pending');
+            } else if (pct < 50) {
+                setChip(s1, 'done'); setChip(s2, 'active'); setChip(s3, 'pending'); setChip(s4, 'pending');
+            } else if (pct < 75) {
+                setChip(s1, 'done'); setChip(s2, 'done'); setChip(s3, 'active'); setChip(s4, 'pending');
+            } else if (pct < 100) {
+                setChip(s1, 'done'); setChip(s2, 'done'); setChip(s3, 'done'); setChip(s4, 'active');
+            } else {
+                setChip(s1, 'done'); setChip(s2, 'done'); setChip(s3, 'done'); setChip(s4, 'done');
+            }
+        }
+
+        // Keyboard Shortcuts Handler
+        window.addEventListener('keydown', (e) => {
+            const isTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+            
+            // Ctrl+Enter anywhere triggers generate
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                handleMasterAction();
+                return;
+            }
+
+            if (isTyping) return;
+
+            if (e.key === 'g' || e.key === 'G') {
+                e.preventDefault();
+                handleMasterAction();
+            } else if (e.key === 'd' || e.key === 'D') {
+                e.preventDefault();
+                if (currentMode === 'video') handleDownloadVideoClick();
+                else handleDownloadPostClick();
+            } else if (e.key === 's' || e.key === 'S') {
+                e.preventDefault();
+                autoScrapeTopStory();
+            } else if (e.key === 'c' || e.key === 'C') {
+                e.preventDefault();
+                copyGeneratedCaption();
+            } else if (e.key === '1') {
+                e.preventDefault();
+                setMode('image');
+            } else if (e.key === '2') {
+                e.preventDefault();
+                setMode('video');
+            } else if (e.key === '?') {
+                e.preventDefault();
+                toggleShortcutsModal();
+            }
+        });
+const PRESETS = [
             {
                 headline: "CYBERLEAK CONFIRMS 25 MINUTES OF UNCENSORED GTA 6 GAMEPLAY FEATURING LUCIA & JASON",
                 summary: "Internal development footage surfaces online showing realistic vehicle physics, high-speed police chases, and new Vice City map details.",
@@ -1059,10 +1347,8 @@
             // Update live scraper labels
             const scraperLbl = document.getElementById('currentNewsGameLabel');
             if (scraperLbl) scraperLbl.innerText = currentSelectedGame;
-            const descLbl = document.getElementById('autoScrapeDescLabel');
-            if (descLbl) descLbl.innerText = `Pulls live news for ${currentSelectedGame} and auto-matches 4K screenshot.`;
-            const modalTitle = document.getElementById('scrapedModalTitle');
-            if (modalTitle) modalTitle.innerText = `Scraped Gaming Outlets (${currentSelectedGame})`;
+            const newsViewLbl = document.getElementById('newsViewGameLabel');
+            if (newsViewLbl) newsViewLbl.innerText = currentSelectedGame;
         }
 
         async function fetchShotsForCurrentGame(force = false) {
@@ -1087,9 +1373,11 @@
                 const data = await res.json();
                 if (data.success && data.screenshots && data.screenshots.length > 0) {
                     allScreenshots = data.screenshots;
-                    const tabMediaBtn = document.getElementById('toolTabBtnMedia');
-                    if (tabMediaBtn) {
-                        tabMediaBtn.querySelector('span').innerText = `4K Shots (${data.screenshots.length})`;
+                    renderHorizontalShotStrip(allScreenshots);
+                    
+                    const galleryCountLbl = document.getElementById('galleryViewCountLabel');
+                    if (galleryCountLbl) {
+                        galleryCountLbl.innerText = `${data.screenshots.length} Shots`;
                     }
                     
                     // Render dynamic categories and screenshots grid
@@ -1128,7 +1416,7 @@
 
             // All button
             const allBtn = document.createElement('button');
-            allBtn.className = "media-filter-btn px-2.5 py-1 rounded-md bg-white text-black font-bold whitespace-nowrap transition text-[11px]";
+            allBtn.className = "media-filter-btn px-3 py-1.5 rounded-lg bg-white text-black font-bold whitespace-nowrap transition text-xs";
             allBtn.innerText = `All (${totalCount})`;
             allBtn.onclick = () => filterScreenshots('All');
             bar.appendChild(allBtn);
@@ -1137,7 +1425,7 @@
             categories.forEach(cat => {
                 if (!cat || cat.toLowerCase() === 'all') return;
                 const btn = document.createElement('button');
-                btn.className = "media-filter-btn px-2.5 py-1 rounded-md bg-zinc-900 text-zinc-400 hover:text-white font-medium whitespace-nowrap transition text-[11px]";
+                btn.className = "media-filter-btn px-3 py-1.5 rounded-lg bg-zinc-900 text-zinc-300 hover:text-white font-semibold whitespace-nowrap transition text-xs";
                 btn.innerText = cat;
                 btn.onclick = () => filterScreenshots(cat);
                 bar.appendChild(btn);
@@ -1151,9 +1439,9 @@
                 const text = b.innerText.toLowerCase();
                 const match = (category === 'All' && text.startsWith('all')) || text === category.toLowerCase();
                 if (match) {
-                    b.className = "media-filter-btn px-2.5 py-1 rounded-md bg-white text-black font-bold whitespace-nowrap transition text-[11px]";
+                    b.className = "media-filter-btn px-3 py-1.5 rounded-lg bg-white text-black font-bold whitespace-nowrap transition text-xs";
                 } else {
-                    b.className = "media-filter-btn px-2.5 py-1 rounded-md bg-zinc-900 text-zinc-400 hover:text-white font-medium whitespace-nowrap transition text-[11px]";
+                    b.className = "media-filter-btn px-3 py-1.5 rounded-lg bg-zinc-900 text-zinc-300 hover:text-white font-semibold whitespace-nowrap transition text-xs";
                 }
             });
 
@@ -1176,78 +1464,51 @@
         // Mode Switching
         function setMode(mode) {
             currentMode = mode;
+            saveSettingsToStorage();
             document.querySelectorAll('.mode-tab').forEach(b => {
-                b.className = "mode-tab px-3 py-1 rounded-md font-medium text-zinc-400 hover:text-white transition";
+                b.className = "mode-tab px-3 py-1 rounded-md font-semibold text-zinc-400 hover:text-white transition flex items-center gap-1.5";
             });
 
             const actionLabel = document.getElementById('masterActionLabel');
             const dimBadge = document.getElementById('canvasDimBadge');
             const igFrame = document.getElementById('mockupInstagramFrame');
             const videoFrame = document.getElementById('mockupVideoFrame');
-            const vaultFrame = document.getElementById('stageVaultFrame');
+
+            const btnImage = document.getElementById('modeBtnImage');
+            const btnVideo = document.getElementById('modeBtnVideo');
+            const btnBoth = document.getElementById('modeBtnBoth');
 
             if (mode === 'both') {
-                document.getElementById('modeBtnBoth').className = "mode-tab px-3 py-1 rounded-md font-bold text-white bg-zinc-800 shadow-sm transition";
-                actionLabel.innerText = "GENERATE COMPLETE PACK (BOTH)";
-                dimBadge.innerText = "4:5 INSTAGRAM + 9:16 SHORT";
-                igFrame.classList.remove('hidden');
-                videoFrame.classList.add('hidden');
-                vaultFrame.classList.add('hidden');
+                if (btnBoth) btnBoth.className = "mode-tab px-3 py-1 rounded-md font-bold text-black bg-[#FFE600] shadow-sm transition flex items-center gap-1.5";
+                if (actionLabel) actionLabel.innerText = "GENERATE COMPLETE PACK (BOTH)";
+                if (dimBadge) dimBadge.innerText = "4:5 INSTAGRAM + 9:16 SHORT";
+                if (igFrame) igFrame.classList.remove('hidden');
+                if (videoFrame) videoFrame.classList.add('hidden');
             } else if (mode === 'image') {
-                document.getElementById('modeBtnImage').className = "mode-tab px-3 py-1 rounded-md font-bold text-white bg-zinc-800 shadow-sm transition";
-                actionLabel.innerText = "GENERATE INSTAGRAM POST (~1.5s)";
-                dimBadge.innerText = "1080 × 1350 • 4:5 PORTRAIT";
-                igFrame.classList.remove('hidden');
-                videoFrame.classList.add('hidden');
-                vaultFrame.classList.add('hidden');
+                if (btnImage) btnImage.className = "mode-tab px-3 py-1 rounded-md font-bold text-black bg-[#FFE600] shadow-sm transition flex items-center gap-1.5";
+                if (actionLabel) actionLabel.innerText = "GENERATE INSTAGRAM POST (~1.5s)";
+                if (dimBadge) dimBadge.innerText = "1080 × 1350 • 4:5 PORTRAIT";
+                if (igFrame) igFrame.classList.remove('hidden');
+                if (videoFrame) videoFrame.classList.add('hidden');
             } else if (mode === 'video') {
-                document.getElementById('modeBtnVideo').className = "mode-tab px-3 py-1 rounded-md font-bold text-white bg-zinc-800 shadow-sm transition";
-                actionLabel.innerText = "GENERATE YOUTUBE SHORT (~55s)";
-                dimBadge.innerText = "1080 × 1920 • 9:16 VERTICAL";
-                igFrame.classList.add('hidden');
-                videoFrame.classList.remove('hidden');
-                vaultFrame.classList.add('hidden');
+                if (btnVideo) btnVideo.className = "mode-tab px-3 py-1 rounded-md font-bold text-black bg-[#FFE600] shadow-sm transition flex items-center gap-1.5";
+                if (actionLabel) actionLabel.innerText = "GENERATE YOUTUBE SHORT (~55s)";
+                if (dimBadge) dimBadge.innerText = "1080 × 1920 • 9:16 VERTICAL";
+                if (igFrame) igFrame.classList.add('hidden');
+                if (videoFrame) videoFrame.classList.remove('hidden');
                 checkLatestRenderedVideo();
             } else if (mode === 'vault') {
-                document.getElementById('modeBtnVault').className = "mode-tab px-3 py-1 rounded-md font-bold text-white bg-zinc-800 shadow-sm transition";
-                actionLabel.innerText = "OPEN VAULT ARCHIVE";
-                dimBadge.innerText = "LOCAL PRODUCTION ARCHIVE";
-                igFrame.classList.add('hidden');
-                videoFrame.classList.add('hidden');
-                vaultFrame.classList.remove('hidden');
-                loadVaultMedia();
+                switchNavView('archive');
             }
             lucide.createIcons();
         }
 
-        // Tool Tabs (Story, Media, Audio, Style)
         function setToolTab(tab) {
-            currentToolTab = tab;
-            document.querySelectorAll('.tool-tab').forEach(b => {
-                b.className = "tool-tab flex-1 py-1.5 rounded-md font-medium text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5";
-            });
-
-            document.getElementById('toolPanelStory').classList.add('hidden');
-            document.getElementById('toolPanelMedia').classList.add('hidden');
-            document.getElementById('toolPanelAudio').classList.add('hidden');
-            document.getElementById('toolPanelStyle').classList.add('hidden');
-
-            if (tab === 'story') {
-                document.getElementById('toolTabBtnStory').className = "tool-tab flex-1 py-1.5 rounded-md font-bold text-white bg-zinc-800 transition flex items-center justify-center gap-1.5";
-                document.getElementById('toolPanelStory').classList.remove('hidden');
-            } else if (tab === 'media') {
-                document.getElementById('toolTabBtnMedia').className = "tool-tab flex-1 py-1.5 rounded-md font-bold text-white bg-zinc-800 transition flex items-center justify-center gap-1.5";
-                document.getElementById('toolPanelMedia').classList.remove('hidden');
-                if (allScreenshots.length === 0) fetchShotsForCurrentGame();
-            } else if (tab === 'audio') {
-                document.getElementById('toolTabBtnAudio').className = "tool-tab flex-1 py-1.5 rounded-md font-bold text-white bg-zinc-800 transition flex items-center justify-center gap-1.5";
-                document.getElementById('toolPanelAudio').classList.remove('hidden');
+            // Legacy tab adapter: gracefully switches view if needed
+            if (tab === 'media') switchNavView('gallery');
+            else if (tab === 'audio') {
                 if (allMusicTracks.length === 0) loadMusicTracks();
-            } else if (tab === 'style') {
-                document.getElementById('toolTabBtnStyle').className = "tool-tab flex-1 py-1.5 rounded-md font-bold text-white bg-zinc-800 transition flex items-center justify-center gap-1.5";
-                document.getElementById('toolPanelStyle').classList.remove('hidden');
             }
-            lucide.createIcons();
         }
 
         // Theme Palette Setter
@@ -1348,8 +1609,8 @@
 
                 const chip = document.createElement('button');
                 chip.className = isSelected 
-                    ? "px-2 py-0.5 rounded text-[10px] font-extrabold bg-vice-yellow text-black shadow-sm transition"
-                    : "px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-900 text-zinc-400 hover:text-white transition";
+                    ? "px-2.5 py-1 rounded-md text-xs font-extrabold bg-vice-yellow text-black shadow-sm transition"
+                    : "px-2.5 py-1 rounded-md text-xs font-bold bg-zinc-900 text-zinc-300 hover:text-white transition";
                 chip.innerText = w;
                 chip.onclick = () => {
                     if (canvasViewMode === 'rendered') setCanvasViewMode('mockup');
@@ -1366,6 +1627,7 @@
         }
 
         function renderLiveCanvas() {
+            updateCaptionBox();
             const raw = document.getElementById('inputHeadline').value.trim();
             const cat = document.getElementById('inputCategory').value.trim() || 'EXCLUSIVE LEAK';
             const hook = document.getElementById('inputHook').value.trim() || 'LEAKED';
@@ -1399,18 +1661,18 @@
             document.getElementById('liveSummaryText').innerText = sum;
             document.getElementById('liveSourceText').innerText = `VIA: ${src} • FOLLOW {{ creator_handle }} FOR DAILY ${(currentSelectedGame || 'GTA VI').toUpperCase()} UPDATES`;
 
-            // Dynamic Font Sizing for Headline
+            // Dynamic Font Sizing for Headline (Calibrated to expanded 440px canvas viewport)
             const hlEl = document.getElementById('liveHeadlineDisplay');
             if (hlEl) {
                 if (raw.length > 85) {
-                    hlEl.style.fontSize = '14px';
+                    hlEl.style.fontSize = '16.5px';
                     hlEl.style.lineHeight = '1.20';
                 } else if (raw.length > 55) {
-                    hlEl.style.fontSize = '16px';
+                    hlEl.style.fontSize = '19px';
                     hlEl.style.lineHeight = '1.22';
                 } else {
-                    hlEl.style.fontSize = '18.5px';
-                    hlEl.style.lineHeight = '1.25';
+                    hlEl.style.fontSize = '22px';
+                    hlEl.style.lineHeight = '1.24';
                 }
             }
 
@@ -1438,23 +1700,38 @@
             const grid = document.getElementById('screenshotGrid');
             if (!grid) return;
             grid.innerHTML = '';
+
+            if (!shots || shots.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-12 text-xs text-zinc-500">No screenshots found for this filter.</div>';
+                return;
+            }
+
             shots.forEach(s => {
                 const isSelected = s.filename === currentBgFilename;
                 const card = document.createElement('div');
-                card.className = `aspect-[16/9] rounded-lg overflow-hidden border cursor-pointer transition relative group ${
-                    isSelected ? 'border-vice-pink ring-2 ring-vice-pink' : 'border-stage-border hover:border-zinc-400'
-                }`;
-                card.onclick = () => selectScreenshot(s.filename, s.url, s.category, s.focal_x, s.focal_y, true);
+                card.className = `gallery-shot-card group ${isSelected ? 'is-active' : ''}`;
+                card.dataset.filename = s.filename;
+                card.onclick = () => {
+                    selectScreenshot(s.filename, s.url, s.category, s.focal_x, s.focal_y, true);
+                    document.querySelectorAll('.gallery-shot-card').forEach(c => c.classList.remove('is-active'));
+                    card.classList.add('is-active');
+                    notify(`Selected: "${s.category || 'Screenshot'}"`, 'success');
+                };
+                const thumbSrc = s.thumb_url || s.url;
                 card.innerHTML = `
-                    <img src="${s.url}" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                        <span class="text-[9px] font-bold text-white bg-black/70 px-2 py-0.5 rounded">Select</span>
+                    <img src="${thumbSrc}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center pointer-events-none">
+                        <span class="text-xs font-black text-black bg-[#FFE600] px-3 py-1.5 rounded-lg shadow-lg flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                            <span>Select Shot</span>
+                        </span>
                     </div>
-                    ${isSelected ? '<span class="active-tag absolute top-1 right-1 text-[8px] bg-vice-pink text-white px-1.5 py-0.5 rounded font-black shadow">ACTIVE</span>' : ''}
-                    ${s.category ? `<span class="absolute bottom-1 left-1 text-[7px] bg-black/80 text-zinc-300 px-1 py-0.5 rounded font-mono">${s.category}</span>` : ''}
+                    ${isSelected ? '<span class="active-tag absolute top-2 right-2 text-[10px] bg-[#FFE600] text-black px-2 py-0.5 rounded font-black shadow-md tracking-wider">ACTIVE</span>' : ''}
+                    ${s.category ? `<span class="absolute bottom-2 left-2 text-[10px] bg-black/85 text-zinc-200 px-2 py-0.5 rounded font-mono border border-white/10 shadow">${s.category}</span>` : ''}
                 `;
                 grid.appendChild(card);
             });
+            lucide.createIcons();
         }
 
         let activeMatchedAlternatives = [];
@@ -1465,6 +1742,22 @@
                 isManualSelection = true;
             }
             currentBgFilename = filename;
+            // Update active ring in horizontal thumbnail strip
+            document.querySelectorAll('#horizontalShotStrip > div').forEach(c => {
+                if (c.dataset.filename === filename) {
+                    c.className = "w-24 h-14 rounded-lg overflow-hidden border flex-shrink-0 cursor-pointer relative group transition-all active-strip-card ring-2 ring-[#FFE600] border-[#FFE600]";
+                    if (!c.querySelector('.active-tag-strip')) {
+                        const tag = document.createElement('span');
+                        tag.className = "active-tag-strip absolute top-1 right-1 text-[9px] bg-[#FFE600] text-black px-1 rounded font-black shadow";
+                        tag.innerText = "ACTIVE";
+                        c.appendChild(tag);
+                    }
+                } else {
+                    c.className = "w-24 h-14 rounded-lg overflow-hidden border flex-shrink-0 cursor-pointer relative group transition-all border-[#222733] hover:border-zinc-400 opacity-70 hover:opacity-100";
+                    const old = c.querySelector('.active-tag-strip');
+                    if (old) old.remove();
+                }
+            });
 
             // Resolve focal coordinates
             let fx = focalX;
@@ -1502,17 +1795,17 @@
             // Update active ring on thumbnail cards without rebuilding entire DOM
             document.querySelectorAll('#screenshotGrid > div').forEach(card => {
                 const img = card.querySelector('img');
-                const isThis = img && (img.src === url || img.src.includes(filename));
+                const isThis = card.dataset.filename === filename || (img && (img.src === url || img.src.includes(filename)));
                 if (isThis) {
-                    card.className = "aspect-[16/9] rounded-lg overflow-hidden border cursor-pointer transition relative group border-vice-pink ring-2 ring-vice-pink";
+                    card.className = "gallery-shot-card group is-active";
                     if (!card.querySelector('.active-tag')) {
                         const tag = document.createElement('span');
-                        tag.className = "active-tag absolute top-1 right-1 text-[8px] bg-vice-pink text-white px-1.5 py-0.5 rounded font-black shadow";
+                        tag.className = "active-tag absolute top-2 right-2 text-[10px] bg-[#FFE600] text-black px-2 py-0.5 rounded font-black shadow-md tracking-wider";
                         tag.innerText = "ACTIVE";
                         card.appendChild(tag);
                     }
                 } else {
-                    card.className = "aspect-[16/9] rounded-lg overflow-hidden border cursor-pointer transition relative group border-stage-border hover:border-zinc-400";
+                    card.className = "gallery-shot-card group";
                     const oldTag = card.querySelector('.active-tag');
                     if (oldTag) oldTag.remove();
                 }
@@ -1645,15 +1938,24 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    allScreenshots.unshift(data);
+                    const customShot = {
+                        filename: data.filename,
+                        url: data.url,
+                        thumb_url: data.thumb_url || data.url,
+                        category: 'Custom',
+                        focal_x: 0.5,
+                        focal_y: 0.5
+                    };
+                    allScreenshots.unshift(customShot);
+                    renderHorizontalShotStrip(allScreenshots);
                     renderScreenshotsGrid(allScreenshots);
-                    selectScreenshot(data.filename, data.url);
-                    notify('Custom shot uploaded and applied!');
+                    selectScreenshot(data.filename, data.url, 'Custom', 0.5, 0.5, true);
+                    notify('Custom shot uploaded and applied!', 'success');
                 } else {
-                    notify(data.error || 'Upload failed');
+                    notify(data.error || 'Upload failed', 'error');
                 }
             } catch (e) {
-                notify('Upload failed: ' + e.message);
+                notify('Upload failed: ' + e.message, 'error');
             }
             event.target.value = '';
         }
@@ -1674,15 +1976,24 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    allScreenshots.unshift(data);
+                    const customShot = {
+                        filename: data.filename,
+                        url: data.url,
+                        thumb_url: data.thumb_url || data.url,
+                        category: 'Custom',
+                        focal_x: 0.5,
+                        focal_y: 0.5
+                    };
+                    allScreenshots.unshift(customShot);
+                    renderHorizontalShotStrip(allScreenshots);
                     renderScreenshotsGrid(allScreenshots);
-                    selectScreenshot(data.filename, data.url);
-                    notify('Image loaded and applied!');
+                    selectScreenshot(data.filename, data.url, 'Custom', 0.5, 0.5, true);
+                    notify('Image loaded and applied!', 'success');
                 } else {
-                    notify(data.error || 'Failed to download image URL');
+                    notify(data.error || 'Failed to download image URL', 'error');
                 }
             } catch (e) {
-                notify('Download failed: ' + e.message);
+                notify('Download failed: ' + e.message, 'error');
             }
         }
 
@@ -1710,10 +2021,10 @@
                                 </button>
                                 <div>
                                     <span class="text-xs font-bold text-white block">${t.title}</span>
-                                    <span class="text-[10px] text-zinc-500">${t.genre} • ${t.bpm} BPM</span>
+                                    <span class="text-xs text-zinc-400">${t.genre} • ${t.bpm} BPM</span>
                                 </div>
                             </div>
-                            <span class="track-status-label text-[10px] font-mono ${isSelected ? 'text-vice-yellow font-bold' : 'text-zinc-500'}">
+                            <span class="track-status-label text-xs font-mono font-bold ${isSelected ? 'text-vice-yellow' : 'text-zinc-500'}">
                                 ${isSelected ? 'ACTIVE BGM' : 'Select'}
                             </span>
                         `;
@@ -1735,13 +2046,13 @@
                 if (isSel) {
                     c.className = "music-track-card p-3 rounded-xl bg-zinc-950 border border-vice-yellow bg-vice-yellow/5 ring-1 ring-vice-yellow/30 flex items-center justify-between transition cursor-pointer";
                     if (st) {
-                        st.className = "track-status-label text-[10px] font-mono text-vice-yellow font-bold";
+                        st.className = "track-status-label text-xs font-mono text-vice-yellow font-bold";
                         st.innerText = "ACTIVE BGM";
                     }
                 } else {
                     c.className = "music-track-card p-3 rounded-xl bg-zinc-950 border border-stage-border hover:border-zinc-500 flex items-center justify-between transition cursor-pointer";
                     if (st) {
-                        st.className = "track-status-label text-[10px] font-mono text-zinc-500";
+                        st.className = "track-status-label text-xs font-mono text-zinc-500";
                         st.innerText = "Select";
                     }
                 }
@@ -1769,7 +2080,27 @@
         // Vault Media Archive Gallery
         async function loadVaultMedia() {
             const grid = document.getElementById('vaultMediaGrid');
-            grid.innerHTML = '<div class="col-span-2 text-center py-8 text-xs text-zinc-500">Loading output media...</div>';
+            if (!grid) return;
+            
+            // Professional Skeleton Loader instead of text spinner
+            grid.innerHTML = `
+                <div class="p-3 rounded-xl bg-[#14171F] border border-[#222733] animate-pulse space-y-2.5">
+                    <div class="w-full h-44 rounded-lg bg-zinc-800"></div>
+                    <div class="h-4 w-3/4 bg-zinc-800 rounded"></div>
+                    <div class="h-3 w-1/2 bg-zinc-800 rounded"></div>
+                </div>
+                <div class="p-3 rounded-xl bg-[#14171F] border border-[#222733] animate-pulse space-y-2.5">
+                    <div class="w-full h-44 rounded-lg bg-zinc-800"></div>
+                    <div class="h-4 w-3/4 bg-zinc-800 rounded"></div>
+                    <div class="h-3 w-1/2 bg-zinc-800 rounded"></div>
+                </div>
+                <div class="p-3 rounded-xl bg-[#14171F] border border-[#222733] animate-pulse space-y-2.5">
+                    <div class="w-full h-44 rounded-lg bg-zinc-800"></div>
+                    <div class="h-4 w-3/4 bg-zinc-800 rounded"></div>
+                    <div class="h-3 w-1/2 bg-zinc-800 rounded"></div>
+                </div>
+            `;
+            
             try {
                 const res = await fetch('/api/media/');
                 const data = await res.json();
@@ -1777,10 +2108,11 @@
                     allVaultMedia = data.media;
                     renderVaultGrid(allVaultMedia);
                 } else {
-                    grid.innerHTML = '<div class="col-span-2 text-center py-8 text-xs text-zinc-500">No generated media found in output/</div>';
+                    allVaultMedia = [];
+                    renderVaultGrid([]);
                 }
             } catch (e) {
-                grid.innerHTML = '<div class="col-span-2 text-center py-8 text-xs text-zinc-500">Error loading vault.</div>';
+                grid.innerHTML = '<div class="col-span-full text-center py-10 text-xs text-zinc-500">Error loading vault archive.</div>';
             }
         }
 
@@ -1803,39 +2135,66 @@
 
         function renderVaultGrid(items) {
             const grid = document.getElementById('vaultMediaGrid');
+            if (!grid) return;
             grid.innerHTML = '';
+            
+            // Professional Empty State with clear next step
             if (!items || items.length === 0) {
-                grid.innerHTML = '<div class="col-span-2 text-center py-8 text-xs text-zinc-500">No items match this filter.</div>';
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 flex flex-col items-center justify-center text-center p-6 rounded-2xl bg-[#14171F] border border-[#222733]">
+                        <div class="w-14 h-14 rounded-2xl bg-[#0B0D12] border border-[#222733] flex items-center justify-center text-zinc-500 mb-3">
+                            <i data-lucide="archive" class="w-7 h-7 text-zinc-600"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-white mb-1">No media in output archive yet</h3>
+                        <p class="text-xs text-zinc-400 max-w-sm mb-4">You haven't generated any posts or Shorts yet. Scrape a story to create your first viral post!</p>
+                        <button onclick="switchNavView('create'); autoScrapeTopStory();" class="px-4 py-2 rounded-xl bg-[#FFE600] text-black font-extrabold text-xs flex items-center gap-2 hover:bg-[#E6CF00] transition shadow-lg shadow-[#FFE600]/10">
+                            <i data-lucide="zap" class="w-4 h-4 fill-black"></i>
+                            <span>⚡ Auto-Scrape Fresh Story & Create</span>
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
                 return;
             }
+
             items.forEach(m => {
                 const card = document.createElement('div');
-                card.className = "p-2 rounded-xl bg-zinc-900 border border-stage-border hover:border-zinc-500 transition flex flex-col justify-between gap-1.5 group";
+                card.className = "p-3 rounded-xl bg-[#14171F] border border-[#222733] hover:border-zinc-500 transition flex flex-col justify-between gap-2.5 group relative";
                 const isVid = m.type === 'video';
                 card.innerHTML = `
-                    <div class="aspect-[16/9] rounded-lg overflow-hidden bg-black relative flex items-center justify-center">
+                    <div class="w-full h-44 rounded-lg overflow-hidden bg-black relative flex items-center justify-center">
                         ${isVid 
                             ? `<video src="${m.url}" preload="metadata" class="w-full h-full object-cover pointer-events-none"></video>
-                               <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                   <i data-lucide="play-circle" class="w-6 h-6 text-white"></i>
+                               <div class="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:opacity-20 transition">
+                                   <i data-lucide="play-circle" class="w-7 h-7 text-white"></i>
                                </div>`
-                            : `<img src="${m.url}" class="w-full h-full object-cover">`
+                            : `<img src="${m.url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">`
                         }
-                        <span class="absolute top-1 left-1 text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${isVid ? 'bg-red-500 text-white' : 'bg-vice-cyan text-black'}">${m.type}</span>
-                        <span class="absolute bottom-1 right-1 text-[8px] font-mono text-zinc-300 bg-black/80 px-1 rounded">${m.size}</span>
+                        <span class="absolute top-1.5 left-1.5 text-[10px] font-black uppercase px-2 py-0.5 rounded shadow ${isVid ? 'bg-rose-500 text-white' : 'bg-[#FFE600] text-black'}">${m.type}</span>
+                        <span class="absolute bottom-1.5 right-1.5 text-[10px] font-mono text-zinc-200 bg-black/85 px-1.5 py-0.5 rounded">${m.size}</span>
                     </div>
+
                     <div>
-                        <span class="text-[11px] font-bold text-white block truncate" title="${m.filename}">${m.filename}</span>
-                        <span class="text-[9px] text-zinc-500 block">${m.created}</span>
+                        <span class="text-xs font-bold text-white block truncate" title="${m.filename}">${m.filename}</span>
+                        <span class="text-[11px] text-zinc-400 block mt-0.5">${m.created}</span>
                     </div>
-                    <div class="flex items-center gap-1 pt-1 border-t border-stage-border/40">
-                        <button onclick="previewVaultItem('${m.url}', '${m.type}')" class="flex-1 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-white text-[9px] font-bold transition flex items-center justify-center gap-1">
-                            <i data-lucide="eye" class="w-3 h-3"></i>
-                            <span>Preview</span>
+
+                    <!-- Actions: Preview, Reuse, Download, Delete -->
+                    <div class="flex items-center gap-1.5 pt-2 border-t border-[#222733]">
+                        <button onclick="previewVaultItem('${m.url}', '${m.type}')" class="flex-1 py-1.5 rounded-lg bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-300 hover:text-white text-xs font-bold transition flex items-center justify-center gap-1 border border-[#222733]" title="Preview">
+                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                            <span>View</span>
                         </button>
-                        <a href="${m.url}" download class="h-5 w-5 rounded bg-zinc-800 hover:bg-white text-zinc-300 hover:text-black flex items-center justify-center transition" title="Download">
-                            <i data-lucide="download" class="w-2.5 h-2.5"></i>
+                        <button onclick="reuseVaultItem('${m.url}', '${m.type}', '${m.filename}')" class="px-2.5 py-1.5 rounded-lg bg-[#0B0D12] hover:bg-[#1F2432] text-[#FFE600] text-xs font-bold transition flex items-center justify-center gap-1 border border-[#222733]" title="Load back into editor to adapt">
+                            <i data-lucide="repeat" class="w-3.5 h-3.5"></i>
+                            <span>Reuse</span>
+                        </button>
+                        <a href="${m.url}" download class="h-7 w-7 rounded-lg bg-[#0B0D12] hover:bg-white text-zinc-400 hover:text-black flex items-center justify-center transition border border-[#222733]" title="Download file">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i>
                         </a>
+                        <button onclick="deleteVaultItem('${m.filename}')" class="h-7 w-7 rounded-lg bg-[#0B0D12] hover:bg-rose-500 text-zinc-400 hover:text-white flex items-center justify-center transition border border-[#222733]" title="Delete permanently">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -1843,23 +2202,74 @@
             lucide.createIcons();
         }
 
+        function reuseVaultItem(url, type, filename) {
+            if (type === 'image') {
+                setMode('image');
+                const img = document.getElementById('stageRenderedImg');
+                if (img) img.src = url;
+                currentRenderedPostUrl = url;
+                setCanvasViewMode('rendered');
+                switchNavView('create');
+                notify(`Loaded "${filename}" into stage for preview and reuse!`, 'success');
+            } else {
+                setMode('video');
+                const player = document.getElementById('stageVideoPlayer');
+                const source = document.getElementById('stageVideoSource');
+                const placeholder = document.getElementById('stageVideoPlaceholder');
+                if (source) source.src = url;
+                if (player) player.load();
+                if (placeholder) placeholder.classList.add('hidden');
+                currentRenderedVideoUrl = url;
+                switchNavView('create');
+                notify(`Loaded Short "${filename}" into player!`, 'success');
+            }
+        }
+
+        async function deleteVaultItem(filename) {
+            if (!confirm(`Are you sure you want to delete "${filename}" permanently?`)) return;
+            try {
+                const res = await fetch('/api/media/delete/', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({filename: filename})
+                });
+                const data = await res.json();
+                if (data.success) {
+                    allVaultMedia = allVaultMedia.filter(m => m.filename !== filename);
+                    filterVaultMedia(currentVaultFilter || 'all');
+                    notify(`Deleted "${filename}"`, 'info');
+                } else {
+                    notify(`Delete failed: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (e) {
+                notify("Network error while deleting item", 'error');
+            }
+        }
+
         function previewVaultItem(url, type) {
             if (type === 'video') {
                 setMode('video');
                 const player = document.getElementById('stageVideoPlayer');
-                player.src = url;
-                player.load();
-                player.play().catch(() => {});
-                document.getElementById('stageVideoPlaceholder').classList.add('hidden');
+                if (player) {
+                    player.src = url;
+                    player.load();
+                    player.play().catch(() => {});
+                }
+                const placeholder = document.getElementById('stageVideoPlaceholder');
+                if (placeholder) placeholder.classList.add('hidden');
                 lastGeneratedVideoUrl = url;
-                notify("Loaded video to Short Stage");
+                switchNavView('create');
+                notify("Loaded video to Short Stage", 'success');
             } else {
                 setMode('image');
                 lastGeneratedPostUrl = url;
+                const stageImg = document.getElementById('stageRenderedImg');
+                if (stageImg) stageImg.src = url;
                 const togglePill = document.getElementById('renderTogglePill');
                 if (togglePill) togglePill.classList.remove('hidden');
                 setCanvasViewMode('rendered');
-                notify("Loaded image to 4:5 Stage");
+                switchNavView('create');
+                notify("Loaded image to 4:5 Stage", 'success');
             }
         }
 
@@ -1945,6 +2355,11 @@
                 if (data.success) {
                     lastGeneratedPostUrl = data.image_url;
                     lastGeneratedCaption = data.caption || "";
+
+                    const capBox = document.getElementById('captionBoxText');
+                    if (capBox && data.caption) {
+                        capBox.value = data.caption;
+                    }
 
                     // Reveal view toggle pill & switch to true rendered PNG
                     const togglePill = document.getElementById('renderTogglePill');
@@ -2041,7 +2456,7 @@
                             const sres = await fetch('/api/status/');
                             const st = await sres.json();
 
-                            document.getElementById('renderProgressBar').style.width = st.progress + '%';
+                            updatePipelineSteps(st.progress, st.message);
                             document.getElementById('renderPercentText').innerText = st.progress + '%';
                             document.getElementById('renderStatusText').innerText = st.message;
 
@@ -2068,50 +2483,114 @@
         }
 
         // Copy Caption
+        let isManualCaptionEditing = false;
+
+        function handleManualCaptionEdit() {
+            isManualCaptionEditing = true;
+        }
+
+        function updateCaptionBox() {
+            const box = document.getElementById('captionBoxText');
+            if (!box || isManualCaptionEditing) return;
+
+            const headline = document.getElementById('inputHeadline')?.value?.trim() || "";
+            const summary = document.getElementById('inputSummary')?.value?.trim() || "";
+            const src = document.getElementById('inputSource')?.value?.trim() || "GAMING INTEL";
+            const gameClean = currentSelectedGame || "GTA VI";
+            const gameTag = gameClean.replace(/[^a-zA-Z0-9]/g, '');
+
+            const formatted = `⚡ BREAKING: ${headline.toUpperCase()}!\n\n` +
+                `${summary || 'Full breakdown and insights available now.'}\n\n` +
+                `Source: ${src}\n` +
+                `Follow {{ creator_handle }} for daily ${gameClean} updates & gaming news.\n\n` +
+                `What are your thoughts on this? Drop a comment below! 🎮\n\n` +
+                `#${gameTag} #${gameTag}News #GamingNews #Gamer #VideoGames #GamingCommunity`;
+
+            box.value = formatted;
+        }
+
         function copyGeneratedCaption() {
-            let text = lastGeneratedCaption;
+            const box = document.getElementById('captionBoxText');
+            let text = box ? box.value.trim() : "";
+            
             if (!text) {
-                const headline = document.getElementById('inputHeadline').value.trim();
-                const summary = document.getElementById('inputSummary').value.trim();
-                const src = document.getElementById('inputSource').value.trim() || 'GAMING INTEL';
-                const gameClean = currentSelectedGame || "GTA VI";
-                const gameTag = gameClean.replace(/[^a-zA-Z0-9]/g, '');
-                text = `🚨 BREAKING: ${headline.toUpperCase()}!\n\n` +
-                    `${summary || 'Full report and breakdown available now.'}\n\n` +
-                    `Source: ${src}\n` +
-                    `Follow {{ creator_handle }} for daily ${gameClean} updates & gaming news.\n\n` +
-                    `What are your thoughts on this? Let us know in the comments below! 👇\n\n` +
-                    `#${gameTag} #${gameTag}News #GamingNews #Gamer #VideoGames #GamingCommunity`;
+                updateCaptionBox();
+                text = box ? box.value.trim() : "";
             }
 
-            navigator.clipboard.writeText(text).then(() => {
-                const lbl = document.getElementById('copyCaptionLabel');
-                const ico = document.getElementById('copyCaptionIcon');
-                lbl.innerText = "Caption Copied!";
-                ico.setAttribute('data-lucide', 'check');
+            const onCopySuccess = () => {
+                // Update stage button
+                const lbl1 = document.getElementById('copyCaptionLabel');
+                const ico1 = document.getElementById('copyCaptionIcon');
+                if (lbl1) lbl1.innerText = "Copied!";
+                if (ico1) {
+                    ico1.setAttribute('data-lucide', 'check');
+                }
+
+                // Update caption box button
+                const lbl2 = document.getElementById('copyCaptionBoxLabel');
+                const ico2 = document.getElementById('copyCaptionBoxIcon');
+                if (lbl2) lbl2.innerText = "Copied!";
+                if (ico2) {
+                    ico2.setAttribute('data-lucide', 'check');
+                }
+
                 lucide.createIcons();
-                notify("Caption & hashtags copied to clipboard");
+                notify("Caption & hashtags copied to clipboard!", "success");
+
                 setTimeout(() => {
-                    lbl.innerText = "Copy Caption & Tags";
-                    ico.setAttribute('data-lucide', 'copy');
+                    if (lbl1) lbl1.innerText = "Caption";
+                    if (ico1) ico1.setAttribute('data-lucide', 'copy');
+                    if (lbl2) lbl2.innerText = "Copy Caption";
+                    if (ico2) ico2.setAttribute('data-lucide', 'copy');
                     lucide.createIcons();
                 }, 2400);
-            });
+            };
+
+            if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(onCopySuccess).catch(() => {
+                    copyViaFallback(text, onCopySuccess);
+                });
+            } else {
+                copyViaFallback(text, onCopySuccess);
+            }
+        }
+
+        function copyViaFallback(text, callback) {
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                if (callback) callback();
+            } catch (e) {
+                notify("Could not access clipboard", "error");
+            }
         }
 
         function applyPreset(idx) {
             isManualSelection = false;
             if (canvasViewMode === 'rendered') setCanvasViewMode('mockup');
             const p = PRESETS[idx];
-            document.getElementById('inputHeadline').value = p.headline;
-            document.getElementById('inputSummary').value = p.summary;
-            document.getElementById('inputCategory').value = p.category;
-            document.getElementById('inputHook').value = p.hook;
-            document.getElementById('inputSource').value = p.source;
+            if (!p) return;
+            const hl = document.getElementById('inputHeadline');
+            const sum = document.getElementById('inputSummary');
+            const cat = document.getElementById('inputCategory');
+            const hook = document.getElementById('inputHook');
+            const src = document.getElementById('inputSource');
+            if (hl) hl.value = p.headline;
+            if (sum) sum.value = p.summary;
+            if (cat) cat.value = p.category;
+            if (hook) hook.value = p.hook;
+            if (src) src.value = p.source;
             if (p.bg) {
                 currentBgFilename = p.bg;
-                document.getElementById('liveBgImg').src = `/assets/backgrounds/${p.bg}`;
-                document.getElementById('currentAssetLabel').innerText = p.bg;
+                const bgImg = document.getElementById('liveBgImg');
+                if (bgImg) bgImg.src = `/assets/backgrounds/${p.bg}`;
             }
             manualHighlightWords = new Set(['25', 'MINUTES', 'UNCENSORED', 'LUCIA', 'JASON', 'SEPTEMBER', '2026', 'HURRICANES', 'FLOODING', '2.5X']);
             rebuildInteractiveWordChips();
@@ -2119,12 +2598,15 @@
             notify(`Loaded preset: ${p.category}`);
         }
 
-
         function toggleScrapedModal() {
             const m = document.getElementById('scrapedModal');
-            m.classList.toggle('hidden');
-            if (!m.classList.contains('hidden')) {
-                loadFeeds();
+            if (m) {
+                m.classList.toggle('hidden');
+                if (!m.classList.contains('hidden')) {
+                    loadFeeds();
+                }
+            } else {
+                switchNavView('news');
             }
         }
 
@@ -2213,8 +2695,8 @@
         // Live Real-Time RSS Refresh for Selected Game
         async function refreshLiveFeeds() {
             const game = currentSelectedGame || "GTA VI";
-            const lbl = document.getElementById('labelRefreshRss');
-            const ico = document.getElementById('iconRefreshRss');
+            const lbl = document.getElementById('newsFeedRefreshLabel');
+            const ico = document.getElementById('newsFeedRefreshIcon');
             if (lbl) lbl.innerText = "Scraping...";
             if (ico) ico.classList.add('animate-spin');
 
@@ -2223,18 +2705,18 @@
                 const res = await fetch(`/api/news/refresh/?game=${encodeURIComponent(game)}`);
                 const data = await res.json();
                 if (data.success) {
-                    await loadFeeds();
+                    await loadNewsFeedGrid();
                     if (data.top_story) {
                         loadStoryIntoStudio(data.top_story);
                     }
-                    notify(`17 RSS feeds scraped & top ${game} story applied!`);
+                    notify(`17 RSS feeds scraped & top ${game} story applied!`, 'success');
                 } else {
-                    notify(data.error || "Failed to refresh feeds");
+                    notify(data.error || "Failed to refresh feeds", 'error');
                 }
             } catch (e) {
-                notify("Refresh failed: " + e.message);
+                notify("Refresh failed: " + e.message, 'error');
             } finally {
-                if (lbl) lbl.innerText = "Fetch Live";
+                if (lbl) lbl.innerText = "Fetch Live Feeds";
                 if (ico) ico.classList.remove('animate-spin');
                 lucide.createIcons();
             }
@@ -2242,6 +2724,10 @@
 
         async function loadFeeds() {
             const c = document.getElementById('scrapedContainer');
+            if (!c) {
+                await loadNewsFeedGrid();
+                return;
+            }
             const game = currentSelectedGame || "GTA VI";
             const modalTitle = document.getElementById('scrapedModalTitle');
             if (modalTitle) modalTitle.innerText = `Scraped Gaming Outlets (${game})`;
@@ -2256,19 +2742,28 @@
                     c.innerHTML = '';
                     data.stories.forEach(s => {
                         const d = document.createElement('div');
-                        d.className = "p-3 rounded-xl bg-zinc-950 border border-stage-border hover:border-zinc-500 transition cursor-pointer flex flex-col gap-1";
+                        d.className = "p-3.5 rounded-xl bg-zinc-950 border border-stage-border hover:border-zinc-500 transition cursor-pointer flex flex-col gap-1.5";
                         d.onclick = () => {
                             loadStoryIntoStudio(s);
                             toggleScrapedModal();
                             notify(`Selected ${game} RSS story & auto-matched shot!`);
                         };
+                        const scrapTimeDisplay = s.scraped_time || (s.scraped_at ? s.scraped_at.split('•').pop().trim() : '');
                         d.innerHTML = `
-                            <div class="flex items-center justify-between text-[10px] text-zinc-500">
-                                <span class="text-vice-pink font-bold uppercase">${s.source || 'News'}</span>
-                                <span>${s.date || 'Today'}</span>
+                            <div class="flex items-center justify-between text-xs text-zinc-400 gap-2 flex-wrap">
+                                <span class="text-vice-pink font-bold uppercase text-[11px]">${s.source || 'News'}</span>
+                                <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                                    ${scrapTimeDisplay ? `
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-cyan-950/60 border border-vice-cyan/35 text-vice-cyan text-[10px] font-mono font-bold">
+                                        <i data-lucide="clock" class="w-3 h-3 text-vice-cyan"></i>
+                                        <span>${scrapTimeDisplay}</span>
+                                    </span>
+                                    ` : ''}
+                                    <span class="text-[11px] font-mono text-zinc-400">${s.date || 'Today'}</span>
+                                </div>
                             </div>
-                            <span class="text-xs font-bold text-white line-clamp-2">${s.title}</span>
-                            ${s.summary ? `<span class="text-[10px] text-zinc-400 line-clamp-1">${s.summary}</span>` : ''}
+                            <span class="text-xs sm:text-sm font-bold text-white line-clamp-2 leading-snug">${s.title}</span>
+                            ${s.summary ? `<span class="text-xs text-zinc-400 line-clamp-2 leading-relaxed">${s.summary}</span>` : ''}
                         `;
                         c.appendChild(d);
                     });
@@ -2289,28 +2784,120 @@
         }
 
         let toastTimeout = null;
-        function notify(text) {
+        function notify(text, type = 'info') {
             const now = Date.now();
-            if (now - lastToastTime < 350) return;
+            if (now - lastToastTime < 250) return;
             lastToastTime = now;
             const t = document.getElementById('toast');
             const c = document.getElementById('toastContent');
             if (!t || !c) return;
-            c.innerText = text;
+
+            let iconName = 'sparkles';
+            let borderCls = 'border-[#222733]';
+            let textCls = 'text-zinc-100';
+            let iconColor = 'text-[#FFE600]';
+
+            if (type === 'error') {
+                iconName = 'alert-triangle';
+                borderCls = 'border-rose-500/50 bg-rose-950/40';
+                textCls = 'text-rose-200';
+                iconColor = 'text-rose-400';
+            } else if (type === 'success') {
+                iconName = 'check-circle-2';
+                borderCls = 'border-emerald-500/50 bg-emerald-950/40';
+                textCls = 'text-emerald-200';
+                iconColor = 'text-emerald-400';
+            } else {
+                borderCls = 'border-[#222733] bg-[#14171F]';
+            }
+
+            c.className = `px-4 py-2.5 rounded-xl border ${borderCls} text-xs ${textCls} shadow-2xl flex items-center gap-2.5 font-medium backdrop-blur-md`;
+            c.innerHTML = `<i data-lucide="${iconName}" class="w-4 h-4 ${iconColor} flex-shrink-0"></i><span>${text}</span>`;
+            lucide.createIcons();
+
             t.classList.remove('opacity-0', 'translate-y-2');
             if (toastTimeout) clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => {
                 t.classList.add('opacity-0', 'translate-y-2');
-            }, 2400);
+            }, 2800);
+        }
+
+                // LocalStorage Settings Persistence
+        function saveSettingsToStorage() {
+            try {
+                localStorage.setItem('gta_studio_game', currentSelectedGame || 'GTA VI');
+                localStorage.setItem('gta_studio_voice', selectedVoice || 'en-US-BrianMultilingualNeural');
+                localStorage.setItem('gta_studio_music', selectedMusicTrack || 'vice_city_night_drive.mp3');
+                localStorage.setItem('gta_studio_theme', currentTheme || 'vice');
+                localStorage.setItem('gta_studio_mode', currentMode || 'image');
+            } catch(e) {}
+        }
+
+        function restoreSettingsFromStorage() {
+            try {
+                const savedGame = localStorage.getItem('gta_studio_game');
+                if (savedGame) {
+                    currentSelectedGame = savedGame;
+                    const input = document.getElementById('inputGameTitle');
+                    if (input) input.value = savedGame;
+                    const gameText = document.getElementById('liveGameText');
+                    if (gameText) gameText.innerText = savedGame;
+                    const topBadge = document.getElementById('currentNewsGameLabel');
+                    if (topBadge) topBadge.innerText = savedGame;
+                }
+                const savedVoice = localStorage.getItem('gta_studio_voice');
+                if (savedVoice) {
+                    selectedVoice = savedVoice;
+                }
+                const savedTheme = localStorage.getItem('gta_studio_theme');
+                if (savedTheme) {
+                    setThemePalette(savedTheme, false);
+                }
+                const savedMode = localStorage.getItem('gta_studio_mode');
+                if (savedMode && ['image', 'video'].includes(savedMode)) {
+                    setMode(savedMode);
+                }
+            } catch(e) {}
+        }
+
+        // Smooth Full-Stage Scrolling Delegation
+        // Enables effortless mouse wheel scrolling anywhere across the center stage (including left & right blank margins)
+        function initStageScrollDelegation() {
+            const centerStage = document.getElementById('centerStageSection');
+            if (!centerStage) return;
+
+            centerStage.addEventListener('wheel', (e) => {
+                let activeScrollable = null;
+                const newsView = document.getElementById('stageViewNews');
+                const galleryView = document.getElementById('stageViewGallery');
+                const archiveView = document.getElementById('stageViewArchive');
+
+                if (newsView && !newsView.classList.contains('hidden')) {
+                    activeScrollable = document.getElementById('newsFeedGrid');
+                } else if (galleryView && !galleryView.classList.contains('hidden')) {
+                    activeScrollable = document.getElementById('screenshotGrid');
+                } else if (archiveView && !archiveView.classList.contains('hidden')) {
+                    activeScrollable = document.getElementById('vaultMediaGrid');
+                }
+
+                // If an active grid exists and the mouse event originated outside of it (e.g. in blank margins)
+                if (activeScrollable && !activeScrollable.contains(e.target)) {
+                    activeScrollable.scrollTop += e.deltaY;
+                    e.preventDefault();
+                }
+            }, { passive: false });
         }
 
         // Initialize
         window.addEventListener('DOMContentLoaded', () => {
+            restoreSettingsFromStorage();
             lucide.createIcons();
+            updateCaptionBox();
             rebuildInteractiveWordChips();
             handleGameTitleInput();
             renderLiveCanvas();
             fetchShotsForCurrentGame();
+            initStageScrollDelegation();
         });
     </script>
 </body>
