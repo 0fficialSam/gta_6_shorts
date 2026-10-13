@@ -427,12 +427,13 @@ def get_cached_game_images(slug: str, base_dir: str = None) -> list:
                 rel_url = f"/assets/backgrounds/{slug}/{f}"
                 cat = classify_screenshot_category(f, slug.replace("_", " "))
                 fx, fy = FOCAL_POINTS.get(f, (0.5, 0.45))
+                base_name = os.path.splitext(f)[0]
                 cached.append({
                     "id": f"{slug}_{f}",
                     "filename": f"{slug}/{f}",
                     "path": full_path,
                     "url": rel_url,
-                    "thumb_url": rel_url,
+                    "thumb_url": f"/assets/thumbs/{slug}/{base_name}.jpg",
                     "category": cat,
                     "focal_x": fx,
                     "focal_y": fy,
@@ -623,7 +624,7 @@ def fetch_game_images_on_demand(game_name: str, target_count: int = 12, force_re
                 "filename": os.path.basename(s),
                 "path": s,
                 "url": f"/assets/backgrounds/{os.path.basename(s)}",
-                "thumb_url": f"/assets/backgrounds/{os.path.basename(s)}",
+                "thumb_url": f"/assets/thumbs/{os.path.splitext(os.path.basename(s))[0]}.jpg",
                 "title": f"GTA VI 4K Frame ({os.path.basename(s)})",
                 "category": classify_screenshot_category(os.path.basename(s), "GTA VI"),
                 "focal_x": FOCAL_POINTS.get(os.path.basename(s), (0.5, 0.45))[0],
@@ -689,12 +690,13 @@ def fetch_game_images_on_demand(game_name: str, target_count: int = 12, force_re
         if os.path.exists(save_path) and os.path.getsize(save_path) > 20000:
             rel_url = f"/assets/backgrounds/{slug}/{filename}"
             fx, fy = FOCAL_POINTS.get(filename, (0.5, 0.45))
+            base_name = os.path.splitext(filename)[0]
             downloaded.append({
                 "id": f"{slug}_{filename}",
                 "filename": f"{slug}/{filename}",
                 "path": save_path,
                 "url": rel_url,
-                "thumb_url": rel_url,
+                "thumb_url": f"/assets/thumbs/{slug}/{base_name}.jpg",
                 "title": cand.get('title', f"{game_name} Shot {idx}"),
                 "category": classify_screenshot_category(filename, game_name),
                 "focal_x": fx,

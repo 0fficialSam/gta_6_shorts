@@ -284,7 +284,11 @@ def is_recent(entry) -> bool:
 
 def get_date_str(entry) -> str:
     dt = parse_date(entry)
-    return dt.strftime('%b %d, %Y') if dt else 'Recent'
+    if dt:
+        if dt.hour != 0 or dt.minute != 0:
+            return dt.strftime('%b %d, %Y, %I:%M %p')
+        return dt.strftime('%b %d, %Y')
+    return 'Recent'
 
 
 def is_relevant_story(title: str, summary: str, cfg: dict) -> bool:
@@ -432,18 +436,21 @@ def scrape_feeds(game: str = "GTA VI") -> list:
                 if not is_recent(entry): continue
 
                 seen_urls.add(url)
+                now_dt = datetime.now()
                 raw_stories.append({
-                    'title':     title,
-                    'raw_title': raw_title,
-                    'url':       url,
-                    'score':     score_headline(title, cfg),
-                    'source':    feed_info['name'],
-                    'priority':  feed_info.get('priority', 2),
-                    'summary':   summary,
-                    'text':      '',
-                    'date':      get_date_str(entry),
-                    'game':      cfg['title'],
-                    'upvotes':   0,
+                    'title':        title,
+                    'raw_title':    raw_title,
+                    'url':          url,
+                    'score':        score_headline(title, cfg),
+                    'source':       feed_info['name'],
+                    'priority':     feed_info.get('priority', 2),
+                    'summary':      summary,
+                    'text':         '',
+                    'date':         get_date_str(entry),
+                    'scraped_at':   now_dt.strftime('%b %d, %Y, %I:%M %p'),
+                    'scraped_time': now_dt.strftime('%I:%M %p'),
+                    'game':         cfg['title'],
+                    'upvotes':      0,
                 })
                 count += 1
 
@@ -596,13 +603,30 @@ def get_game_stories(game: str = "GTA VI", refresh: bool = False) -> list:
     os.makedirs("assets", exist_ok=True)
     cache_file = os.path.join("assets", f"stories_{cfg['slug']}.json")
 
+    # Helper to backfill timestamps if missing
+    def _ensure_timestamps(story_list, ref_file=None):
+        if not story_list: return story_list
+        if ref_file and os.path.exists(ref_file):
+            f_dt = datetime.fromtimestamp(os.path.getmtime(ref_file))
+        else:
+            f_dt = datetime.now()
+        def_at = f_dt.strftime('%b %d, %Y, %I:%M %p')
+        def_time = f_dt.strftime('%I:%M %p')
+        for s in story_list:
+            if not s.get('scraped_at'):
+                s['scraped_at'] = def_at
+            if not s.get('scraped_time'):
+                s['scraped_time'] = def_time
+        return story_list
+
     # For GTA VI also check today_stories.json
-    if not refresh and cfg['slug'] == 'gta_vi' and os.path.exists("assets/today_stories.json"):
+    today_file = "assets/today_stories.json"
+    if not refresh and cfg['slug'] == 'gta_vi' and os.path.exists(today_file):
         try:
-            with open("assets/today_stories.json", "r", encoding="utf-8") as f:
+            with open(today_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 if data and len(data) > 0:
-                    return data
+                    return _ensure_timestamps(data, today_file)
         except Exception: pass
 
     # Check cache freshness (valid for 3 hours)
@@ -613,7 +637,7 @@ def get_game_stories(game: str = "GTA VI", refresh: bool = False) -> list:
                 with open(cache_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
                     if data and len(data) > 0:
-                        return data
+                        return _ensure_timestamps(data, cache_file)
         except Exception: pass
 
     # Scrape fresh
@@ -628,7 +652,7 @@ def get_game_stories(game: str = "GTA VI", refresh: bool = False) -> list:
         preset = None
         for k, v in GAME_FALLBACK_STORIES.items():
             if normalize_search_text(k) == cfg['slug'] or cfg['slug'] in normalize_search_text(k):
-                preset = v
+                preset = [dict(item) for item in v]
                 break
         if not preset:
             preset = [
@@ -642,7 +666,7 @@ def get_game_stories(game: str = "GTA VI", refresh: bool = False) -> list:
                     "text": f"Development reports confirm {cfg['title']} reaches key milestone with gameplay polish and console optimization. Insiders project major announcements soon."
                 }
             ]
-        stories_to_save = preset
+        stories_to_save = _ensure_timestamps(preset)
 
     # Write cache
     try:
