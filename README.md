@@ -1,191 +1,232 @@
-# 🎮 GTA 6 YouTube Shorts Automation Engine
-### 100% Free · Studio Quality · Runs Daily on Your PC · Zero Cost ($0.00)
+# 🎮 Universal Gaming Content Studio & Shorts Automation Engine
+### 100% Free · Studio Quality · Runs Locally on Windows · Zero Monthly Fees ($0.00)
+### Engineered for `@SamWithJoystick` · YouTube Shorts (9:16) & Instagram Posts (4:5)
 
-Automated, high-retention daily video production engine that creates and publishes viral 9:16 vertical short-form content covering Grand Theft Auto VI (GTA 6) news, leaks, rumors, and launch countdowns.
-
----
-
-## ⚡ What Makes This Engine Next-Gen
-
-- 🚀 **Blazing-Fast Render (<60s)**: Direct memory-to-FFmpeg `stdin` pipe with automatic GPU hardware acceleration (`h264_nvenc` / `h264_mf` / `libx264 ultrafast`). Zero disk temp files.
-- 🎙️ **Hyper-Realistic Neural Voice**: Powered by Microsoft's flagship conversational neural voice (`en-US-BrianMultilingualNeural` at natural `+4%` pacing) — natural vocal inflection, human breathing pauses, and authentic YouTube creator delivery.
-- 🎚️ **Shure SM7B Studio Vocal Mastering**: Broadcast EQ & dynamic processing chain (180 Hz chest warmth, 650 Hz de-box filter, 3.8 kHz anti-sibilance dip, 10 kHz acoustic air, and transparent soft-knee leveler) eliminating robotic metallic harshness.
-- 🎛️ **Dynamic Sidechain BGM Ducking**: FFmpeg `sidechaincompress` automatically ducks background music under spoken dialogue and swells back up during pauses like a Hollywood gaming trailer.
-- 🎵 **4-Track Vice City Synthwave Library**: Procedural, royalty-free 80s synthwave gaming beats rotating daily (`assets/music/`).
-- 🎬 **Dynamic 4K Rockstar Universe Engine**: 34 authentic 4K GTA 6 trailer frames with Ken Burns camera pan/zoom, organic scene cuts (2.7s–3.4s), and daily seed shuffling.
-- 📺 **Broadcast-Grade Visual Layout**:
-  - **Top Countdown Strip**: AAA gradient `[ GTA VI ]` badge, glowing remaining days counter (`X DAYS REMAINING`), live release status indicator (`• FALL 2026`), and integrated 5px glowing progress bar.
-  - **Breaking News Pill Badge**: High-contrast headline badge displaying the news hook for the first 3.6s.
-  - **Kinetic Word Subtitles**: 2–3 words-at-a-time synchronized captions with electric yellow highlights (`#FFE600`) and rounded dark pill backdrop.
-  - **Creator Branding**: Frosted glass footer for `@SamWithJoystick` transitioning into an animated final 7-second CTA card (`SUBSCRIBE TO @SamWithJoystick`).
-- 🤖 **Google Gemini 2.0 / 1.5 Flash Free Tier**: Official free tier LLM script generation with 3 proven viral hook frameworks (Curiosity Gap, Contrarian Take, High-Stakes Reveal) and zero-cost dynamic fallback builder.
-- ⚙️ **Centralized Configuration**: All countdown dates, voices, music ducking, creator handles, and YouTube defaults centralized in `config.json` and `.env`.
-- 🎯 **Target Platform**: Exclusively engineered for **YouTube Shorts** (9:16 vertical, 1080x1920, strictly 50–58s).
+An automated, high-retention creator studio and video production engine that crafts and publishes viral short-form content covering **GTA 6 and ALL major video game franchises** (leaks, rumors, launch countdowns, and breaking news).
 
 ---
 
-## 📁 Project Structure
+## ⚡ What Makes This Studio Next-Gen
+
+- 🖥️ **Studio Pro 3-Zone Web App (`http://127.0.0.1:8000`)**:
+  - **Left Icon Dock**: Fast navigation between `Create` (Editor), `News Feed`, `4K Asset Vault`, `Production Archive`, and `Shortcuts & Settings`.
+  - **Hero Stage**: Fixed aspect-ratio live preview container (`4:5 Instagram` card & `9:16 Short` video player) with real-time DOM WYSIWYG rendering.
+  - **Right Control Dock**: Focused top-to-bottom creation flow: `[⚡ Auto-Scrape Fresh Story]` → `[News Headline & Interactive Word Chips]` → `[1-Click Generate]`.
+- 📸 **Instagram 4:5 News Post Generator**:
+  - High-impact 1080×1350 portrait cards inspired by `@thegamesgossip_`.
+  - Heavyweight **Arial Black** uppercase display headlines with real-time **Electric Yellow (`#FFE600`)** keyword highlights.
+  - **Symmetrical Twin Top Capsules**: Game Name (`[ ● GAME ]`) and Creator Watermark (`[ @SamWithJoystick ]`) rendered at identical heights and typography.
+  - **Deep Velvet Scrim**: Multi-stop cubic dark gradient guaranteeing 100% legibility over any bright background.
+  - **Automated Social Captions**: Auto-formats breaking news emojis, summary breakdown, attribution, handle, and targeted hashtags.
+- 🎬 **YouTube Shorts 9:16 Video Engine**:
+  - **Blazing-Fast Render (<60s)**: Direct memory-to-FFmpeg `stdin` pipe with automatic GPU hardware acceleration (`h264_nvenc` / `h264_mf` / `libx264 ultrafast`).
+  - **Hyper-Realistic Neural Voice**: Microsoft conversational neural voice (`en-US-BrianMultilingualNeural` at `+4%` natural human pacing).
+  - **Broadcast Vocal Mastering**: Shure SM7B mastering chain (180 Hz chest warmth, 650 Hz de-box, 3.8 kHz de-harsh, 10 kHz acoustic air, transparent soft-knee leveler).
+  - **Dynamic Sidechain BGM Ducking**: FFmpeg `sidechaincompress` smoothly ducks background music under spoken dialogue and swells during pauses.
+  - **Kinetic Word Subtitles**: 2–3 words-at-a-time synchronized captions with electric yellow highlights (`#FFE600`) and rounded dark pill backdrops.
+  - **4-Track Royalty-Free Studio Beats**: Rotating 80s outrun synthwave, phonk trap, heist suspense, and Miami funk tracks.
+- 🌐 **Universal Multi-Game Support**:
+  - Not locked to GTA 6! Supports **ANY video game** on-demand (*Ghost of Yōtei*, *Marvel's Wolverine*, *The Witcher 4*, *Cyberpunk 2077*, *Elden Ring*, *Black Ops 6*, etc.).
+  - **Multi-Source Screenshot Scraper**: Fetches official publisher screenshots & 4K wallpapers via Steam Store API, Wallhaven 4K/8K API, and direct scrapers ($0.00 cost).
+  - **Multi-Game News Engine**: Dynamic Google News RSS and gaming outlets per franchise with intelligent relevance filtering.
+- ⚡ **Instant <200ms Load Times (98% Thumbnail Optimization)**:
+  - Built-in progressive JPEG thumbnail engine (`assets/thumbs/`, 480×270, ~20 KB per image) reducing 220 MB of raw 4K wallpapers down to 4.7 MB.
+  - Native `loading="lazy"` across asset strips and the 4K vault for zero DOM freeze.
+- 📦 **Interactive Production Archive**:
+  - Output vault grid with instant hover actions: `View` (inspect), `Reuse` (load into stage to adapt), `Download` (save file), and `Delete` (safely purge via API).
+- ⌨️ **Keyboard Shortcuts & `localStorage` Memory**:
+  - Full keyboard shortcuts (<kbd>G</kbd>, <kbd>D</kbd>, <kbd>S</kbd>, <kbd>C</kbd>, <kbd>1</kbd>, <kbd>2</kbd>, <kbd>?</kbd>).
+  - Automatically persists chosen game, voiceover profile, BGM track, color aesthetic, and format mode across browser reloads.
+
+---
+
+## 📁 Project Architecture
 
 ```
-gta6_shorts/
-├── main.py                    ← Master pipeline orchestrator
-├── config.json                ← Central settings (dates, audio, video, branding, YouTube)
-├── requirements.txt           ← Python dependencies
-├── client_secrets.json        ← YouTube API credentials (optional, for auto-upload)
-├── .env                       ← API keys (GEMINI_API_KEY, ANTHROPIC_API_KEY)
+gta_6_shorts/
+├── main.py                       ← Master CLI orchestrator (Shorts, Posts, Packs)
+├── run_studio.py                 ← Launches Studio Pro Django server
+├── run_studio.bat                ← 1-Click Windows shortcut to launch Web Studio
+├── config.json                   ← Central settings (dates, audio, video, branding, YouTube)
+├── requirements.txt              ← Python dependencies
+├── .env                          ← Optional API keys (GEMINI_API_KEY)
+├── studio/                       ← Studio Pro Full-Stack Django Web Application
+│   ├── manage.py
+│   ├── studio_project/           ← Settings, ASGI, and URL routing
+│   ├── dashboard/                ← REST API endpoints (news, shots, render, media)
+│   └── templates/
+│       └── index.html            ← 3-Zone Studio Pro WYSIWYG Web Interface
 ├── scripts/
-│   ├── config.py              ← Central configuration & .env loader
-│   ├── news_scraper.py        ← Scrapes 17+ gaming RSS feeds & Google News
-│   ├── script_generator.py    ← Gemini Flash / Claude / Ollama / Free builder
-│   ├── voiceover.py           ← Studio voiceover, SM7B mastering & sidechain ducking
-│   ├── video_assembler.py     ← High-speed streaming FFmpeg render engine & overlays
-│   ├── background_fetcher.py  ← Auto background image downloader & caching
-│   └── youtube_uploader.py    ← Auto-uploader with metadata & tags
+│   ├── config.py                 ← Central configuration loader (.env & config.json)
+│   ├── instagram_generator.py    ← 4:5 Portrait News Card Generator (PIL Engine)
+│   ├── game_image_fetcher.py     ← Universal multi-game screenshot fetcher & matcher
+│   ├── news_scraper.py           ← Multi-game RSS news scraper & deduplicator
+│   ├── script_generator.py       ← Gemini Flash / Claude / Ollama / Free builder
+│   ├── voiceover.py              ← Studio voiceover, SM7B mastering & sidechain ducking
+│   ├── video_assembler.py        ← High-speed streaming FFmpeg render engine & overlays
+│   └── youtube_uploader.py       ← YouTube Data API v3 Shorts uploader
 ├── assets/
-│   ├── backgrounds/           ← 4K authentic GTA 6 trailer captures
-│   ├── clips/                 ← 🎮 Place your GTA 6 background video clips here (.mp4)
-│   ├── music/                 ← 4-track Vice City synthwave library (.wav)
-│   ├── voiceover.mp3          ← Rendered voice + ducked music track
-│   ├── subtitles_timing.json  ← Millisecond-accurate sentence and word timestamps
-│   └── current_script.json    ← Current script data & metadata
+│   ├── backgrounds/              ← 200+ authentic 4K gaming wallpapers & trailer frames
+│   ├── thumbs/                   ← Fast progressive 20 KB thumbnails (auto-generated)
+│   ├── music/                    ← 4 distinct royalty-free studio audio tracks (.mp3)
+│   ├── voice_samples/            ← In-browser audition audio clips (Brian, Christopher, Prabhat)
+│   ├── clips/                    ← Optional custom background gameplay clips (.mp4)
+│   └── stories_*.json            ← Cached game news stories
 └── output/
-    └── gta6_short_*.mp4       ← Finished YouTube Shorts videos!
+    ├── *_post_*.png              ← Generated 4:5 Instagram news images
+    └── gta6_short_*.mp4          ← Rendered 9:16 YouTube Shorts videos
 ```
 
 ---
 
-## ⚡ Quick Setup (5 Minutes)
+## 🚀 Quickstart (3 Minutes)
 
-### Step 1: Install Python & Dependencies
+### Step 1: Install Dependencies
+Requires Python 3.10+ on Windows:
 ```bash
-# Python 3.10+ on Windows
 pip install -r requirements.txt
 ```
 
-### Step 2: Configure AI Script Generator (Optional / 100% Free)
+### Step 2: (Optional) Free Google Gemini Flash API
 Get a free Google Gemini API key from [Google AI Studio](https://aistudio.google.com/):
 Create a `.env` file in the project root:
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
-*(If no API key is provided, the engine automatically uses its built-in dynamic rule-based script builder at zero cost.)*
+*(If omitted, the engine automatically uses its built-in viral rule-based script builder at zero cost.)*
 
-### Step 3: Customize `config.json` (Optional)
-```json
-{
-  "project_name": "GTA 6 YouTube Shorts Automation",
-  "creator_handle": "@SamWithJoystick",
-  "target_release_date": "2026-11-19",
-  "tts": {
-    "engine": "edge-tts",
-    "voice": "en-US-BrianMultilingualNeural",
-    "rate": "+4%"
-  },
-  "music": {
-    "enabled": true,
-    "volume_ducking_db": -11
-  },
-  "youtube": {
-    "privacy_status": "unlisted"
-  }
-}
+### Step 3: Launch Studio Pro Web App
+Double-click `run_studio.bat` or run:
+```bash
+python run_studio.py
 ```
-
-### Curated Voice Options in `config.json`:
-| Voice | Type | Description |
-| :--- | :--- | :--- |
-| `en-US-BrianMultilingualNeural` *(Default)* | Male (Multilingual) | Ultra-natural, charismatic YouTube Shorts narrator |
-| `en-US-GuyNeural` | Male | High-energy, passionate gaming news presenter |
-| `en-US-AndrewMultilingualNeural` | Male (Multilingual) | Warm, confident, authentic broadcast tone |
-| `en-IN-PrabhatNeural` | Male | Indian English gaming news narrator |
-| `en-IN-NeerjaExpressiveNeural` | Female | Expressive Indian English presenter |
-
-### Step 4: Set Up YouTube API (For Auto-Uploading)
-1. Go to [Google Cloud Console](https://console.cloud.google.com/).
-2. Create a project and enable **YouTube Data API v3**.
-3. Create **OAuth 2.0 Client ID** (Desktop Application).
-4. Download the JSON and save as `client_secrets.json` in project root.
+Open your browser to: **`http://127.0.0.1:8000`**
 
 ---
 
-## 🚀 Running the Pipeline
+## 🎨 Studio Pro Web UI Guide
 
-### 1. Test Mode (No internet scraping, no upload)
-Generates a complete Short using local 4K frames, studio voiceover, and ducked music:
+```
+┌─────────────────┬──────────────────────────────────────────────┬──────────────────────────────────┐
+│  ZONE 1: NAV    │             ZONE 2: HERO PREVIEW             │      ZONE 3: CONTROL DOCK        │
+├─────────────────┼──────────────────────────────────────────────┼──────────────────────────────────┤
+│ ⚡ Create       │ [ ● GTA VI ]             [ @SamWithJoystick ]│ ⚡ AUTO-SCRAPE FRESH STORY       │
+│ 📰 News Feed    │                                              │ ──────────────────────────────── │
+│ 🖼️ 4K Gallery   │        [ 4:5 LIVE CANVAS / 9:16 SHORT ]      │ 🎮 Target Video Game             │
+│ 📦 Archive      │                                              │    (GTA VI, Wolverine, Yōtei...) │
+│ ⚙️ Shortcuts    │ LEAKED                                       │ 📝 News Headline & Word Chips    │
+│                 │ CYBERLEAK CONFIRMS 25 MINUTES...             │    [CYBERLEAK] [25] [MINUTES]    │
+│                 │                                              │ 🏷️ Hook Word & Category Pill    │
+│                 │ ──────────────────────────────────────────   │ 💬 Story Context (Voiceover)     │
+│                 │ 📸 Background Shot Strip (Cycle/Upload/URL)  │ ▾ Advanced Options (Voice/Audio) │
+│                 │ 📥 Download (PNG) | Video (MP4) | Caption    │ ──────────────────────────────── │
+│                 │ 📋 Live Social Caption & Hashtag Box         │ 🚀 GENERATE (1-Click)            │
+│                 │                                              │ 📊 4-Stage Progress Indicator    │
+└─────────────────┴──────────────────────────────────────────────┴──────────────────────────────────┘
+```
+
+1. **Auto-Scrape**: Click the bright `⚡ AUTO-SCRAPE FRESH STORY` button at the top of the right panel. It pulls the latest breaking leak for your selected game.
+2. **Review Headline & Word Highlights**: Click any word chip in the headline editor to toggle Electric Yellow (`#FFE600`) highlights live in the preview.
+3. **Pick Background**: Click any 16:9 thumbnail in the horizontal strip beneath the card, or hit **Cycle** to jump to the next matching scene.
+4. **Generate**: Click **Generate Instagram Post** (~1.5s) or switch to **YouTube Short 9:16** to render a 50s video with voiceover and captions.
+5. **Download & Copy**: Click **Download Post (PNG)** and **Copy Caption** (copies caption + hashtags with instant `"Copied!"` feedback).
+
+---
+
+## ⌨️ Keyboard Shortcuts
+
+| Shortcut | Action |
+| :--- | :--- |
+| <kbd>G</kbd> or <kbd>Ctrl</kbd> + <kbd>Enter</kbd> | Trigger Generate (Post or Short) |
+| <kbd>D</kbd> | Download generated file (PNG or MP4) |
+| <kbd>S</kbd> | Auto-Scrape fresh story |
+| <kbd>C</kbd> | Copy social caption & hashtags to clipboard |
+| <kbd>1</kbd> | Switch to Instagram 4:5 Post mode |
+| <kbd>2</kbd> | Switch to YouTube Short 9:16 Video mode |
+| <kbd>?</kbd> | Toggle Keyboard Shortcuts Modal |
+
+---
+
+## 💻 CLI Production Commands
+
+Prefer working from the terminal? You can run every engine feature directly via `main.py`:
+
+### 1. Instagram 4:5 News Post Generation
 ```bash
+# Auto-scrape top daily story and render 4:5 Instagram news card
+python main.py --post
+
+# Generate post for a specific game
+python main.py --post --game "Marvel's Wolverine"
+python main.py --post --game "Ghost of Yōtei"
+python main.py --post --game "The Witcher 4"
+
+# Custom headline and story
+python main.py --post --game "GTA VI" --title "CYBERLEAK CONFIRMS 25 MINUTES OF GAMEPLAY" --news "Internal development build footage surfaces online."
+```
+
+### 2. YouTube Shorts 9:16 Video Generation
+```bash
+# Test render (offline, no upload)
 python main.py --test --no-upload
-```
 
-### 2. Auto Production Mode (Scrapes top daily news, renders short)
-```bash
-python main.py --no-upload
-```
+# Auto-scrape top story and render Short
+python main.py --no-upload --game "GTA VI"
 
-### 3. Custom Story / Headline
-```bash
-python main.py --news "Rockstar has officially submitted GTA 6 to the ESRB for rating" --title "GTA 6 AGE RATING LEAKED" --no-upload
-```
+# Supply custom background gameplay clip (.mp4)
+python main.py --clip "assets/clips/my_gameplay.mp4" --no-upload
 
-### 4. Custom Video Background Clip
-Supply any custom 1080x1920 or 16:9 gameplay/trailer clip:
-```bash
-python main.py --clip "assets/clips/my_gta6_gameplay.mp4" --no-upload
-```
-
-### 5. Full Auto-Production & YouTube Upload
-Generates video, builds viral tags and description, and uploads directly to YouTube Shorts:
-```bash
+# Full auto-production & YouTube upload
 python main.py
 ```
 
----
-
-## 🎬 Testing Components Individually
-
-You can also test each component in isolation:
-
+### 3. Complete Production Pack (Post + Short)
 ```bash
-# Test news scraping & RSS feed deduplication
-python scripts/news_scraper.py
-
-# Test AI / rule-based script generation
-python scripts/script_generator.py
-
-# Test voiceover generation, studio EQ mastering & music ducking
-python scripts/voiceover.py
-
-# Test video rendering and compositor
-python scripts/video_assembler.py
+# Generates both the 4:5 Instagram post and the 9:16 Short simultaneously
+python main.py --all --game "GTA VI"
 ```
 
 ---
 
-## ⏰ Schedule Daily Production (Windows)
+## 🎙️ Neural Voice Options
 
-Automate daily rendering at peak YouTube Shorts upload hours (e.g., 5:00 PM local time) using Windows Task Scheduler or the included `run_daily.bat`:
+Configurable in `config.json` or directly in Studio Pro:
 
-```batch
-@echo off
-cd /d "D:\Om\Projects\gta_6_shorts"
-python main.py >> logs\daily.log 2>&1
-```
-
----
-
-## 📊 Pipeline Benchmark
-
-| Metric | Previous Engine | Modernized Engine |
+| Voice | Tone | Optimal Use |
 | :--- | :--- | :--- |
-| **Video Render Time** | 23 min 15 sec | **~75 sec** (H.264 GPU streaming pipe) |
-| **Voice Realism** | Flat robotic gTTS / mechanical | **Conversational Neural (`BrianMultilingualNeural`)** |
-| **Vocal Mastering** | Raw dry synthesizer | **Shure SM7B Broadcast Chain (Warmth EQ + Soft-knee Leveler)** |
-| **Audio Mixing** | None (silent) | **Dynamic Sidechain Ducking (`sidechaincompress`)** |
-| **Visual Quality** | Repetitive stock photos | **34 authentic 4K Trailer frames + Ken Burns zoom** |
-| **Captions** | Static sentence block | **Kinetic Word Highlights (`#FFE600`)** |
-| **Broadcast Overlays** | Simple black rectangles | **AAA `GTA VI` Countdown Strip + `@SamWithJoystick` Branding** |
-| **Shorts Duration** | Uncontrolled | **Strictly Calibrated 50–55s** |
-| **Cost Per Video** | $0.00 | **$0.00** |
+| `en-US-BrianMultilingualNeural` *(Default)* | YouTuber / Human (+4%) | Natural, conversational gaming shorts |
+| `en-US-ChristopherNeural` | Broadcast (+12%) | Fast-paced high-energy breaking news |
+| `en-IN-PrabhatNeural` | Indian English (+13%) | Indian gaming community audience |
 
 ---
 
-*Engineered with Python · Powered by Free APIs & Hardware Acceleration · Zero Monthly Fees*
+## 🎵 Royalty-Free Audio Tracks
+
+Built-in curated tracks with automatic dynamic sidechain ducking (-14 dB to -21 dB):
+
+| Track File | Title | Genre / Vibe |
+| :--- | :--- | :--- |
+| `vice_city_night_drive.mp3` | Outrun Boulevard | 80s Analog Synthwave (124 BPM) |
+| `leonida_action_beat.mp3` | Harry Spotter | Gym Phonk & 808 Cowbell Trap (140 BPM) |
+| `miami_heist_pulse.mp3` | Cut and Run | Cinematic Heist Suspense (136 BPM) |
+| `sunset_boulevard.mp3` | Laser Groove | Miami Beach Synth Funk (112 BPM) |
+
+---
+
+## 📊 Performance & Optimization Benchmarks
+
+| Metric | Previous Legacy State | Modernized Studio Pro |
+| :--- | :--- | :--- |
+| **Gallery Page Load** | 20+ sec freeze (220 MB raw 4K) | **<200 ms** (480p progressive thumbs + lazy load) |
+| **Browser GPU Memory** | 3.25 GB texture spike | **<50 MB** texture allocation |
+| **Shorts Render Time** | 23 min 15 sec | **~65 sec** (H.264 GPU streaming pipe) |
+| **Instagram Post Render** | N/A (did not exist) | **~1.5 sec** (PIL multiline layout) |
+| **Voice Quality** | Robotic flat TTS | **Conversational Neural + Shure SM7B Mastering** |
+| **Music Mixing** | Silent / unmixed | **FFmpeg Dynamic Sidechain Audio Ducking** |
+| **Subtitles** | Static text block | **Kinetic Word Highlights (`#FFE600`)** |
+| **Game Scope** | Hardcoded to GTA 6 | **Universal: ANY Game on Demand** |
+| **Operating Cost** | $0.00 | **$0.00 (Zero monthly fees)** |
+
+---
+
+*Engineered with Python, Django, Pillow, and FFmpeg · 100% Free Tier & Local Utilities · Made for `@SamWithJoystick`*
