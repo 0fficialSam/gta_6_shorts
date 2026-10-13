@@ -14,6 +14,7 @@ urlpatterns = [
     path('api/generate/video/', views.api_generate_video, name='api_gen_video'),
     path('api/status/', views.api_get_status, name='api_status'),
     path('api/media/', views.api_get_media, name='api_media'),
+    path('api/media/delete/', views.api_delete_media, name='api_delete_media'),
     path('assets/<str:category>/<path:filepath>', views.serve_asset_file, name='serve_asset'),
     path('api/open-folder/', views.api_open_folder, name='api_open_folder'),
     path('api/screenshots/', views.api_get_screenshots, name='api_screenshots'),

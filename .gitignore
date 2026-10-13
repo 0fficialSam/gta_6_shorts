@@ -25,6 +25,7 @@ assets/today_stories.json
 assets/stories_*.json
 assets/used_news.json
 assets/youtube_token.pkl
+assets/thumbs/
 
 # Credentials & environment
 client_secrets.json

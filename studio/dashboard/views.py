@@ -91,7 +91,7 @@ def serve_output_file(request, filename):
 
 
 def serve_asset_file(request, category, filepath):
-    """Serves background screenshots and audio tracks from assets/ directory, including subfolders."""
+    """Serves background screenshots, audio tracks, and fast thumbnails from assets/ directory."""
     safe_cat = os.path.basename(category)
     clean_subpath = os.path.normpath(filepath).replace('\\', '/').lstrip('/')
     if '..' in clean_subpath:
@@ -100,6 +100,28 @@ def serve_asset_file(request, category, filepath):
     file_path = (ASSETS_DIR / safe_cat / clean_subpath).resolve()
     if not str(file_path).startswith(str(ASSETS_DIR.resolve())):
         raise Http404("Forbidden path")
+
+    # If thumbnail requested but does not exist yet, generate on-the-fly from background image
+    if safe_cat == "thumbs" and not file_path.exists():
+        orig_file = (ASSETS_DIR / "backgrounds" / clean_subpath).resolve()
+        if not orig_file.exists():
+            stem = os.path.splitext(clean_subpath)[0]
+            bg_dir = ASSETS_DIR / "backgrounds"
+            # Check direct stem or nested folder stem
+            candidates = list(bg_dir.glob(f"{stem}.*")) + list(bg_dir.glob(f"**/{stem}.*"))
+            if candidates:
+                orig_file = candidates[0]
+        if orig_file.exists() and str(orig_file).startswith(str(ASSETS_DIR.resolve())):
+            try:
+                from PIL import Image
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+                with Image.open(orig_file) as im:
+                    im = im.convert('RGB')
+                    im.thumbnail((480, 270), Image.Resampling.LANCZOS)
+                    im.save(file_path, "JPEG", quality=80, optimize=True)
+            except Exception as e:
+                print(f"[Thumbnail Error] Could not generate thumbnail for {clean_subpath}: {e}")
+
     if not file_path.exists():
         raise Http404("Asset not found")
 
@@ -124,7 +146,7 @@ def api_open_folder(request):
 
 
 def api_get_screenshots(request):
-    """Returns list of all available 4K background screenshots with image preview URLs and categories."""
+    """Returns list of all available 4K background screenshots with fast thumbnails and categories."""
     from scripts.game_image_fetcher import classify_screenshot_category, FOCAL_POINTS
     shots = get_available_screenshots()
     items = []
@@ -132,6 +154,7 @@ def api_get_screenshots(request):
         fname = os.path.basename(s)
         cat = classify_screenshot_category(fname, "GTA VI")
         fx, fy = FOCAL_POINTS.get(fname, (0.5, 0.45))
+        base_name = os.path.splitext(fname)[0]
         items.append({
             "path": s,
             "filename": fname,
@@ -139,6 +162,7 @@ def api_get_screenshots(request):
             "focal_x": fx,
             "focal_y": fy,
             "url": f"/assets/backgrounds/{fname}",
+            "thumb_url": f"/assets/thumbs/{base_name}.jpg",
         })
     return JsonResponse({"success": True, "screenshots": items, "total": len(items)})
 
@@ -201,13 +225,28 @@ def api_get_news(request):
     """Fetches scraped news for specified game or loads cached stories."""
     game = request.GET.get("game", "GTA VI").strip() or "GTA VI"
     try:
-        from scripts.news_scraper import get_game_stories
+        from scripts.news_scraper import get_game_stories, get_game_search_config
         stories = get_game_stories(game=game, refresh=False)
+        cfg = get_game_search_config(game)
+        cache_file = os.path.join("assets", f"stories_{cfg['slug']}.json")
+        today_file = "assets/today_stories.json"
+
+        last_scraped_str = ""
+        if stories and stories[0].get('scraped_at'):
+            last_scraped_str = stories[0]['scraped_at']
+        elif cfg['slug'] == 'gta_vi' and os.path.exists(today_file):
+            last_scraped_str = datetime.fromtimestamp(os.path.getmtime(today_file)).strftime('%b %d, %Y, %I:%M %p')
+        elif os.path.exists(cache_file):
+            last_scraped_str = datetime.fromtimestamp(os.path.getmtime(cache_file)).strftime('%b %d, %Y, %I:%M %p')
+        else:
+            last_scraped_str = datetime.now().strftime('%b %d, %Y, %I:%M %p')
+
         return JsonResponse({
             "success": True,
             "game": game,
             "stories": stories,
-            "total": len(stories)
+            "total": len(stories),
+            "last_scraped": last_scraped_str
         })
     except Exception as e:
         import traceback
@@ -229,13 +268,15 @@ def api_refresh_news(request):
         game = game or "GTA VI"
 
         from scripts.news_scraper import get_top_story, get_game_stories
-        story = get_top_story(game=game)
-        stories = get_game_stories(game=game, refresh=False)
+        stories = get_game_stories(game=game, refresh=True)
+        story = stories[0] if stories else get_top_story(game=game)
+        now_scraped = datetime.now().strftime('%b %d, %Y, %I:%M %p')
         return JsonResponse({
             "success": True,
             "game": game,
             "top_story": story,
-            "stories": stories
+            "stories": stories,
+            "last_scraped": now_scraped
         })
     except Exception as e:
         import traceback
@@ -561,3 +602,30 @@ def api_get_media(request):
         })
 
     return JsonResponse({"success": True, "media": items})
+
+
+@csrf_exempt
+def api_delete_media(request):
+    """Deletes a generated media file from output/ directory safely."""
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "POST method required"}, status=405)
+
+    try:
+        body = json.loads(request.body.decode("utf-8")) if request.body else {}
+    except Exception:
+        body = request.POST.dict()
+
+    filename = body.get("filename", "")
+    safe_name = os.path.basename(filename)
+    if not safe_name:
+        return JsonResponse({"success": False, "error": "Filename is required"}, status=400)
+
+    target_file = OUTPUT_DIR / safe_name
+    if target_file.exists():
+        try:
+            os.remove(target_file)
+            return JsonResponse({"success": True, "message": f"Successfully deleted {safe_name}"})
+        except Exception as e:
+            return JsonResponse({"success": False, "error": f"Failed to delete: {str(e)}"}, status=500)
+
+    return JsonResponse({"success": False, "error": f"File '{safe_name}' not found"}, status=404)
