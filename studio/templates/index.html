@@ -1,0 +1,2317 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTA VI Creator Studio Pro</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        stage: {
+                            bg: '#08080a',
+                            card: '#101014',
+                            elevated: '#17171d',
+                            border: 'rgba(255, 255, 255, 0.08)',
+                            borderLight: 'rgba(255, 255, 255, 0.16)',
+                        },
+                        vice: {
+                            pink: '#ff2a6d',
+                            cyan: '#05d9e8',
+                            yellow: '#ffe600',
+                            purple: '#9d4edd',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Segoe UI"', 'Roboto', 'sans-serif'],
+                        impact: ['Impact', '"Arial Black"', 'Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #08080a;
+            color: #fafafa;
+            -webkit-font-smoothing: antialiased;
+        }
+        .canvas-shadow {
+            box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.08);
+        }
+        .vignette-overlay {
+            background: linear-gradient(
+                to bottom,
+                rgba(5, 6, 10, 0.82) 0%,
+                rgba(5, 6, 10, 0.25) 18%,
+                rgba(5, 6, 10, 0.12) 36%,
+                rgba(5, 6, 10, 0.65) 54%,
+                rgba(5, 6, 10, 0.92) 75%,
+                rgba(5, 6, 10, 0.99) 100%
+            );
+        }
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        .text-headline-clean {
+            letter-spacing: 0.015em;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.95)) drop-shadow(0 4px 14px rgba(0, 0, 0, 0.98));
+            -webkit-text-stroke: 0.8px rgba(0, 0, 0, 0.7);
+        }
+        .text-outline {
+            text-shadow: 
+                -1px -1px 0 #000,  
+                 1px -1px 0 #000,
+                -1px  1px 0 #000,
+                 1px  1px 0 #000,
+                 0 2px 4px rgba(0,0,0,0.85);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-vice-pink selection:text-white">
+
+    <!-- TOP CONTROL DOCK -->
+    <header class="border-b border-stage-border bg-stage-bg/90 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+            
+            <!-- BRAND -->
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="font-black text-sm tracking-widest text-white uppercase select-none">
+                        GAMING STUDIO
+                    </span>
+                    <span class="text-[10px] bg-vice-cyan/20 text-vice-cyan px-2 py-0.5 rounded-full border border-vice-cyan/30 font-extrabold uppercase tracking-wider">
+                        UNIVERSAL PRO
+                    </span>
+                </div>
+                <span class="h-3 w-[1px] bg-zinc-800 hidden sm:inline"></span>
+                <span class="text-[11px] text-zinc-400 font-medium hidden sm:flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    {{ creator_handle }}
+                </span>
+            </div>
+
+            <!-- MAC-STYLE WORKFLOW SELECTOR -->
+            <div class="flex items-center p-0.5 rounded-lg bg-zinc-900 border border-stage-border text-xs">
+                <button id="modeBtnBoth" onclick="setMode('both')" class="mode-tab px-3 py-1 rounded-md font-bold text-white bg-zinc-800 shadow-sm transition">
+                    Complete Pack
+                </button>
+                <button id="modeBtnImage" onclick="setMode('image')" class="mode-tab px-3 py-1 rounded-md font-medium text-zinc-400 hover:text-white transition">
+                    Instagram 4:5
+                </button>
+                <button id="modeBtnVideo" onclick="setMode('video')" class="mode-tab px-3 py-1 rounded-md font-medium text-zinc-400 hover:text-white transition">
+                    Short Video 9:16
+                </button>
+                <button id="modeBtnVault" onclick="setMode('vault')" class="mode-tab px-3 py-1 rounded-md font-medium text-zinc-400 hover:text-white transition">
+                    Vault Archive
+                </button>
+            </div>
+
+            <!-- STAGE ACTIONS -->
+            <div class="flex items-center gap-2">
+                <!-- Social Mockup Toggle -->
+                <button id="mockupToggleBtn" onclick="toggleSocialMockup()" class="h-8 px-2.5 rounded-md bg-zinc-900 hover:bg-zinc-800 border border-stage-border text-xs font-semibold text-zinc-300 hover:text-white transition flex items-center gap-1.5" title="Toggle real in-feed social media frame">
+                    <i id="mockupToggleIcon" data-lucide="smartphone" class="w-3.5 h-3.5 text-vice-cyan"></i>
+                    <span id="mockupToggleLabel" class="hidden sm:inline">Feed Mockup: ON</span>
+                </button>
+
+                <button onclick="openOutputFolder()" class="h-8 px-2.5 rounded-md bg-zinc-900 hover:bg-zinc-800 border border-stage-border text-xs font-medium text-zinc-300 hover:text-white transition flex items-center gap-1.5" title="Open output files on disk">
+                    <i data-lucide="folder" class="w-3.5 h-3.5"></i>
+                    <span class="hidden md:inline">Output Folder</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN 3-ZONE STUDIO WORKSPACE -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- =============================================================== -->
+        <!-- ZONE 1: THE CREATOR INSPECTOR (LEFT TOOL SUITE - 5 COLS)        -->
+        <!-- =============================================================== -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+            
+            <div class="p-5 rounded-2xl bg-stage-card border border-stage-border shadow-xl flex flex-col gap-4">
+                
+                <!-- ------------------------------------------------------- -->
+                <!-- TARGET VIDEO GAME & ON-DEMAND ENGINE DOCK               -->
+                <!-- ------------------------------------------------------- -->
+                <div class="p-3.5 rounded-xl bg-zinc-950 border border-stage-border space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-vice-cyan animate-pulse"></span>
+                            <span class="text-xs font-black uppercase tracking-wider text-white">Target Video Game</span>
+                        </div>
+                        <span id="gameSourceBadge" class="text-[10px] font-mono text-vice-cyan">Multi-Source On-Demand</span>
+                    </div>
+
+                    <!-- Game Input & On-Demand Fetcher -->
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <input id="inputGameTitle" oninput="handleGameTitleInput()" type="text" value="GTA VI" placeholder="Enter ANY game (e.g. Ghost of Yōtei, Witcher 4...)" class="w-full bg-zinc-900 border border-stage-border rounded-lg px-3 py-2 text-xs font-black text-white uppercase focus:outline-none focus:border-vice-cyan transition placeholder:text-zinc-600">
+                        </div>
+                        <button id="btnFetchGameShots" onclick="fetchShotsForCurrentGame()" class="px-3 py-2 rounded-lg bg-vice-cyan hover:bg-cyan-400 text-black font-black text-xs transition active:scale-95 flex items-center gap-1.5 whitespace-nowrap shadow-md">
+                            <i data-lucide="download-cloud" class="w-3.5 h-3.5" id="fetchGameIcon"></i>
+                            <span id="btnFetchGameText">Fetch 4K Shots</span>
+                        </button>
+                    </div>
+
+                    <!-- Popular Franchise Quick Selector Chips -->
+                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-[10px] scrollbar-none">
+                        <button onclick="selectGamePreset('GTA VI')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-vice-cyan text-vice-cyan font-bold whitespace-nowrap transition">GTA VI</button>
+                        <button onclick="selectGamePreset('Ghost of Yōtei')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Ghost of Yōtei</button>
+                        <button onclick="selectGamePreset('The Witcher 4')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">The Witcher 4</button>
+                        <button onclick="selectGamePreset('Cyberpunk 2077')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Cyberpunk 2077</button>
+                        <button onclick="selectGamePreset('Elden Ring')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Elden Ring</button>
+                        <button onclick="selectGamePreset('Marvel\'s Wolverine')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Wolverine</button>
+                        <button onclick="selectGamePreset('Black Ops 6')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Black Ops 6</button>
+                        <button onclick="selectGamePreset('Assassin\'s Creed Shadows')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">AC Shadows</button>
+                        <button onclick="selectGamePreset('Doom: The Dark Ages')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Doom Dark Ages</button>
+                        <button onclick="selectGamePreset('Death Stranding 2')" class="game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition">Death Stranding 2</button>
+                    </div>
+                </div>
+
+                <!-- TOOL SUITE TABS -->
+                <div class="flex items-center justify-between border-b border-stage-border pb-3">
+                    <div class="flex gap-1 bg-zinc-950 p-1 rounded-lg border border-stage-border text-xs w-full">
+                        <button id="toolTabBtnStory" onclick="setToolTab('story')" class="tool-tab flex-1 py-1.5 rounded-md font-bold text-white bg-zinc-800 transition flex items-center justify-center gap-1.5">
+                            <i data-lucide="pen-tool" class="w-3.5 h-3.5 text-vice-pink"></i>
+                            <span>Story</span>
+                        </button>
+                        <button id="toolTabBtnMedia" onclick="setToolTab('media')" class="tool-tab flex-1 py-1.5 rounded-md font-medium text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5">
+                            <i data-lucide="image" class="w-3.5 h-3.5 text-vice-cyan"></i>
+                            <span>4K Shots (98)</span>
+                        </button>
+                        <button id="toolTabBtnAudio" onclick="setToolTab('audio')" class="tool-tab flex-1 py-1.5 rounded-md font-medium text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5">
+                            <i data-lucide="music" class="w-3.5 h-3.5 text-vice-yellow"></i>
+                            <span>Audio</span>
+                        </button>
+                        <button id="toolTabBtnStyle" onclick="setToolTab('style')" class="tool-tab flex-1 py-1.5 rounded-md font-medium text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5">
+                            <i data-lucide="sliders" class="w-3.5 h-3.5 text-purple-400"></i>
+                            <span>Theme</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ------------------------------------------------------- -->
+                <!-- TOOL 1: STORY & LIVE TYPOGRAPHY                         -->
+                <!-- ------------------------------------------------------- -->
+                <div id="toolPanelStory" class="space-y-4">
+                    
+                    <!-- LIVE RSS AUTO-SCRAPER QUICK ACCESS DOCK -->
+                    <div class="p-3 rounded-xl bg-zinc-950 border border-stage-border space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="rss" class="w-3.5 h-3.5 text-vice-pink"></i>
+                                <span class="text-xs font-black uppercase text-white tracking-wider">Live News: <span id="currentNewsGameLabel" class="text-vice-cyan">GTA VI</span></span>
+                            </div>
+                            <span class="text-[10px] font-mono text-zinc-400">17 Outlets + Google RSS</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" onclick="autoScrapeTopStory()" id="btnAutoScrapeTop" class="py-2 px-3 rounded-lg bg-gradient-to-r from-vice-pink to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 shadow-md">
+                                <i data-lucide="zap" class="w-3.5 h-3.5 fill-white"></i>
+                                <span>⚡ Auto-Scrape Story</span>
+                            </button>
+                            <button type="button" onclick="toggleScrapedModal()" class="py-2 px-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-stage-border text-zinc-300 hover:text-white font-bold text-xs transition flex items-center justify-center gap-1.5">
+                                <i data-lucide="newspaper" class="w-3.5 h-3.5 text-vice-cyan"></i>
+                                <span id="btnBrowseRssLabel">Browse RSS (15)</span>
+                            </button>
+                        </div>
+                        <div class="text-[9px] text-zinc-500 leading-tight flex items-center gap-1">
+                            <i data-lucide="info" class="w-3 h-3 text-zinc-400"></i>
+                            <span id="autoScrapeDescLabel">Pulls live news for GTA VI and auto-matches 4K screenshot.</span>
+                        </div>
+                    </div>
+
+                    <!-- Trending Leak Carousel -->
+                    <div>
+                        <div class="flex items-center justify-between text-[11px] mb-1.5">
+                            <span class="text-zinc-400 font-semibold uppercase tracking-wider">Trending Leaks (1-Click)</span>
+                            <button onclick="toggleScrapedModal()" class="text-vice-cyan hover:underline font-bold flex items-center gap-1">
+                                <i data-lucide="globe" class="w-3 h-3"></i>
+                                <span>Browse RSS</span>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <button onclick="applyPreset(0)" class="p-2 rounded-lg bg-zinc-950 hover:bg-zinc-900 border border-stage-border text-left transition flex flex-col">
+                                <span class="text-[10px] font-bold text-vice-pink uppercase">Cyberleak 25m</span>
+                                <span class="text-[9px] text-zinc-500 truncate">Lucia & Jason gameplay</span>
+                            </button>
+                            <button onclick="applyPreset(1)" class="p-2 rounded-lg bg-zinc-950 hover:bg-zinc-900 border border-stage-border text-left transition flex flex-col">
+                                <span class="text-[10px] font-bold text-vice-cyan uppercase">Release Window</span>
+                                <span class="text-[9px] text-zinc-500 truncate">September 2026 launch</span>
+                            </button>
+                            <button onclick="applyPreset(2)" class="p-2 rounded-lg bg-zinc-950 hover:bg-zinc-900 border border-stage-border text-left transition flex flex-col">
+                                <span class="text-[10px] font-bold text-vice-yellow uppercase">Weather Engine</span>
+                                <span class="text-[9px] text-zinc-500 truncate">Hurricanes & flood physics</span>
+                            </button>
+                            <button onclick="applyPreset(3)" class="p-2 rounded-lg bg-zinc-950 hover:bg-zinc-900 border border-stage-border text-left transition flex flex-col">
+                                <span class="text-[10px] font-bold text-purple-400 uppercase">Map Size 2.5x</span>
+                                <span class="text-[9px] text-zinc-500 truncate">Coordinate mapping project</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Headline Input with Live WYSIWYG Trigger -->
+                    <div>
+                        <div class="flex justify-between items-center text-xs mb-1">
+                            <label class="font-extrabold text-white uppercase tracking-wider">News Headline</label>
+                            <span id="charCountLabel" class="text-zinc-500 font-mono text-[11px]">82 chars</span>
+                        </div>
+                        <textarea id="inputHeadline" oninput="handleHeadlineInput()" rows="3" class="w-full bg-zinc-950 border border-stage-border rounded-xl p-3 text-xs sm:text-sm font-extrabold text-white uppercase focus:outline-none focus:border-zinc-500 transition leading-snug resize-none placeholder:text-zinc-700">CYBERLEAK CONFIRMS 25 MINUTES OF UNCENSORED GTA 6 GAMEPLAY FEATURING LUCIA & JASON</textarea>
+                    </div>
+
+                    <!-- INTERACTIVE WORD-LEVEL HIGHLIGHT STRIP (CANVAS CONTROL) -->
+                    <div class="p-3 rounded-xl bg-zinc-950 border border-stage-border space-y-1.5">
+                        <div class="flex items-center justify-between text-[10px]">
+                            <span class="text-zinc-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                                <i data-lucide="sparkles" class="w-3 h-3 text-vice-yellow"></i>
+                                Click words to Highlight in Yellow:
+                            </span>
+                            <span class="text-vice-yellow font-mono">Electric Yellow</span>
+                        </div>
+                        <!-- Dynamic word chips injected here -->
+                        <div id="interactiveWordChips" class="flex flex-wrap gap-1 pt-1"></div>
+                    </div>
+
+                    <!-- Hook Word & Category Row -->
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[10px] font-bold text-zinc-400 uppercase mb-1">Category Pill</label>
+                            <input id="inputCategory" oninput="renderLiveCanvas()" type="text" value="EXCLUSIVE LEAK" class="w-full bg-zinc-950 border border-stage-border rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-vice-pink">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-zinc-400 uppercase mb-1">Hook Word</label>
+                            <input id="inputHook" oninput="renderLiveCanvas()" type="text" value="LEAKED" class="w-full bg-zinc-950 border border-stage-border rounded-lg px-2.5 py-1.5 text-xs font-bold text-vice-pink focus:outline-none focus:border-vice-pink">
+                        </div>
+                    </div>
+
+                    <!-- Hook Word Suggestions -->
+                    <div class="flex items-center gap-1 overflow-x-auto text-[10px]">
+                        <span class="text-zinc-500">Quick:</span>
+                        <button onclick="setHookWord('LEAKED')" class="px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-300">LEAKED</button>
+                        <button onclick="setHookWord('CONFIRMED')" class="px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-300">CONFIRMED</button>
+                        <button onclick="setHookWord('REVEALED')" class="px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-300">REVEALED</button>
+                        <button onclick="setHookWord('DELAYED?')" class="px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-300">DELAYED?</button>
+                        <button onclick="setHookWord('TRAILER 2')" class="px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-300">TRAILER 2</button>
+                    </div>
+
+                    <!-- Context Subtext & Script -->
+                    <div>
+                        <div class="flex justify-between items-center text-xs mb-1">
+                            <label class="font-semibold text-zinc-300">Story Context (Spoken in Video)</label>
+                            <span class="text-[10px] text-zinc-500">Subtext on post</span>
+                        </div>
+                        <textarea id="inputSummary" oninput="renderLiveCanvas()" rows="2" class="w-full bg-zinc-950 border border-stage-border rounded-xl p-2.5 text-xs text-zinc-300 focus:outline-none focus:border-zinc-500 transition resize-none placeholder:text-zinc-700">Internal development footage surfaces online showing realistic vehicle physics, high-speed police chases, and new Vice City map details.</textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-zinc-400 uppercase mb-1">Source Attribution</label>
+                        <input id="inputSource" oninput="renderLiveCanvas()" type="text" value="ROCKSTAR INTEL / REDDIT" class="w-full bg-zinc-950 border border-stage-border rounded-lg px-2.5 py-1.5 text-xs text-zinc-400 focus:outline-none">
+                    </div>
+
+                </div>
+
+                <!-- ------------------------------------------------------- -->
+                <!-- TOOL 2: 4K ASSET VAULT (98 SCREENSHOTS GALLERY)         -->
+                <!-- ------------------------------------------------------- -->
+                <div id="toolPanelMedia" class="space-y-3 hidden">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-extrabold text-white uppercase tracking-wider">4K Screenshot Vault</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="document.getElementById('fileUploadInput').click()" class="text-xs text-vice-yellow font-bold flex items-center gap-1 hover:underline" title="Upload an image from your PC">
+                                <i data-lucide="upload" class="w-3 h-3"></i>
+                                <span>Upload</span>
+                            </button>
+                            <button onclick="promptImageUrlUpload()" class="text-xs text-vice-pink font-bold flex items-center gap-1 hover:underline" title="Paste any direct image URL">
+                                <i data-lucide="link" class="w-3 h-3"></i>
+                                <span>Image URL</span>
+                            </button>
+                            <button onclick="autoMatchScreenshot()" class="text-xs text-vice-cyan font-bold flex items-center gap-1 hover:underline">
+                                <i data-lucide="sparkles" class="w-3 h-3"></i>
+                                <span>Auto-Match</span>
+                            </button>
+                        </div>
+                    </div>
+                    <input id="fileUploadInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" onchange="handleFileCustomUpload(event)">
+
+                    <!-- Filter Chips (Dynamically populated by JS) -->
+                    <div id="mediaFilterBar" class="flex items-center gap-1 overflow-x-auto text-[11px] pb-1 scrollbar-none">
+                        <button onclick="filterScreenshots('All')" class="media-filter-btn px-2.5 py-1 rounded-md bg-white text-black font-bold whitespace-nowrap">All (98)</button>
+                    </div>
+
+                    <!-- High-Density Visual Grid -->
+                    <div id="screenshotGrid" class="grid grid-cols-2 gap-2 max-h-[380px] overflow-y-auto pr-1">
+                        <div class="col-span-2 text-center py-8 text-xs text-zinc-500">Loading 4K asset vault...</div>
+                    </div>
+                </div>
+
+                <!-- ------------------------------------------------------- -->
+                <!-- TOOL 3: SOUNDTRACK & AUDIO STUDIO                       -->
+                <!-- ------------------------------------------------------- -->
+                <div id="toolPanelAudio" class="space-y-4 hidden">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-extrabold text-white uppercase tracking-wider">Music Track Studio</span>
+                        <span id="activeMusicBadge" class="text-[10px] text-emerald-400 font-mono">Outrun Boulevard Active</span>
+                    </div>
+
+                    <!-- 4 Audio Tracks -->
+                    <div id="musicTrackList" class="space-y-2">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Voice Engine Selector -->
+                    <div class="pt-2 border-t border-stage-border space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-zinc-300 block">Voiceover Profile</span>
+                            <span id="activeVoiceBadge" class="text-[10px] font-mono text-vice-cyan">Brian (+4%)</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-1.5 text-xs">
+                            <!-- Brian -->
+                            <div id="voiceCardBrian" onclick="selectVoiceProfile('en-US-BrianMultilingualNeural', 'Brian (+4%)')" class="voice-card p-2.5 rounded-lg bg-zinc-950 border border-vice-cyan bg-vice-cyan/10 flex flex-col justify-between gap-1 cursor-pointer transition select-none">
+                                <div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-white text-[11px]">Brian</span>
+                                        <i data-lucide="check" class="w-3 h-3 text-vice-cyan voice-check"></i>
+                                    </div>
+                                    <span class="text-[9px] text-zinc-400 leading-tight block mt-0.5">YouTuber (+4%)</span>
+                                </div>
+                                <button type="button" onclick="previewVoiceSample(event, 'brian')" class="mt-1 text-[9px] text-vice-cyan hover:underline flex items-center gap-1 font-bold pt-1 border-t border-stage-border/50">
+                                    <i data-lucide="volume-2" class="w-2.5 h-2.5" id="voiceSampleIconBrian"></i>
+                                    <span>Preview</span>
+                                </button>
+                            </div>
+                            <!-- Christopher -->
+                            <div id="voiceCardChristopher" onclick="selectVoiceProfile('en-US-ChristopherNeural', 'Christopher (+12%)')" class="voice-card p-2.5 rounded-lg bg-zinc-950 border border-stage-border hover:border-zinc-500 flex flex-col justify-between gap-1 cursor-pointer transition select-none">
+                                <div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-white text-[11px]">Christopher</span>
+                                        <i data-lucide="check" class="w-3 h-3 text-vice-cyan voice-check hidden"></i>
+                                    </div>
+                                    <span class="text-[9px] text-zinc-400 leading-tight block mt-0.5">Broadcast (+12%)</span>
+                                </div>
+                                <button type="button" onclick="previewVoiceSample(event, 'christopher')" class="mt-1 text-[9px] text-zinc-400 hover:text-white flex items-center gap-1 font-bold pt-1 border-t border-stage-border/50">
+                                    <i data-lucide="volume-2" class="w-2.5 h-2.5" id="voiceSampleIconChristopher"></i>
+                                    <span>Preview</span>
+                                </button>
+                            </div>
+                            <!-- Prabhat -->
+                            <div id="voiceCardPrabhat" onclick="selectVoiceProfile('en-IN-PrabhatNeural', 'Prabhat (+13%)')" class="voice-card p-2.5 rounded-lg bg-zinc-950 border border-stage-border hover:border-zinc-500 flex flex-col justify-between gap-1 cursor-pointer transition select-none">
+                                <div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-white text-[11px]">Prabhat</span>
+                                        <i data-lucide="check" class="w-3 h-3 text-vice-cyan voice-check hidden"></i>
+                                    </div>
+                                    <span class="text-[9px] text-zinc-400 leading-tight block mt-0.5">Indian Neural (+13%)</span>
+                                </div>
+                                <button type="button" onclick="previewVoiceSample(event, 'prabhat')" class="mt-1 text-[9px] text-zinc-400 hover:text-white flex items-center gap-1 font-bold pt-1 border-t border-stage-border/50">
+                                    <i data-lucide="volume-2" class="w-2.5 h-2.5" id="voiceSampleIconPrabhat"></i>
+                                    <span>Preview</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ------------------------------------------------------- -->
+                <!-- TOOL 4: STYLE & THEME LAB                               -->
+                <!-- ------------------------------------------------------- -->
+                <div id="toolPanelStyle" class="space-y-4 hidden">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-extrabold text-white uppercase tracking-wider block">Color Aesthetic</span>
+                        <span id="activeThemeBadge" class="text-[10px] font-mono text-vice-pink">Vice Neon Active</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <button id="themeBtnVice" onclick="setThemePalette('vice')" class="theme-preset-btn p-3 rounded-lg bg-zinc-950 border border-vice-pink ring-2 ring-vice-pink/30 text-left flex items-center justify-between transition">
+                            <div>
+                                <span class="font-bold text-white block">Vice Neon</span>
+                                <span class="text-[10px] text-zinc-500">Cyan & Pink</span>
+                            </div>
+                            <div class="w-3.5 h-3.5 rounded-full bg-vice-pink shadow-md"></div>
+                        </button>
+                        <button id="themeBtnSunset" onclick="setThemePalette('sunset')" class="theme-preset-btn p-3 rounded-lg bg-zinc-950 border border-stage-border hover:border-orange-500 text-left flex items-center justify-between transition">
+                            <div>
+                                <span class="font-bold text-white block">Miami Sunset</span>
+                                <span class="text-[10px] text-zinc-500">Orange & Violet</span>
+                            </div>
+                            <div class="w-3.5 h-3.5 rounded-full bg-orange-500 shadow-md"></div>
+                        </button>
+                        <button id="themeBtnOcean" onclick="setThemePalette('ocean')" class="theme-preset-btn p-3 rounded-lg bg-zinc-950 border border-stage-border hover:border-teal-400 text-left flex items-center justify-between transition">
+                            <div>
+                                <span class="font-bold text-white block">Ocean Drive</span>
+                                <span class="text-[10px] text-zinc-500">Teal & Yellow</span>
+                            </div>
+                            <div class="w-3.5 h-3.5 rounded-full bg-teal-400 shadow-md"></div>
+                        </button>
+                        <button id="themeBtnGold" onclick="setThemePalette('gold')" class="theme-preset-btn p-3 rounded-lg bg-zinc-950 border border-stage-border hover:border-amber-400 text-left flex items-center justify-between transition">
+                            <div>
+                                <span class="font-bold text-white block">Vice Gold</span>
+                                <span class="text-[10px] text-zinc-500">Amber & Crimson</span>
+                            </div>
+                            <div class="w-3.5 h-3.5 rounded-full bg-amber-400 shadow-md"></div>
+                        </button>
+                    </div>
+                </div>
+
+
+                <!-- ------------------------------------------------------- -->
+                <!-- PRIMARY ACTION BUTTON (CONFIDENT & FAST)                -->
+                <!-- ------------------------------------------------------- -->
+                <div class="pt-2 border-t border-stage-border space-y-2">
+                    
+                    <!-- Video Auto-Scrape Toggle -->
+                    <div class="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-zinc-950/80 border border-stage-border text-[11px]">
+                        <label for="checkAutoScrapeVideo" class="flex items-center gap-2 cursor-pointer select-none text-zinc-300 hover:text-white transition">
+                            <input type="checkbox" id="checkAutoScrapeVideo" class="w-3.5 h-3.5 rounded border-zinc-700 bg-zinc-900 text-vice-pink focus:ring-0 cursor-pointer">
+                            <span class="font-bold">⚡ Auto-Scrape fresh leak on render</span>
+                        </label>
+                        <span class="text-[9px] font-mono text-vice-cyan uppercase font-bold">Gemini AI</span>
+                    </div>
+
+                    <button id="masterActionBtn" onclick="handleMasterAction()" class="w-full h-12 rounded-xl bg-white hover:bg-zinc-200 text-black font-black text-xs sm:text-sm shadow-xl transition-all active:scale-[0.99] flex items-center justify-between px-4 group">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-black group-hover:scale-110 transition"></i>
+                            <span id="masterActionLabel">GENERATE COMPLETE PACK</span>
+                        </div>
+                        <span id="masterActionBadge" class="text-[10px] font-bold bg-black/10 px-2 py-0.5 rounded-full uppercase">1-CLICK</span>
+                    </button>
+
+                    <!-- Hairline Render Progress Bar -->
+                    <div id="renderProgressWidget" class="hidden space-y-1.5 pt-1">
+                        <div class="flex justify-between items-center text-[11px] text-zinc-400">
+                            <span id="renderStatusText">Assembling Short video...</span>
+                            <span id="renderPercentText" class="font-mono text-white">0%</span>
+                        </div>
+                        <div class="w-full bg-zinc-900 rounded-full h-1 overflow-hidden">
+                            <div id="renderProgressBar" class="bg-white h-1 rounded-full w-0 transition-all duration-300"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- ZONE 2: CENTER STAGE (THE INTERACTIVE LIVE CANVAS - 7 COLS)     -->
+        <!-- =============================================================== -->
+        <div class="lg:col-span-7 flex flex-col gap-4">
+            
+            <div class="p-6 rounded-2xl bg-stage-card border border-stage-border shadow-2xl min-h-[580px] flex flex-col items-center justify-center relative">
+                
+                <!-- STAGE TOP BAR -->
+                <div class="w-full flex items-center justify-between border-b border-stage-border/60 pb-3 mb-6">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-vice-cyan"></span>
+                        <span class="text-xs font-black uppercase tracking-wider text-white">Interactive Live Stage</span>
+                        <!-- View Mode Switch: Live Canvas vs Rendered Output -->
+                        <div id="renderTogglePill" class="hidden ml-2 flex items-center bg-zinc-950 border border-zinc-800 rounded-lg p-0.5 text-[10px] font-bold">
+                            <button type="button" id="btnViewMockup" onclick="setCanvasViewMode('mockup')" class="px-2 py-0.5 rounded bg-zinc-800 text-white transition">Live Canvas</button>
+                            <button type="button" id="btnViewRendered" onclick="setCanvasViewMode('rendered')" class="px-2 py-0.5 rounded text-zinc-400 hover:text-white transition">Rendered PNG</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 text-[11px] text-zinc-400 font-mono">
+                        <span id="canvasDimBadge">1080 × 1350 • 4:5 PORTRAIT</span>
+                    </div>
+                </div>
+
+                <!-- ------------------------------------------------------- -->
+                <!-- LIVE WYSIWYG CANVAS / STAGE VIEWPORT                    -->
+                <!-- ------------------------------------------------------- -->
+                <div id="stageViewport" class="flex items-center justify-center my-auto w-full">
+                    
+                    <!-- 1. INSTAGRAM FEED MOCKUP CONTAINER -->
+                    <div id="mockupInstagramFrame" class="w-full max-w-[340px] bg-black rounded-2xl border border-zinc-800 shadow-2xl overflow-hidden flex flex-col">
+                        
+                        <!-- Mockup Top Bar (Instagram iOS Style) -->
+                        <div class="px-3 py-2.5 bg-black border-b border-zinc-900 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-yellow-500 to-pink-600 p-[1.5px]">
+                                    <div id="mockAvatarInitial" class="w-full h-full rounded-full bg-black flex items-center justify-center font-black text-[9px] text-white">
+                                        VI
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-1 leading-none">
+                                        <span class="text-[11px] font-bold text-white">{{ creator_handle }}</span>
+                                        <span class="text-[9px] text-blue-400">●</span>
+                                    </div>
+                                    <span id="mockLocationText" class="text-[9px] text-zinc-500 leading-none">Leonida, Vice City</span>
+                                </div>
+                            </div>
+                            <i data-lucide="more-horizontal" class="w-4 h-4 text-zinc-400"></i>
+                        </div>
+
+                        <!-- THE 4:5 CARD (REAL-TIME WYSIWYG DOM CANVAS & RENDERED PREVIEW) -->
+                        <div id="liveWysiwygCard" class="w-full aspect-[4/5] relative overflow-hidden bg-zinc-950 select-none">
+                            
+                            <!-- 1. Real Rendered High-Resolution Image Layer (Displayed when rendered) -->
+                            <img id="stageRenderedImg" src="" class="hidden w-full h-full object-cover">
+
+                            <!-- 2. Interactive Live DOM Mockup Layer -->
+                            <div id="stageMockupLayer" class="w-full h-full relative">
+                                <!-- Background Image Layer with Subject-Anchored Crop Position -->
+                                <img id="liveBgImg" src="/assets/backgrounds/ULTIMATE_EDITION_STOCK_305_04.jpg" class="w-full h-full object-cover" style="object-position: 50% 45%;">
+                                
+                                <!-- Content Overlay -->
+                                <div class="absolute inset-0 p-3.5 flex flex-col justify-between pointer-events-none">
+                                    
+                                    <!-- Top Header Bar (Symmetrical Twin Capsules: Same Font Size, Same Height) -->
+                                    <div class="flex items-center justify-between w-full">
+                                        <!-- Left: Game Name Badge [ ● GAME_TITLE ] -->
+                                        <div class="h-7 px-3 rounded-full bg-black/75 border border-white/20 backdrop-blur-md shadow-md flex items-center gap-1.5 flex-shrink-0">
+                                            <span id="liveGameDot" class="w-2 h-2 rounded-full bg-vice-cyan flex-shrink-0 animate-pulse shadow-[0_0_8px_#05d9e8]"></span>
+                                            <span id="liveGameText" class="text-[10px] font-bold text-white tracking-wider uppercase font-mono">GTA VI</span>
+                                        </div>
+
+                                        <!-- Right: Creator Watermark [ @CREATOR_HANDLE ] (EXACT SAME FONT SIZE & HEIGHT) -->
+                                        <div class="h-7 px-3 rounded-full bg-black/75 border border-white/20 backdrop-blur-md shadow-md flex items-center flex-shrink-0">
+                                            <span class="text-[10px] font-bold text-white tracking-wider font-mono">{{ creator_handle }}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Lower Typography Block: Velvet Dark Gradient Scrim -->
+                                    <div class="flex flex-col items-center text-center w-full pt-10 pb-2 px-2 bg-gradient-to-t from-black/95 via-black/75 to-transparent rounded-b-xl">
+                                        <!-- Hook Badge (Tight 6px gap to headline!) -->
+                                        <div id="liveHookText" class="inline-flex items-center px-2.5 py-0.5 rounded-md bg-zinc-950/90 border border-vice-pink text-vice-pink text-[9.5px] font-black tracking-widest uppercase mb-1.5 shadow-[0_0_10px_rgba(255,42,109,0.3)]">
+                                            LEAKED
+                                        </div>
+
+                                        <!-- Headline (Arial Black / Montserrat 900 Heavyweight Display Font) -->
+                                        <div id="liveHeadlineDisplay" class="font-['Arial_Black',Montserrat,sans-serif] font-black uppercase text-white leading-[1.14] tracking-tight text-headline-clean px-1 text-[16px] sm:text-[18px]">
+                                            CYBERLEAK CONFIRMS <span class="text-vice-yellow">25 MINUTES</span> OF <span class="text-vice-yellow">UNCENSORED</span> GTA 6 GAMEPLAY FEATURING <span class="text-vice-yellow">LUCIA & JASON</span>
+                                        </div>
+
+                                        <!-- Context Subtext (Unified Arial Bold Editorial Weight & Clean Breathing Room) -->
+                                        <p id="liveSummaryText" class="font-['Arial',sans-serif] font-bold text-zinc-100 text-[10.5px] sm:text-[11px] leading-relaxed line-clamp-2 px-2 mt-3 mb-2.5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                                            Internal development footage surfaces online showing realistic vehicle physics and new Vice City map details.
+                                        </p>
+
+                                        <!-- Footer Attribution (Sleek Sans-Serif Tracking & Distinct Clearance) -->
+                                        <div id="liveSourceText" class="text-[7.5px] sm:text-[8px] font-['Arial',sans-serif] font-bold text-zinc-400 uppercase tracking-widest pt-1.5 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
+                                            VIA: ROCKSTAR INTEL / REDDIT • FOLLOW {{ creator_handle }}
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Mockup Bottom Action Rail (Instagram Style) -->
+                        <div id="mockupActionRail" class="p-3 bg-black border-t border-zinc-900 space-y-2">
+                            <div class="flex items-center justify-between text-white">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="heart" class="w-4 h-4 text-vice-pink fill-vice-pink"></i>
+                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </div>
+                                <i data-lucide="bookmark" class="w-4 h-4"></i>
+                            </div>
+                            <div class="text-[10px] font-semibold text-zinc-300">
+                                Liked by <span class="text-white font-bold">rockstarintel</span> and <span class="text-white font-bold">18,420 others</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- 2. YOUTUBE SHORT VIDEO PLAYER CONTAINER (HIDDEN UNLESS IN VIDEO MODE) -->
+                    <div id="mockupVideoFrame" class="hidden w-full max-w-[280px] aspect-[9/16] bg-black rounded-2xl border border-zinc-800 shadow-2xl overflow-hidden relative flex items-center justify-center">
+                        <video id="stageVideoPlayer" controls playsinline class="w-full h-full object-cover">
+                            <source id="stageVideoSource" src="" type="video/mp4">
+                        </video>
+                        <div id="stageVideoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-zinc-950 text-zinc-500">
+                            <i data-lucide="film" class="w-10 h-10 mb-2 stroke-[1.5] text-zinc-600"></i>
+                            <span class="text-xs font-bold text-zinc-300">Short Video Ready on Render</span>
+                            <span class="text-[10px] text-zinc-600 mt-1">Click Generate to build 50s Short with voiceover and subtitles.</span>
+                        </div>
+                    </div>
+
+                    <!-- 3. PRODUCTION VAULT ARCHIVE FRAME (HIDDEN UNLESS IN VAULT MODE) -->
+                    <div id="stageVaultFrame" class="hidden w-full max-w-xl bg-zinc-950 rounded-2xl border border-zinc-800 shadow-2xl p-4 flex flex-col gap-3">
+                        <div class="flex items-center justify-between border-b border-stage-border pb-2.5">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="archive" class="w-4 h-4 text-vice-cyan"></i>
+                                <span class="text-xs font-black uppercase text-white tracking-wider">Output Archive Gallery</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="flex items-center bg-zinc-900 rounded-lg p-0.5 border border-stage-border text-[10px]">
+                                    <button onclick="filterVaultMedia('all')" id="vaultFilterAll" class="vault-filter-btn px-2.5 py-1 rounded bg-white text-black font-bold">All</button>
+                                    <button onclick="filterVaultMedia('video')" id="vaultFilterVideo" class="vault-filter-btn px-2.5 py-1 rounded text-zinc-400 hover:text-white font-medium">Videos</button>
+                                    <button onclick="filterVaultMedia('image')" id="vaultFilterImage" class="vault-filter-btn px-2.5 py-1 rounded text-zinc-400 hover:text-white font-medium">Images</button>
+                                </div>
+                                <button onclick="openOutputFolder()" class="h-7 px-2.5 rounded bg-zinc-900 hover:bg-zinc-800 border border-stage-border text-[10px] font-bold text-zinc-300 hover:text-white flex items-center gap-1 transition" title="Open output folder on PC">
+                                    <i data-lucide="folder-open" class="w-3 h-3 text-vice-yellow"></i>
+                                    <span>Explorer</span>
+                                </button>
+                                <button onclick="loadVaultMedia()" class="h-7 w-7 rounded bg-zinc-900 hover:bg-zinc-800 border border-stage-border text-zinc-300 hover:text-white flex items-center justify-center transition" title="Refresh">
+                                    <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Vault Media Grid -->
+                        <div id="vaultMediaGrid" class="grid grid-cols-2 gap-2.5 max-h-[460px] overflow-y-auto pr-1">
+                            <div class="col-span-2 text-center py-10 text-xs text-zinc-500">Loading output media...</div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <!-- ------------------------------------------------------- -->
+                <!-- STAGE FOOTER DOCK (EXPORT & CAPTION ACTIONS)            -->
+                <!-- ------------------------------------------------------- -->
+                <div class="w-full mt-6 pt-4 border-t border-stage-border/60 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <button type="button" id="stageDownloadPostBtn" onclick="handleDownloadPostClick()" class="flex-1 sm:flex-none h-9 px-3.5 rounded-lg bg-white hover:bg-zinc-200 text-black text-xs font-extrabold flex items-center justify-center gap-1.5 transition shadow-sm">
+                            <i data-lucide="image-down" class="w-3.5 h-3.5"></i>
+                            <span id="labelDownloadPost">Download Post (PNG)</span>
+                        </button>
+                        <button type="button" id="stageDownloadVideoBtn" onclick="handleDownloadVideoClick()" class="flex-1 sm:flex-none h-9 px-3.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-stage-border text-zinc-300 hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition">
+                            <i data-lucide="video" class="w-3.5 h-3.5 text-vice-cyan"></i>
+                            <span id="labelDownloadVideo">Download Video (MP4)</span>
+                        </button>
+                        <button onclick="copyGeneratedCaption()" class="h-9 px-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-stage-border text-zinc-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition">
+                            <i id="copyCaptionIcon" data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span id="copyCaptionLabel">Copy Caption & Tags</span>
+                        </button>
+                    </div>
+
+                    <!-- Interactive Active Photo Action Bar (Auto-Match & Easy Change Options) -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs w-full max-w-sm">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span id="activePhotoBadge" class="px-2 py-0.5 rounded bg-vice-pink/20 text-vice-pink border border-vice-pink/40 text-[9px] font-black uppercase whitespace-nowrap">Lucia & Jason</span>
+                            <span id="currentAssetLabel" class="text-zinc-300 font-mono text-[10px] truncate max-w-[140px]" title="Active Background">ULTIMATE_EDITION_STOCK_305_04.jpg</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-shrink-0">
+                            <button type="button" onclick="autoMatchScreenshot(null, null, true)" class="px-2 py-1 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-vice-cyan hover:text-white text-[10px] font-bold flex items-center gap-1 transition" title="Auto-match best photo for this news">
+                                <i data-lucide="sparkles" class="w-3 h-3 text-vice-cyan"></i>
+                                <span>Auto-Match</span>
+                            </button>
+                            <button type="button" onclick="cycleNextMatchingScreenshot()" id="btnCycleMatch" class="px-2 py-1 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white text-[10px] font-bold flex items-center gap-1 transition" title="Cycle to next related photo for this topic">
+                                <i data-lucide="shuffle" class="w-3 h-3"></i>
+                                <span>Next Match</span>
+                            </button>
+                            <button type="button" onclick="setToolTab('media')" class="px-2 py-1 rounded bg-white hover:bg-zinc-200 text-black text-[10px] font-extrabold flex items-center gap-1 transition" title="Browse full 4K photo vault">
+                                <i data-lucide="image" class="w-3 h-3"></i>
+                                <span>Vault</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-stage-border py-4 bg-stage-bg text-center text-xs text-zinc-600 flex items-center justify-center gap-2">
+        <span>GTA VI Studio Pro &copy; 2026 • Windows Engine • Production Workstation for {{ creator_handle }}</span>
+    </footer>
+
+    <!-- RSS MODAL -->
+    <div id="scrapedModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-stage-card border border-stage-border rounded-2xl max-w-lg w-full p-5 max-h-[80vh] flex flex-col shadow-2xl">
+            <div class="flex items-center justify-between pb-3 border-b border-stage-border mb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="rss" class="w-4 h-4 text-vice-pink"></i>
+                    <span id="scrapedModalTitle" class="text-xs font-bold uppercase tracking-wider text-white">Scraped Gaming Outlets (GTA VI)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="refreshLiveFeeds()" id="btnRefreshRssModal" class="px-2.5 py-1 rounded-md bg-zinc-900 hover:bg-zinc-800 border border-stage-border text-[10px] font-bold text-vice-cyan hover:text-white flex items-center gap-1 transition" title="Fetch fresh RSS feeds right now">
+                        <i data-lucide="refresh-cw" class="w-3 h-3" id="iconRefreshRss"></i>
+                        <span id="labelRefreshRss">Fetch Live</span>
+                    </button>
+                    <button onclick="toggleScrapedModal()" class="text-zinc-400 hover:text-white">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="scrapedContainer" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
+        </div>
+    </div>
+
+    <!-- AUDIO PLAYER ELEMENT (HIDDEN) -->
+    <audio id="bgmAudioPlayer" preload="none"></audio>
+
+    <!-- TOAST NOTIFICATION STACK -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 pointer-events-none transition-all duration-300 opacity-0 translate-y-2">
+        <div id="toastContent" class="px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white shadow-2xl flex items-center gap-2"></div>
+    </div>
+
+    <!-- JAVASCRIPT ENGINE -->
+    <script>
+        const PRESETS = [
+            {
+                headline: "CYBERLEAK CONFIRMS 25 MINUTES OF UNCENSORED GTA 6 GAMEPLAY FEATURING LUCIA & JASON",
+                summary: "Internal development footage surfaces online showing realistic vehicle physics, high-speed police chases, and new Vice City map details.",
+                category: "EXCLUSIVE LEAK",
+                hook: "LEAKED",
+                source: "ROCKSTAR INTEL",
+                bg: "ULTIMATE_EDITION_STOCK_305_04.jpg"
+            },
+            {
+                headline: "ROCKSTAR GAMES REPORTEDLY TARGETS SEPTEMBER 2026 RELEASE WINDOW ACROSS PS5 AND XBOX",
+                summary: "Updated publishing schedules indicate Take-Two Interactive aims for an early Fall release window before holiday shopping.",
+                category: "RELEASE DATE",
+                hook: "CONFIRMED",
+                source: "BLOOMBERG",
+                bg: "gta6_trailer_32.jpg"
+            },
+            {
+                headline: "GTA 6 WEATHER ENGINE REPORTEDLY FEATURES DYNAMIC HURRICANES AND FLOODING ACROSS VICE CITY",
+                summary: "Leaked engine documentation confirms dynamic tropical storm systems affecting vehicle traction and environmental destruction.",
+                category: "WEATHER ENGINE",
+                hook: "REVOLUTIONARY",
+                source: "REDDIT R/GTA6",
+                bg: "gta6_trailer_17.jpg"
+            },
+            {
+                headline: "MAP REVEAL: LEAKERS ESTIMATE VICE CITY AND LEONIDA OVER 2.5X LARGER THAN GTA 5",
+                summary: "Community coordinate mapping project confirms multiple massive biomes, mountain ranges, and underwater reefs.",
+                category: "MAP ANALYSIS",
+                hook: "MASSIVE",
+                source: "MAPPING PROJECT",
+                bg: "gta6_trailer_20.jpg"
+            }
+        ];
+
+        // State
+        let currentMode = 'both';
+        let currentToolTab = 'story';
+        let currentSelectedGame = 'GTA VI';
+        let currentBgFilename = 'ULTIMATE_EDITION_STOCK_305_04.jpg';
+        let currentBgFocalX = 0.50;
+        let currentBgFocalY = 0.45;
+        let isManualSelection = false;
+        let lastGeneratedPostUrl = null;
+        let lastGeneratedVideoUrl = null;
+        let canvasViewMode = 'mockup';
+        let fetchShotsAbortController = null;
+        let lastToastTime = 0;
+        let manualHighlightWords = new Set(['25', 'MINUTES', 'UNCENSORED', 'LUCIA', 'JASON']);
+        let socialMockupActive = true;
+        let allScreenshots = [];
+        let allMusicTracks = [];
+        let activePlayingTrack = null;
+        let lastGeneratedCaption = "";
+        let currentThemePalette = 'vice';
+        let currentVoiceProfile = 'en-US-BrianMultilingualNeural';
+        let currentVoiceLabel = 'Brian (+4%)';
+        let currentSelectedBgmTrack = 'vice_city_night_drive.mp3';
+        let currentSelectedCategory = 'All';
+        let activePlayingVoice = null;
+        let allVaultMedia = [];
+        let currentVaultFilter = 'all';
+
+        function setCanvasViewMode(mode) {
+            canvasViewMode = mode;
+            const renderedImg = document.getElementById('stageRenderedImg');
+            const mockupLayer = document.getElementById('stageMockupLayer');
+            const btnMock = document.getElementById('btnViewMockup');
+            const btnRend = document.getElementById('btnViewRendered');
+
+            if (mode === 'rendered' && lastGeneratedPostUrl) {
+                if (renderedImg) {
+                    renderedImg.src = lastGeneratedPostUrl;
+                    renderedImg.classList.remove('hidden');
+                }
+                if (mockupLayer) mockupLayer.classList.add('hidden');
+                if (btnRend) btnRend.className = "px-2 py-0.5 rounded bg-white text-black font-bold transition";
+                if (btnMock) btnMock.className = "px-2 py-0.5 rounded text-zinc-400 hover:text-white transition";
+            } else {
+                canvasViewMode = 'mockup';
+                if (renderedImg) renderedImg.classList.add('hidden');
+                if (mockupLayer) mockupLayer.classList.remove('hidden');
+                if (btnMock) btnMock.className = "px-2 py-0.5 rounded bg-zinc-800 text-white font-bold transition";
+                if (btnRend) btnRend.className = "px-2 py-0.5 rounded text-zinc-400 hover:text-white transition";
+            }
+        }
+
+        const THEME_PALETTES = {
+            vice: {
+                name: "Vice Neon",
+                hookColor: "#ff2a6d",
+                highlightColor: "#ffe600",
+                badgeColor: "#05d9e8",
+                catColor: "#ff2a6d",
+                activeBtnId: "themeBtnVice",
+                ringClass: "border-vice-pink ring-2 ring-vice-pink/30 bg-vice-pink/10"
+            },
+            sunset: {
+                name: "Miami Sunset",
+                hookColor: "#ff6b35",
+                highlightColor: "#ffb703",
+                badgeColor: "#ff6b35",
+                catColor: "#9d4edd",
+                activeBtnId: "themeBtnSunset",
+                ringClass: "border-orange-500 ring-2 ring-orange-500/30 bg-orange-500/10"
+            },
+            ocean: {
+                name: "Ocean Drive",
+                hookColor: "#00f5d4",
+                highlightColor: "#fee440",
+                badgeColor: "#00bbf9",
+                catColor: "#00f5d4",
+                activeBtnId: "themeBtnOcean",
+                ringClass: "border-teal-400 ring-2 ring-teal-400/30 bg-teal-400/10"
+            },
+            gold: {
+                name: "Vice Gold",
+                hookColor: "#d90429",
+                highlightColor: "#ffd700",
+                badgeColor: "#ffc300",
+                catColor: "#d90429",
+                activeBtnId: "themeBtnGold",
+                ringClass: "border-amber-400 ring-2 ring-amber-400/30 bg-amber-400/10"
+            }
+        };
+
+        // Universal Game Story & Visual Presets
+        const GAME_STORY_PRESETS = {
+            "GTA VI": {
+                headline: "CYBERLEAK CONFIRMS 25 MINUTES OF UNCENSORED GTA 6 GAMEPLAY FEATURING LUCIA & JASON",
+                summary: "Internal development footage surfaces online showing realistic vehicle physics, high-speed police chases, and new Vice City map details.",
+                category: "EXCLUSIVE LEAK",
+                hook: "LEAKED",
+                source: "ROCKSTAR INTEL",
+                avatar: "VI",
+                location: "Leonida, Vice City",
+                highlights: ['25', 'MINUTES', 'UNCENSORED', 'LUCIA', 'JASON']
+            },
+            "Ghost of Yōtei": {
+                headline: "PLAYSTATION CONFIRMS GHOST OF YOTEI GAMEPLAY DETAILS, DUAL KATANAS AND 1600S HOKKAIDO MAP",
+                summary: "Sucker Punch confirms dual-wield katanas, firearms, and dynamic weather across Mount Yotei in feudal Japan.",
+                category: "GAMEPLAY REVEAL",
+                hook: "CONFIRMED",
+                source: "PLAYSTATION BLOG",
+                avatar: "GY",
+                location: "Mount Yōtei, Ezo",
+                highlights: ['PLAYSTATION', '1600S', 'HOKKAIDO', 'MAP', 'DUAL', 'KATANAS']
+            },
+            "The Witcher 4": {
+                headline: "CD PROJEKT RED REVEALS THE WITCHER 4 POLARIS RUNS ON UNREAL ENGINE 5 WITH NEW LYNX SCHOOL",
+                summary: "Director Sebastian Kalemba confirms groundbreaking cinematic combat, new monster ecosystems, and Unreal Engine 5 tech.",
+                category: "OFFICIAL REVEAL",
+                hook: "UNREAL ENGINE 5",
+                source: "CD PROJEKT RED",
+                avatar: "W4",
+                location: "The Continent, Novigrad",
+                highlights: ['UNREAL', 'ENGINE', '5', 'UE5', 'LYNX', 'SCHOOL', 'POLARIS']
+            },
+            "Cyberpunk 2077": {
+                headline: "PROJECT ORION CONFIRMED: CD PROJEKT RED EXPANDS BOSTON STUDIO FOR CYBERPUNK 2 SEQUEL",
+                summary: "Core developers behind Phantom Liberty begin pre-production on next-generation Cyberpunk sequel with multi-district Night City.",
+                category: "SEQUEL UPDATE",
+                hook: "CONFIRMED",
+                source: "CDPR FINANCIALS",
+                avatar: "CP",
+                location: "Night City, NC",
+                highlights: ['PROJECT', 'ORION', 'CYBERPUNK', '2', 'BOSTON', 'STUDIO']
+            },
+            "Elden Ring": {
+                headline: "FROM SOFTWARE CONFIRMS RECORD-BREAKING SALES AND FUTURE EXPANSIONS FOR ELDEN RING UNIVERSE",
+                summary: "Hidetaka Miyazaki teases further dark fantasy projects following massive global success of Shadow of the Erdtree.",
+                category: "SPECIAL REPORT",
+                hook: "CONFIRMED",
+                source: "FROMSOFTWARE",
+                avatar: "ER",
+                location: "Lands Between",
+                highlights: ['FROM', 'SOFTWARE', 'RECORD-BREAKING', 'SALES', 'ERDTREE']
+            },
+            "Marvel's Wolverine": {
+                headline: "INSOMNIAC CONFIRMS MATURE R-RATED COMBAT AND EXPEDITIONS ACROSS MADRIPOOR FOR WOLVERINE",
+                summary: "PlayStation exclusive features brutal dismemberment combat, claws stealth traversal, and worldwide Marvel expeditions.",
+                category: "EXCLUSIVE LEAK",
+                hook: "R-RATED",
+                source: "INSOMNIAC LEAKS",
+                avatar: "WLV",
+                location: "Madripoor / Canada",
+                highlights: ['MATURE', 'R-RATED', 'COMBAT', 'MADRIPOOR', 'WOLVERINE']
+            },
+            "Black Ops 6": {
+                headline: "TREYARCH REVEALS ROUND-BASED ZOMBIES AND REVOLUTIONARY OMNIMOVEMENT FOR BLACK OPS 6",
+                summary: "Activision confirms omnidirectional sprint, slide, and dive alongside classic Prestige progression.",
+                category: "GAMEPLAY DETAILS",
+                hook: "FIRST LOOK",
+                source: "CALL OF DUTY HQ",
+                avatar: "B6",
+                location: "Gulf War Warzone",
+                highlights: ['ROUND-BASED', 'ZOMBIES', 'OMNIMOVEMENT', 'BLACK', 'OPS', '6']
+            },
+            "Assassin's Creed Shadows": {
+                headline: "UBISOFT CONFIRMS DUAL PROTAGONISTS YASUKE AND NAOE WITH DYNAMIC SEASONS IN FEUDAL JAPAN",
+                summary: "Anvil engine overhaul features procedural weather, dynamic spring-to-winter seasonal cycles, and destructible environments.",
+                category: "OFFICIAL TRAILER",
+                hook: "NEW DETAILS",
+                source: "UBISOFT FORWARD",
+                avatar: "ACS",
+                location: "Kyoto / Feudal Japan",
+                highlights: ['YASUKE', 'NAOE', 'DYNAMIC', 'SEASONS', 'FEUDAL', 'JAPAN']
+            },
+            "Doom: The Dark Ages": {
+                headline: "ID SOFTWARE ANNOUNCES SHIELD SAW WEAPONS AND MEDIEVAL PREQUEL ORIGINS IN DOOM THE DARK AGES",
+                summary: "The Slayer returns in brutal dark-fantasy prequel featuring ridable cybernetic dragons and visceral parry combat.",
+                category: "NEW TRAILER",
+                hook: "CONFIRMED",
+                source: "XBOX SHOWCASE",
+                avatar: "DOOM",
+                location: "Argent D'Nur",
+                highlights: ['SHIELD', 'SAW', 'MEDIEVAL', 'DOOM', 'THE', 'DARK', 'AGES']
+            },
+            "Death Stranding 2": {
+                headline: "HIDEO KOJIMA SHOWCASES 10 MINUTES OF DEATH STRANDING 2 ON THE BEACH WITH REAL-TIME FLOODS",
+                summary: "Decima engine powers dynamic earthquakes, shifting rivers, and mysterious Magellan ship operations.",
+                category: "GAMEPLAY REVEAL",
+                hook: "KOJIMA INTEL",
+                source: "KOJIMA PRODUCTIONS",
+                avatar: "DS2",
+                location: "On The Beach",
+                highlights: ['10', 'MINUTES', 'REAL-TIME', 'FLOODS', 'DEATH', 'STRANDING', '2']
+            }
+        };
+
+        // Game Selection & On-Demand Fetcher
+        function selectGamePreset(gameTitle) {
+            isManualSelection = false;
+            if (canvasViewMode === 'rendered') setCanvasViewMode('mockup');
+            document.getElementById('inputGameTitle').value = gameTitle;
+            document.querySelectorAll('.game-preset-chip').forEach(b => {
+                const bText = b.innerText.toLowerCase();
+                const gText = gameTitle.toLowerCase();
+                if (bText.includes(gText) || gText.includes(bText)) {
+                    b.className = "game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-vice-cyan text-vice-cyan font-bold whitespace-nowrap transition";
+                } else {
+                    b.className = "game-preset-chip px-2.5 py-1 rounded-full bg-zinc-900 border border-stage-border text-zinc-400 hover:text-white font-bold whitespace-nowrap transition";
+                }
+            });
+
+            handleGameTitleInput();
+
+            const preset = GAME_STORY_PRESETS[gameTitle];
+            if (preset) {
+                document.getElementById('inputHeadline').value = preset.headline;
+                document.getElementById('inputSummary').value = preset.summary;
+                document.getElementById('inputCategory').value = preset.category;
+                document.getElementById('inputHook').value = preset.hook;
+                document.getElementById('inputSource').value = preset.source;
+                if (preset.highlights) {
+                    manualHighlightWords = new Set(preset.highlights);
+                }
+                rebuildInteractiveWordChips();
+            }
+
+            renderLiveCanvas();
+            fetchShotsForCurrentGame();
+        }
+
+        function handleGameTitleInput() {
+            const rawGame = document.getElementById('inputGameTitle').value.trim();
+            currentSelectedGame = rawGame || "GTA VI";
+
+            // Update live game badge on canvas in 0ms!
+            const badgeEl = document.getElementById('liveGameText');
+            if (badgeEl) badgeEl.innerText = currentSelectedGame.toUpperCase();
+
+            // Update mockup avatar & location
+            const p = GAME_STORY_PRESETS[currentSelectedGame];
+            const avEl = document.getElementById('mockAvatarInitial');
+            const locEl = document.getElementById('mockLocationText');
+            if (p) {
+                if (avEl) avEl.innerText = p.avatar;
+                if (locEl) locEl.innerText = p.location;
+            } else {
+                const initials = currentSelectedGame.split(/\s+/).map(w => w[0]).join('').slice(0, 3).toUpperCase();
+                if (avEl) avEl.innerText = initials || 'G';
+                if (locEl) locEl.innerText = `${currentSelectedGame} World`;
+            }
+
+            // Update footer source attribution
+            const src = document.getElementById('inputSource').value.trim() || 'GAMING INTEL';
+            const srcEl = document.getElementById('liveSourceText');
+            if (srcEl) srcEl.innerText = `VIA: ${src} • FOLLOW {{ creator_handle }} FOR DAILY ${currentSelectedGame.toUpperCase()} UPDATES`;
+
+            // Update live scraper labels
+            const scraperLbl = document.getElementById('currentNewsGameLabel');
+            if (scraperLbl) scraperLbl.innerText = currentSelectedGame;
+            const descLbl = document.getElementById('autoScrapeDescLabel');
+            if (descLbl) descLbl.innerText = `Pulls live news for ${currentSelectedGame} and auto-matches 4K screenshot.`;
+            const modalTitle = document.getElementById('scrapedModalTitle');
+            if (modalTitle) modalTitle.innerText = `Scraped Gaming Outlets (${currentSelectedGame})`;
+        }
+
+        async function fetchShotsForCurrentGame(force = false) {
+            const game = currentSelectedGame || document.getElementById('inputGameTitle').value.trim() || "GTA VI";
+            const btn = document.getElementById('btnFetchGameShots');
+            const btnText = document.getElementById('btnFetchGameText');
+            const badge = document.getElementById('gameSourceBadge');
+
+            if (fetchShotsAbortController) {
+                fetchShotsAbortController.abort();
+            }
+            fetchShotsAbortController = new AbortController();
+
+            if (btnText) btnText.innerText = "Fetching...";
+            if (btn) btn.disabled = true;
+            if (badge) badge.innerText = "Searching Steam / Wallhaven / Bing...";
+
+            try {
+                const res = await fetch(`/api/games/fetch-images/?game=${encodeURIComponent(game)}${force ? '&force=true' : ''}`, {
+                    signal: fetchShotsAbortController.signal
+                });
+                const data = await res.json();
+                if (data.success && data.screenshots && data.screenshots.length > 0) {
+                    allScreenshots = data.screenshots;
+                    const tabMediaBtn = document.getElementById('toolTabBtnMedia');
+                    if (tabMediaBtn) {
+                        tabMediaBtn.querySelector('span').innerText = `4K Shots (${data.screenshots.length})`;
+                    }
+                    
+                    // Render dynamic categories and screenshots grid
+                    const cats = data.categories || [];
+                    renderFilterChips(cats, data.screenshots.length);
+                    renderScreenshotsGrid(data.screenshots);
+
+                    currentLoadedShotsGame = game;
+                    const curHl = document.getElementById('inputHeadline').value.trim();
+                    if (curHl && !isManualSelection) {
+                        autoMatchScreenshot();
+                    } else if (!isManualSelection) {
+                        const first = data.screenshots[0];
+                        selectScreenshot(first.filename, first.url, first.category, first.focal_x, first.focal_y, false);
+                    }
+                    if (badge) badge.innerText = `${data.total} Shots Cached (${data.screenshots[0].source || 'press'})`;
+                    notify(`Loaded ${data.total} 4K shots for ${game}!`);
+                } else {
+                    notify(`Using local shots for ${game}`);
+                }
+            } catch (e) {
+                if (e.name === 'AbortError') return;
+                notify(`Failed to fetch shots for ${game}`);
+            } finally {
+                if (btnText) btnText.innerText = "Fetch 4K Shots";
+                if (btn) btn.disabled = false;
+                lucide.createIcons();
+            }
+        }
+
+        // Render Dynamic Filter Chips
+        function renderFilterChips(categories, totalCount) {
+            const bar = document.getElementById('mediaFilterBar');
+            if (!bar) return;
+            bar.innerHTML = '';
+
+            // All button
+            const allBtn = document.createElement('button');
+            allBtn.className = "media-filter-btn px-2.5 py-1 rounded-md bg-white text-black font-bold whitespace-nowrap transition text-[11px]";
+            allBtn.innerText = `All (${totalCount})`;
+            allBtn.onclick = () => filterScreenshots('All');
+            bar.appendChild(allBtn);
+
+            // Category buttons
+            categories.forEach(cat => {
+                if (!cat || cat.toLowerCase() === 'all') return;
+                const btn = document.createElement('button');
+                btn.className = "media-filter-btn px-2.5 py-1 rounded-md bg-zinc-900 text-zinc-400 hover:text-white font-medium whitespace-nowrap transition text-[11px]";
+                btn.innerText = cat;
+                btn.onclick = () => filterScreenshots(cat);
+                bar.appendChild(btn);
+            });
+        }
+
+        // Filter Screenshots by Category
+        function filterScreenshots(category) {
+            currentSelectedCategory = category;
+            document.querySelectorAll('.media-filter-btn').forEach(b => {
+                const text = b.innerText.toLowerCase();
+                const match = (category === 'All' && text.startsWith('all')) || text === category.toLowerCase();
+                if (match) {
+                    b.className = "media-filter-btn px-2.5 py-1 rounded-md bg-white text-black font-bold whitespace-nowrap transition text-[11px]";
+                } else {
+                    b.className = "media-filter-btn px-2.5 py-1 rounded-md bg-zinc-900 text-zinc-400 hover:text-white font-medium whitespace-nowrap transition text-[11px]";
+                }
+            });
+
+            if (category === 'All') {
+                renderScreenshotsGrid(allScreenshots);
+                return;
+            }
+
+            const filtered = allScreenshots.filter(s => {
+                const fn = (s.filename || '').toLowerCase();
+                const cat = (s.category || '').toLowerCase();
+                const q = category.toLowerCase();
+                return cat === q || fn.includes(q);
+            });
+
+            renderScreenshotsGrid(filtered.length > 0 ? filtered : allScreenshots);
+            notify(`Showing ${filtered.length > 0 ? filtered.length : allScreenshots.length} shots for ${category}`);
+        }
+
+        // Mode Switching
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-tab').forEach(b => {
+                b.className = "mode-tab px-3 py-1 rounded-md font-medium text-zinc-400 hover:text-white transition";
+            });
+
+            const actionLabel = document.getElementById('masterActionLabel');
+            const dimBadge = document.getElementById('canvasDimBadge');
+            const igFrame = document.getElementById('mockupInstagramFrame');
+            const videoFrame = document.getElementById('mockupVideoFrame');
+            const vaultFrame = document.getElementById('stageVaultFrame');
+
+            if (mode === 'both') {
+                document.getElementById('modeBtnBoth').className = "mode-tab px-3 py-1 rounded-md font-bold text-white bg-zinc-800 shadow-sm transition";
+                actionLabel.innerText = "GENERATE COMPLETE PACK (BOTH)";
+                dimBadge.innerText = "4:5 INSTAGRAM + 9:16 SHORT";
+                igFrame.classList.remove('hidden');
+                videoFrame.classList.add('hidden');
+                vaultFrame.classList.add('hidden');
+            } else if (mode === 'image') {
+                document.getElementById('modeBtnImage').className = "mode-tab px-3 py-1 rounded-md font-bold text-white bg-zinc-800 shadow-sm transition";
+                actionLabel.innerText = "GENERATE INSTAGRAM POST (~1.5s)";
+                dimBadge.innerText = "1080 × 1350 • 4:5 PORTRAIT";
+                igFrame.classList.remove('hidden');
+                videoFrame.classList.add('hidden');
+                vaultFrame.classList.add('hidden');
+            } else if (mode === 'video') {
+                document.getElementById('modeBtnVideo').className = "mode-tab px-3 py-1 rounded-md font-bold text-white bg-zinc-800 shadow-sm transition";
+                actionLabel.innerText = "GENERATE YOUTUBE SHORT (~55s)";
+                dimBadge.innerText = "1080 × 1920 • 9:16 VERTICAL";
+                igFrame.classList.add('hidden');
+                videoFrame.classList.remove('hidden');
+                vaultFrame.classList.add('hidden');
+                checkLatestRenderedVideo();
+            } else if (mode === 'vault') {
+                document.getElementById('modeBtnVault').className = "mode-tab px-3 py-1 rounded-md font-bold text-white bg-zinc-800 shadow-sm transition";
+                actionLabel.innerText = "OPEN VAULT ARCHIVE";
+                dimBadge.innerText = "LOCAL PRODUCTION ARCHIVE";
+                igFrame.classList.add('hidden');
+                videoFrame.classList.add('hidden');
+                vaultFrame.classList.remove('hidden');
+                loadVaultMedia();
+            }
+            lucide.createIcons();
+        }
+
+        // Tool Tabs (Story, Media, Audio, Style)
+        function setToolTab(tab) {
+            currentToolTab = tab;
+            document.querySelectorAll('.tool-tab').forEach(b => {
+                b.className = "tool-tab flex-1 py-1.5 rounded-md font-medium text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5";
+            });
+
+            document.getElementById('toolPanelStory').classList.add('hidden');
+            document.getElementById('toolPanelMedia').classList.add('hidden');
+            document.getElementById('toolPanelAudio').classList.add('hidden');
+            document.getElementById('toolPanelStyle').classList.add('hidden');
+
+            if (tab === 'story') {
+                document.getElementById('toolTabBtnStory').className = "tool-tab flex-1 py-1.5 rounded-md font-bold text-white bg-zinc-800 transition flex items-center justify-center gap-1.5";
+                document.getElementById('toolPanelStory').classList.remove('hidden');
+            } else if (tab === 'media') {
+                document.getElementById('toolTabBtnMedia').className = "tool-tab flex-1 py-1.5 rounded-md font-bold text-white bg-zinc-800 transition flex items-center justify-center gap-1.5";
+                document.getElementById('toolPanelMedia').classList.remove('hidden');
+                if (allScreenshots.length === 0) fetchShotsForCurrentGame();
+            } else if (tab === 'audio') {
+                document.getElementById('toolTabBtnAudio').className = "tool-tab flex-1 py-1.5 rounded-md font-bold text-white bg-zinc-800 transition flex items-center justify-center gap-1.5";
+                document.getElementById('toolPanelAudio').classList.remove('hidden');
+                if (allMusicTracks.length === 0) loadMusicTracks();
+            } else if (tab === 'style') {
+                document.getElementById('toolTabBtnStyle').className = "tool-tab flex-1 py-1.5 rounded-md font-bold text-white bg-zinc-800 transition flex items-center justify-center gap-1.5";
+                document.getElementById('toolPanelStyle').classList.remove('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        // Theme Palette Setter
+        function setThemePalette(name) {
+            currentThemePalette = name;
+            const pal = THEME_PALETTES[name] || THEME_PALETTES.vice;
+
+            // Update active state on buttons
+            document.querySelectorAll('.theme-preset-btn').forEach(b => {
+                b.className = "theme-preset-btn p-3 rounded-lg bg-zinc-950 border border-stage-border hover:border-zinc-500 text-left flex items-center justify-between transition";
+            });
+            const activeBtn = document.getElementById(pal.activeBtnId);
+            if (activeBtn) {
+                activeBtn.className = `theme-preset-btn p-3 rounded-lg bg-zinc-950 ${pal.ringClass} text-left flex items-center justify-between transition`;
+            }
+
+            // Update badge in header
+            const badge = document.getElementById('activeThemeBadge');
+            if (badge) {
+                badge.innerText = `${pal.name} Active`;
+                badge.style.color = pal.hookColor;
+            }
+
+            // Re-render live canvas with new theme aesthetic
+            renderLiveCanvas();
+            notify(`Aesthetic set to ${pal.name}`);
+        }
+
+        // Voiceover Profile Selector
+        function selectVoiceProfile(voiceId, label) {
+            currentVoiceProfile = voiceId;
+            currentVoiceLabel = label;
+
+            const cards = {
+                'en-US-BrianMultilingualNeural': 'voiceCardBrian',
+                'en-US-ChristopherNeural': 'voiceCardChristopher',
+                'en-IN-PrabhatNeural': 'voiceCardPrabhat'
+            };
+
+            for (const [vid, cid] of Object.entries(cards)) {
+                const el = document.getElementById(cid);
+                if (!el) continue;
+                const check = el.querySelector('.voice-check');
+                if (vid === voiceId) {
+                    el.className = "voice-card p-2.5 rounded-lg bg-zinc-950 border border-vice-cyan bg-vice-cyan/10 flex flex-col justify-between gap-1 cursor-pointer transition select-none ring-1 ring-vice-cyan/40";
+                    if (check) check.classList.remove('hidden');
+                } else {
+                    el.className = "voice-card p-2.5 rounded-lg bg-zinc-950 border border-stage-border hover:border-zinc-500 flex flex-col justify-between gap-1 cursor-pointer transition select-none";
+                    if (check) check.classList.add('hidden');
+                }
+            }
+
+            const badge = document.getElementById('activeVoiceBadge');
+            if (badge) badge.innerText = `${label} Active`;
+            notify(`Voiceover set: ${label}`);
+            lucide.createIcons();
+        }
+
+        // Voice Preview Audio Playback
+        function previewVoiceSample(event, voiceKey) {
+            if (event) event.stopPropagation();
+            const audio = document.getElementById('bgmAudioPlayer');
+            const sampleUrl = `/assets/voice_samples/${voiceKey}.mp3`;
+
+            if (activePlayingVoice === voiceKey && !audio.paused) {
+                audio.pause();
+                activePlayingVoice = null;
+                notify("Voice sample paused");
+            } else {
+                audio.src = sampleUrl;
+                audio.play().catch(() => {});
+                activePlayingVoice = voiceKey;
+                notify(`Auditioning ${voiceKey} sample...`);
+                audio.onended = () => {
+                    activePlayingVoice = null;
+                };
+            }
+        }
+
+        // Live WYSIWYG Rendering
+        function handleHeadlineInput() {
+            if (canvasViewMode === 'rendered') setCanvasViewMode('mockup');
+            const headline = document.getElementById('inputHeadline').value.trim();
+            document.getElementById('charCountLabel').innerText = `${headline.length} chars`;
+            rebuildInteractiveWordChips();
+            renderLiveCanvas();
+        }
+
+        function rebuildInteractiveWordChips() {
+            const raw = document.getElementById('inputHeadline').value.trim();
+            const container = document.getElementById('interactiveWordChips');
+            container.innerHTML = '';
+
+            const words = raw.toUpperCase().split(/\s+/).filter(Boolean);
+            words.forEach(w => {
+                const cleanW = w.replace(/[^A-Z0-9]/g, '');
+                const isSelected = manualHighlightWords.has(cleanW);
+
+                const chip = document.createElement('button');
+                chip.className = isSelected 
+                    ? "px-2 py-0.5 rounded text-[10px] font-extrabold bg-vice-yellow text-black shadow-sm transition"
+                    : "px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-900 text-zinc-400 hover:text-white transition";
+                chip.innerText = w;
+                chip.onclick = () => {
+                    if (canvasViewMode === 'rendered') setCanvasViewMode('mockup');
+                    if (isSelected) {
+                        manualHighlightWords.delete(cleanW);
+                    } else {
+                        manualHighlightWords.add(cleanW);
+                    }
+                    rebuildInteractiveWordChips();
+                    renderLiveCanvas();
+                };
+                container.appendChild(chip);
+            });
+        }
+
+        function renderLiveCanvas() {
+            const raw = document.getElementById('inputHeadline').value.trim();
+            const cat = document.getElementById('inputCategory').value.trim() || 'EXCLUSIVE LEAK';
+            const hook = document.getElementById('inputHook').value.trim() || 'LEAKED';
+            const sum = document.getElementById('inputSummary').value.trim();
+            const src = document.getElementById('inputSource').value.trim() || 'GAMING INTEL';
+
+            const pal = THEME_PALETTES[currentThemePalette] || THEME_PALETTES.vice;
+
+            // Game Badge, Category & Hook
+            const gameEl = document.getElementById('liveGameText');
+            if (gameEl) gameEl.innerText = (currentSelectedGame || 'GTA VI').toUpperCase();
+
+            const dotEl = document.getElementById('liveGameDot');
+            if (dotEl) {
+                dotEl.style.backgroundColor = pal.badgeColor || '#05d9e8';
+                dotEl.style.boxShadow = `0 0 8px ${pal.badgeColor || '#05d9e8'}`;
+            }
+
+            const hookEl = document.getElementById('liveHookText');
+            if (hookEl) {
+                hookEl.innerText = hook;
+                hookEl.style.color = pal.hookColor;
+                hookEl.style.borderColor = pal.hookColor + '80';
+                hookEl.style.backgroundColor = pal.hookColor + '25';
+                hookEl.style.boxShadow = `0 0 12px ${pal.hookColor}40`;
+            }
+
+            const catEl = document.getElementById('liveCategoryText');
+            if (catEl) catEl.innerText = cat;
+
+            document.getElementById('liveSummaryText').innerText = sum;
+            document.getElementById('liveSourceText').innerText = `VIA: ${src} • FOLLOW {{ creator_handle }} FOR DAILY ${(currentSelectedGame || 'GTA VI').toUpperCase()} UPDATES`;
+
+            // Dynamic Font Sizing for Headline
+            const hlEl = document.getElementById('liveHeadlineDisplay');
+            if (hlEl) {
+                if (raw.length > 85) {
+                    hlEl.style.fontSize = '14px';
+                    hlEl.style.lineHeight = '1.20';
+                } else if (raw.length > 55) {
+                    hlEl.style.fontSize = '16px';
+                    hlEl.style.lineHeight = '1.22';
+                } else {
+                    hlEl.style.fontSize = '18.5px';
+                    hlEl.style.lineHeight = '1.25';
+                }
+            }
+
+            // Headline with word-level highlights using theme color
+            const words = raw.toUpperCase().split(/\s+/).filter(Boolean);
+            const html = words.map(w => {
+                const cleanW = w.replace(/[^A-Z0-9]/g, '');
+                if (manualHighlightWords.has(cleanW)) {
+                    return `<span style="color: ${pal.highlightColor}">${w}</span>`;
+                }
+                return `<span class="text-white">${w}</span>`;
+            }).join(' ');
+
+            if (hlEl) hlEl.innerHTML = html;
+        }
+
+        function setHookWord(word) {
+            document.getElementById('inputHook').value = word;
+            renderLiveCanvas();
+            notify(`Hook set: ${word}`);
+        }
+
+        // 4K Screenshots Vault Grid
+        function renderScreenshotsGrid(shots) {
+            const grid = document.getElementById('screenshotGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            shots.forEach(s => {
+                const isSelected = s.filename === currentBgFilename;
+                const card = document.createElement('div');
+                card.className = `aspect-[16/9] rounded-lg overflow-hidden border cursor-pointer transition relative group ${
+                    isSelected ? 'border-vice-pink ring-2 ring-vice-pink' : 'border-stage-border hover:border-zinc-400'
+                }`;
+                card.onclick = () => selectScreenshot(s.filename, s.url, s.category, s.focal_x, s.focal_y, true);
+                card.innerHTML = `
+                    <img src="${s.url}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                        <span class="text-[9px] font-bold text-white bg-black/70 px-2 py-0.5 rounded">Select</span>
+                    </div>
+                    ${isSelected ? '<span class="active-tag absolute top-1 right-1 text-[8px] bg-vice-pink text-white px-1.5 py-0.5 rounded font-black shadow">ACTIVE</span>' : ''}
+                    ${s.category ? `<span class="absolute bottom-1 left-1 text-[7px] bg-black/80 text-zinc-300 px-1 py-0.5 rounded font-mono">${s.category}</span>` : ''}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        let activeMatchedAlternatives = [];
+        let activeAlternativeIndex = 0;
+
+        function selectScreenshot(filename, url, category = null, focalX = null, focalY = null, isUserClick = false) {
+            if (isUserClick) {
+                isManualSelection = true;
+            }
+            currentBgFilename = filename;
+
+            // Resolve focal coordinates
+            let fx = focalX;
+            let fy = focalY;
+            const match = allScreenshots.find(s => s.filename === filename);
+            if (match) {
+                if (fx === null && match.focal_x !== undefined) fx = match.focal_x;
+                if (fy === null && match.focal_y !== undefined) fy = match.focal_y;
+                if (!category && match.category) category = match.category;
+            }
+            if (fx === null || fx === undefined) fx = 0.50;
+            if (fy === null || fy === undefined) fy = 0.45;
+
+            currentBgFocalX = fx;
+            currentBgFocalY = fy;
+
+            const bgImg = document.getElementById('liveBgImg');
+            if (bgImg) {
+                bgImg.src = url;
+                bgImg.style.objectPosition = `${(fx * 100).toFixed(1)}% ${(fy * 100).toFixed(1)}%`;
+            }
+
+            const assetLbl = document.getElementById('currentAssetLabel');
+            if (assetLbl) {
+                assetLbl.innerText = filename;
+                assetLbl.title = filename;
+            }
+
+            const catBadge = document.getElementById('activePhotoBadge');
+            if (catBadge) {
+                catBadge.innerText = category || (match && match.category ? match.category : 'Photo');
+                catBadge.classList.remove('hidden');
+            }
+
+            // Update active ring on thumbnail cards without rebuilding entire DOM
+            document.querySelectorAll('#screenshotGrid > div').forEach(card => {
+                const img = card.querySelector('img');
+                const isThis = img && (img.src === url || img.src.includes(filename));
+                if (isThis) {
+                    card.className = "aspect-[16/9] rounded-lg overflow-hidden border cursor-pointer transition relative group border-vice-pink ring-2 ring-vice-pink";
+                    if (!card.querySelector('.active-tag')) {
+                        const tag = document.createElement('span');
+                        tag.className = "active-tag absolute top-1 right-1 text-[8px] bg-vice-pink text-white px-1.5 py-0.5 rounded font-black shadow";
+                        tag.innerText = "ACTIVE";
+                        card.appendChild(tag);
+                    }
+                } else {
+                    card.className = "aspect-[16/9] rounded-lg overflow-hidden border cursor-pointer transition relative group border-stage-border hover:border-zinc-400";
+                    const oldTag = card.querySelector('.active-tag');
+                    if (oldTag) oldTag.remove();
+                }
+            });
+
+            if (canvasViewMode === 'rendered') {
+                setCanvasViewMode('mockup');
+            }
+
+            notify(`Selected: ${filename.split('/').pop().slice(0, 24)}...`);
+        }
+
+        // Semantic Auto-Match & Cycle Engine (Auto-Relates Photo to News Topic)
+        async function autoMatchScreenshot(headlineText = null, summaryText = null, isExplicit = false) {
+            // Guard: don't overwrite user's manual photo choice unless explicitly requested
+            if (isManualSelection && !isExplicit) {
+                return;
+            }
+            if (isExplicit) {
+                isManualSelection = false;
+            }
+
+            const h = (headlineText || document.getElementById('inputHeadline').value || '').trim();
+            const s = (summaryText || document.getElementById('inputSummary').value || '').trim();
+            const game = currentSelectedGame || document.getElementById('inputGameTitle').value.trim() || 'GTA VI';
+
+            // Authoritative server-side matching (deterministic and instant)
+            try {
+                const res = await fetch('/api/match-screenshot/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ headline: h, summary: s, game: game })
+                });
+                const data = await res.json();
+                if (data.success && data.matched_shot) {
+                    if (data.alternatives && data.alternatives.length > 0) {
+                        activeMatchedAlternatives = data.alternatives.map(a => a.shot);
+                    }
+                    const m = data.matched_shot;
+                    selectScreenshot(m.filename, m.url, m.category, m.focal_x, m.focal_y, false);
+                    notify(`✨ Auto-Matched: ${m.category || 'Photo'} (${m.filename.split('/').pop().slice(0, 22)}...)`);
+                    return;
+                }
+            } catch (e) {
+                // Network failure: fallback to offline client-side matching
+            }
+
+            // Client-side offline fallback
+            clientFallbackMatch(h, s, game);
+        }
+
+        function clientFallbackMatch(h, s, game) {
+            if (!allScreenshots || allScreenshots.length === 0) return;
+            const fullText = (h + ' ' + s).toLowerCase();
+            let best = allScreenshots[0];
+            let maxScore = -1;
+            let ranked = [];
+
+            const isGta = game.toLowerCase().includes('gta') || game.toLowerCase().includes('grand theft');
+            const hasLucia = /\b(lucia|female|woman|girl)\b/i.test(fullText);
+            const hasJason = /\b(jason|male|guy)\b/i.test(fullText);
+            const hasDuo = (hasLucia && hasJason) || /\b(duo|partners|couple|protagonists|both|lucia\s*(?:&|and)\s*jason|jason\s*(?:&|and)\s*lucia)\b/i.test(fullText);
+
+            allScreenshots.forEach(shot => {
+                let score = 0;
+                const fn = (shot.filename || '').toLowerCase();
+                const cat = (shot.category || '').toLowerCase();
+
+                if (isGta) {
+                    if (hasDuo) {
+                        if (fn.includes('jason_and_lucia')) score += 100;
+                        else if (cat.includes('lucia & jason') || (fn.includes('jason') && fn.includes('lucia'))) score += 85;
+                        else if (fn.includes('trailer_29')) score += 75;
+                    } else if (hasLucia && !hasJason) {
+                        if (fn.includes('lucia_caminos')) score += 100;
+                        else if (['trailer_02', 'trailer_03', 'trailer_05', 'trailer_16'].some(k => fn.includes(k))) score += 75;
+                        else if (cat === 'lucia') score += 65;
+                    } else if (hasJason && !hasLucia) {
+                        if (fn.includes('jason_duval')) score += 100;
+                        else if (fn.includes('trailer_20')) score += 75;
+                        else if (cat === 'jason') score += 65;
+                    }
+                } else {
+                    if (cat && fullText.includes(cat.toLowerCase())) score += 35;
+                }
+
+                ranked.push({ score, shot });
+                if (score > maxScore) {
+                    maxScore = score;
+                    best = shot;
+                }
+            });
+
+            ranked.sort((a, b) => b.score - a.score);
+            activeMatchedAlternatives = ranked.slice(0, 8).map(r => r.shot);
+            activeAlternativeIndex = 0;
+
+            selectScreenshot(best.filename, best.url, best.category, best.focal_x, best.focal_y, false);
+            notify(`✨ Auto-Matched: ${best.category || 'Photo'}`);
+        }
+
+        // Cycle through next matching alternatives for this story
+        function cycleNextMatchingScreenshot() {
+            if (!activeMatchedAlternatives || activeMatchedAlternatives.length === 0) {
+                if (allScreenshots && allScreenshots.length > 0) {
+                    activeMatchedAlternatives = allScreenshots;
+                } else {
+                    notify('No screenshots available');
+                    return;
+                }
+            }
+            activeAlternativeIndex = (activeAlternativeIndex + 1) % activeMatchedAlternatives.length;
+            const nextShot = activeMatchedAlternatives[activeAlternativeIndex];
+            selectScreenshot(nextShot.filename, nextShot.url, nextShot.category, nextShot.focal_x, nextShot.focal_y, true);
+            notify(`🔀 Related Photo (${activeAlternativeIndex + 1}/${activeMatchedAlternatives.length}): ${nextShot.category || 'Shot'}`);
+        }
+
+        async function handleFileCustomUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('game', currentSelectedGame || 'custom');
+
+            notify('Uploading custom shot...');
+            try {
+                const res = await fetch('/api/upload-shot/', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success) {
+                    allScreenshots.unshift(data);
+                    renderScreenshotsGrid(allScreenshots);
+                    selectScreenshot(data.filename, data.url);
+                    notify('Custom shot uploaded and applied!');
+                } else {
+                    notify(data.error || 'Upload failed');
+                }
+            } catch (e) {
+                notify('Upload failed: ' + e.message);
+            }
+            event.target.value = '';
+        }
+
+        async function promptImageUrlUpload() {
+            const url = prompt('Enter direct image URL (JPEG/PNG/WebP):');
+            if (!url || !url.trim().startsWith('http')) return;
+
+            notify('Downloading image from URL...');
+            try {
+                const res = await fetch('/api/upload-shot/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        image_url: url.trim(),
+                        game: currentSelectedGame || 'custom'
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    allScreenshots.unshift(data);
+                    renderScreenshotsGrid(allScreenshots);
+                    selectScreenshot(data.filename, data.url);
+                    notify('Image loaded and applied!');
+                } else {
+                    notify(data.error || 'Failed to download image URL');
+                }
+            } catch (e) {
+                notify('Download failed: ' + e.message);
+            }
+        }
+
+        // Music Tracks Audio Studio
+        async function loadMusicTracks() {
+            const list = document.getElementById('musicTrackList');
+            try {
+                const res = await fetch('/api/music/');
+                const data = await res.json();
+                if (data.success && data.tracks) {
+                    allMusicTracks = data.tracks;
+                    list.innerHTML = '';
+                    data.tracks.forEach((t, i) => {
+                        const isSelected = t.id === currentSelectedBgmTrack;
+                        const card = document.createElement('div');
+                        card.className = `music-track-card p-3 rounded-xl bg-zinc-950 border ${
+                            isSelected ? 'border-vice-yellow bg-vice-yellow/5 ring-1 ring-vice-yellow/30' : 'border-stage-border hover:border-zinc-500'
+                        } flex items-center justify-between transition cursor-pointer`;
+                        card.dataset.trackId = t.id;
+                        card.onclick = () => selectMusicTrack(t.id, t.title);
+                        card.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <button type="button" onclick="playMusicPreview(event, '${t.url}', ${i})" class="w-8 h-8 rounded-full bg-zinc-900 hover:bg-white text-white hover:text-black flex items-center justify-center transition">
+                                    <i data-lucide="play" class="w-3.5 h-3.5" id="audioPlayIcon${i}"></i>
+                                </button>
+                                <div>
+                                    <span class="text-xs font-bold text-white block">${t.title}</span>
+                                    <span class="text-[10px] text-zinc-500">${t.genre} • ${t.bpm} BPM</span>
+                                </div>
+                            </div>
+                            <span class="track-status-label text-[10px] font-mono ${isSelected ? 'text-vice-yellow font-bold' : 'text-zinc-500'}">
+                                ${isSelected ? 'ACTIVE BGM' : 'Select'}
+                            </span>
+                        `;
+                        list.appendChild(card);
+                    });
+                    lucide.createIcons();
+                }
+            } catch (e) {}
+        }
+
+        function selectMusicTrack(trackId, title) {
+            currentSelectedBgmTrack = trackId;
+            const badge = document.getElementById('activeMusicBadge');
+            if (badge) badge.innerText = `${title} Active`;
+
+            document.querySelectorAll('.music-track-card').forEach(c => {
+                const isSel = c.dataset.trackId === trackId;
+                const st = c.querySelector('.track-status-label');
+                if (isSel) {
+                    c.className = "music-track-card p-3 rounded-xl bg-zinc-950 border border-vice-yellow bg-vice-yellow/5 ring-1 ring-vice-yellow/30 flex items-center justify-between transition cursor-pointer";
+                    if (st) {
+                        st.className = "track-status-label text-[10px] font-mono text-vice-yellow font-bold";
+                        st.innerText = "ACTIVE BGM";
+                    }
+                } else {
+                    c.className = "music-track-card p-3 rounded-xl bg-zinc-950 border border-stage-border hover:border-zinc-500 flex items-center justify-between transition cursor-pointer";
+                    if (st) {
+                        st.className = "track-status-label text-[10px] font-mono text-zinc-500";
+                        st.innerText = "Select";
+                    }
+                }
+            });
+            notify(`BGM selected: ${title}`);
+        }
+
+        function playMusicPreview(event, url, idx) {
+            if (event) event.stopPropagation();
+            const audio = document.getElementById('bgmAudioPlayer');
+            if (activePlayingTrack === idx && !audio.paused) {
+                audio.pause();
+                activePlayingTrack = null;
+                document.getElementById(`audioPlayIcon${idx}`).setAttribute('data-lucide', 'play');
+            } else {
+                audio.src = url;
+                audio.play().catch(() => {});
+                activePlayingTrack = idx;
+                document.querySelectorAll('[id^=audioPlayIcon]').forEach(el => el.setAttribute('data-lucide', 'play'));
+                document.getElementById(`audioPlayIcon${idx}`).setAttribute('data-lucide', 'pause');
+            }
+            lucide.createIcons();
+        }
+
+        // Vault Media Archive Gallery
+        async function loadVaultMedia() {
+            const grid = document.getElementById('vaultMediaGrid');
+            grid.innerHTML = '<div class="col-span-2 text-center py-8 text-xs text-zinc-500">Loading output media...</div>';
+            try {
+                const res = await fetch('/api/media/');
+                const data = await res.json();
+                if (data.success && data.media) {
+                    allVaultMedia = data.media;
+                    renderVaultGrid(allVaultMedia);
+                } else {
+                    grid.innerHTML = '<div class="col-span-2 text-center py-8 text-xs text-zinc-500">No generated media found in output/</div>';
+                }
+            } catch (e) {
+                grid.innerHTML = '<div class="col-span-2 text-center py-8 text-xs text-zinc-500">Error loading vault.</div>';
+            }
+        }
+
+        function filterVaultMedia(type) {
+            currentVaultFilter = type;
+            document.querySelectorAll('.vault-filter-btn').forEach(b => {
+                b.className = "vault-filter-btn px-2.5 py-1 rounded text-zinc-400 hover:text-white font-medium";
+            });
+            if (type === 'all') document.getElementById('vaultFilterAll').className = "vault-filter-btn px-2.5 py-1 rounded bg-white text-black font-bold";
+            if (type === 'video') document.getElementById('vaultFilterVideo').className = "vault-filter-btn px-2.5 py-1 rounded bg-white text-black font-bold";
+            if (type === 'image') document.getElementById('vaultFilterImage').className = "vault-filter-btn px-2.5 py-1 rounded bg-white text-black font-bold";
+
+            if (type === 'all') {
+                renderVaultGrid(allVaultMedia);
+            } else {
+                const filtered = allVaultMedia.filter(m => m.type === type);
+                renderVaultGrid(filtered);
+            }
+        }
+
+        function renderVaultGrid(items) {
+            const grid = document.getElementById('vaultMediaGrid');
+            grid.innerHTML = '';
+            if (!items || items.length === 0) {
+                grid.innerHTML = '<div class="col-span-2 text-center py-8 text-xs text-zinc-500">No items match this filter.</div>';
+                return;
+            }
+            items.forEach(m => {
+                const card = document.createElement('div');
+                card.className = "p-2 rounded-xl bg-zinc-900 border border-stage-border hover:border-zinc-500 transition flex flex-col justify-between gap-1.5 group";
+                const isVid = m.type === 'video';
+                card.innerHTML = `
+                    <div class="aspect-[16/9] rounded-lg overflow-hidden bg-black relative flex items-center justify-center">
+                        ${isVid 
+                            ? `<video src="${m.url}" preload="metadata" class="w-full h-full object-cover pointer-events-none"></video>
+                               <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                   <i data-lucide="play-circle" class="w-6 h-6 text-white"></i>
+                               </div>`
+                            : `<img src="${m.url}" class="w-full h-full object-cover">`
+                        }
+                        <span class="absolute top-1 left-1 text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${isVid ? 'bg-red-500 text-white' : 'bg-vice-cyan text-black'}">${m.type}</span>
+                        <span class="absolute bottom-1 right-1 text-[8px] font-mono text-zinc-300 bg-black/80 px-1 rounded">${m.size}</span>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold text-white block truncate" title="${m.filename}">${m.filename}</span>
+                        <span class="text-[9px] text-zinc-500 block">${m.created}</span>
+                    </div>
+                    <div class="flex items-center gap-1 pt-1 border-t border-stage-border/40">
+                        <button onclick="previewVaultItem('${m.url}', '${m.type}')" class="flex-1 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-white text-[9px] font-bold transition flex items-center justify-center gap-1">
+                            <i data-lucide="eye" class="w-3 h-3"></i>
+                            <span>Preview</span>
+                        </button>
+                        <a href="${m.url}" download class="h-5 w-5 rounded bg-zinc-800 hover:bg-white text-zinc-300 hover:text-black flex items-center justify-center transition" title="Download">
+                            <i data-lucide="download" class="w-2.5 h-2.5"></i>
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function previewVaultItem(url, type) {
+            if (type === 'video') {
+                setMode('video');
+                const player = document.getElementById('stageVideoPlayer');
+                player.src = url;
+                player.load();
+                player.play().catch(() => {});
+                document.getElementById('stageVideoPlaceholder').classList.add('hidden');
+                lastGeneratedVideoUrl = url;
+                notify("Loaded video to Short Stage");
+            } else {
+                setMode('image');
+                lastGeneratedPostUrl = url;
+                const togglePill = document.getElementById('renderTogglePill');
+                if (togglePill) togglePill.classList.remove('hidden');
+                setCanvasViewMode('rendered');
+                notify("Loaded image to 4:5 Stage");
+            }
+        }
+
+        async function checkLatestRenderedVideo() {
+            try {
+                const res = await fetch('/api/media/');
+                const data = await res.json();
+                if (data.success && data.media) {
+                    const latestVid = data.media.find(m => m.type === 'video');
+                    if (latestVid) {
+                        const player = document.getElementById('stageVideoPlayer');
+                        if (!player.src || player.src.endsWith('/')) {
+                            player.src = latestVid.url;
+                            document.getElementById('stageVideoPlaceholder').classList.add('hidden');
+                            lastGeneratedVideoUrl = latestVid.url;
+                        }
+                    }
+                }
+            } catch (e) {}
+        }
+
+        // Social Mockup Frame Toggle
+        function toggleSocialMockup() {
+            socialMockupActive = !socialMockupActive;
+            const rail = document.getElementById('mockupActionRail');
+            const label = document.getElementById('mockupToggleLabel');
+            if (socialMockupActive) {
+                rail.classList.remove('hidden');
+                label.innerText = "Feed Mockup: ON";
+            } else {
+                rail.classList.add('hidden');
+                label.innerText = "Feed Mockup: OFF";
+            }
+        }
+
+        // Master Generation Action
+        async function handleMasterAction() {
+            if (currentMode === 'both') {
+                notify("Starting Complete Pack Generation...");
+                await generateInstagramPost();
+                generateVideoShort();
+            } else if (currentMode === 'image') {
+                generateInstagramPost();
+            } else if (currentMode === 'video') {
+                generateVideoShort();
+            } else if (currentMode === 'vault') {
+                loadVaultMedia();
+                openOutputFolder();
+            }
+        }
+
+        // Universal Instagram Post Generator API
+        async function generateInstagramPost() {
+            const headline = document.getElementById('inputHeadline').value.trim();
+            const summary = document.getElementById('inputSummary').value.trim();
+            const category = document.getElementById('inputCategory').value.trim();
+            const hook_word = document.getElementById('inputHook').value.trim();
+            const source_credit = document.getElementById('inputSource').value.trim();
+            const custom_keywords = Array.from(manualHighlightWords);
+
+            if (!headline) {
+                notify("Please enter a headline");
+                return null;
+            }
+
+            const lblPost = document.getElementById('labelDownloadPost');
+            if (lblPost) lblPost.innerText = "Rendering PNG...";
+            notify(`Rendering 4:5 News Post for ${currentSelectedGame}...`);
+
+            try {
+                const res = await fetch('/api/generate/instagram/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        headline, summary, category, hook_word, source_credit,
+                        game_title: currentSelectedGame,
+                        background_filename: currentBgFilename,
+                        custom_keywords,
+                        theme: currentThemePalette
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    lastGeneratedPostUrl = data.image_url;
+                    lastGeneratedCaption = data.caption || "";
+
+                    // Reveal view toggle pill & switch to true rendered PNG
+                    const togglePill = document.getElementById('renderTogglePill');
+                    if (togglePill) togglePill.classList.remove('hidden');
+                    setCanvasViewMode('rendered');
+
+                    notify(`4:5 ${data.game_title || currentSelectedGame} Post Ready!`);
+                    return data.image_url;
+                } else {
+                    notify(data.error || "Failed to generate post");
+                }
+            } catch (e) {
+                notify("Failed to generate post: " + e.message);
+            } finally {
+                if (lblPost) lblPost.innerText = "Download Post (PNG)";
+            }
+            return null;
+        }
+
+        async function handleDownloadPostClick() {
+            if (lastGeneratedPostUrl) {
+                triggerDownload(lastGeneratedPostUrl, `${(currentSelectedGame || 'game').toLowerCase().replace(/[^a-z0-9]/g, '_')}_post.png`);
+                notify("Downloading 4:5 Instagram post...");
+            } else {
+                notify("Rendering post first...");
+                const url = await generateInstagramPost();
+                if (url) {
+                    triggerDownload(url, `${(currentSelectedGame || 'game').toLowerCase().replace(/[^a-z0-9]/g, '_')}_post.png`);
+                }
+            }
+        }
+
+        function handleDownloadVideoClick() {
+            if (lastGeneratedVideoUrl) {
+                triggerDownload(lastGeneratedVideoUrl, `${(currentSelectedGame || 'game').toLowerCase().replace(/[^a-z0-9]/g, '_')}_short.mp4`);
+                notify("Downloading 9:16 Short video...");
+            } else {
+                const player = document.getElementById('stageVideoPlayer');
+                if (player && player.src && !player.src.endsWith('/') && !player.src.endsWith('#')) {
+                    triggerDownload(player.src, `${(currentSelectedGame || 'game').toLowerCase().replace(/[^a-z0-9]/g, '_')}_short.mp4`);
+                    notify("Downloading 9:16 Short video...");
+                } else {
+                    notify("Please generate video first!");
+                    setMode('video');
+                }
+            }
+        }
+
+        function triggerDownload(url, defaultFilename) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = defaultFilename || url.split('/').pop();
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Video Short Generator API
+        let videoPollInterval = null;
+        async function generateVideoShort() {
+            const headline = document.getElementById('inputHeadline').value.trim();
+            const news_text = document.getElementById('inputSummary').value.trim();
+            const useAutoScrape = document.getElementById('checkAutoScrapeVideo')?.checked || false;
+
+            const pWidget = document.getElementById('renderProgressWidget');
+            pWidget.classList.remove('hidden');
+            document.getElementById('renderProgressBar').style.width = '8%';
+            document.getElementById('renderPercentText').innerText = '8%';
+            document.getElementById('renderStatusText').innerText = useAutoScrape
+                ? 'Auto-scraping top leak & generating script...'
+                : 'Initializing video assembly...';
+
+            notify(useAutoScrape ? "Auto-scraping fresh leak & generating AI script..." : "Starting Short video assembly...");
+
+            try {
+                const res = await fetch('/api/generate/video/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        headline,
+                        news_text,
+                        auto_scrape: useAutoScrape,
+                        game: currentSelectedGame || "GTA VI",
+                        voice: currentVoiceProfile,
+                        bgm_track: currentSelectedBgmTrack,
+                        background_filename: currentBgFilename
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    if (videoPollInterval) clearInterval(videoPollInterval);
+                    videoPollInterval = setInterval(async () => {
+                        try {
+                            const sres = await fetch('/api/status/');
+                            const st = await sres.json();
+
+                            document.getElementById('renderProgressBar').style.width = st.progress + '%';
+                            document.getElementById('renderPercentText').innerText = st.progress + '%';
+                            document.getElementById('renderStatusText').innerText = st.message;
+
+                            if (st.status === 'success') {
+                                clearInterval(videoPollInterval);
+                                const player = document.getElementById('stageVideoPlayer');
+                                player.src = st.output_url;
+                                player.load();
+                                document.getElementById('stageVideoPlaceholder').classList.add('hidden');
+                                lastGeneratedVideoUrl = st.output_url;
+                                pWidget.classList.add('hidden');
+                                notify("9:16 Short Video Render Complete!");
+                            } else if (st.status === 'error') {
+                                clearInterval(videoPollInterval);
+                                pWidget.classList.add('hidden');
+                                notify("Render error: " + st.error);
+                            }
+                        } catch (e) {}
+                    }, 1800);
+                }
+            } catch (e) {
+                notify("Video pipeline failed to start");
+            }
+        }
+
+        // Copy Caption
+        function copyGeneratedCaption() {
+            let text = lastGeneratedCaption;
+            if (!text) {
+                const headline = document.getElementById('inputHeadline').value.trim();
+                const summary = document.getElementById('inputSummary').value.trim();
+                const src = document.getElementById('inputSource').value.trim() || 'GAMING INTEL';
+                const gameClean = currentSelectedGame || "GTA VI";
+                const gameTag = gameClean.replace(/[^a-zA-Z0-9]/g, '');
+                text = `🚨 BREAKING: ${headline.toUpperCase()}!\n\n` +
+                    `${summary || 'Full report and breakdown available now.'}\n\n` +
+                    `Source: ${src}\n` +
+                    `Follow {{ creator_handle }} for daily ${gameClean} updates & gaming news.\n\n` +
+                    `What are your thoughts on this? Let us know in the comments below! 👇\n\n` +
+                    `#${gameTag} #${gameTag}News #GamingNews #Gamer #VideoGames #GamingCommunity`;
+            }
+
+            navigator.clipboard.writeText(text).then(() => {
+                const lbl = document.getElementById('copyCaptionLabel');
+                const ico = document.getElementById('copyCaptionIcon');
+                lbl.innerText = "Caption Copied!";
+                ico.setAttribute('data-lucide', 'check');
+                lucide.createIcons();
+                notify("Caption & hashtags copied to clipboard");
+                setTimeout(() => {
+                    lbl.innerText = "Copy Caption & Tags";
+                    ico.setAttribute('data-lucide', 'copy');
+                    lucide.createIcons();
+                }, 2400);
+            });
+        }
+
+        function applyPreset(idx) {
+            isManualSelection = false;
+            if (canvasViewMode === 'rendered') setCanvasViewMode('mockup');
+            const p = PRESETS[idx];
+            document.getElementById('inputHeadline').value = p.headline;
+            document.getElementById('inputSummary').value = p.summary;
+            document.getElementById('inputCategory').value = p.category;
+            document.getElementById('inputHook').value = p.hook;
+            document.getElementById('inputSource').value = p.source;
+            if (p.bg) {
+                currentBgFilename = p.bg;
+                document.getElementById('liveBgImg').src = `/assets/backgrounds/${p.bg}`;
+                document.getElementById('currentAssetLabel').innerText = p.bg;
+            }
+            manualHighlightWords = new Set(['25', 'MINUTES', 'UNCENSORED', 'LUCIA', 'JASON', 'SEPTEMBER', '2026', 'HURRICANES', 'FLOODING', '2.5X']);
+            rebuildInteractiveWordChips();
+            renderLiveCanvas();
+            notify(`Loaded preset: ${p.category}`);
+        }
+
+
+        function toggleScrapedModal() {
+            const m = document.getElementById('scrapedModal');
+            m.classList.toggle('hidden');
+            if (!m.classList.contains('hidden')) {
+                loadFeeds();
+            }
+        }
+
+        // Populate a story into studio controls and trigger live WYSIWYG
+        function loadStoryIntoStudio(story) {
+            if (!story) return;
+            isManualSelection = false;
+            if (canvasViewMode === 'rendered') setCanvasViewMode('mockup');
+            const headline = (story.title || "").toUpperCase();
+            document.getElementById('inputHeadline').value = headline;
+            
+            const summary = story.summary || story.text || "";
+            document.getElementById('inputSummary').value = summary.slice(0, 320);
+            
+            const src = (story.source || "GAMING INTEL").toUpperCase();
+            document.getElementById('inputSource').value = src;
+
+            // Auto-detect category & hook
+            let cat = "EXCLUSIVE LEAK";
+            let hook = "LEAKED";
+            if (headline.includes("RELEASE") || headline.includes("LAUNCH") || headline.includes("DATE")) {
+                cat = "RELEASE DATE";
+                hook = "CONFIRMED";
+            } else if (headline.includes("TRAILER")) {
+                cat = "TRAILER 2";
+                hook = "TRAILER 2";
+            } else if (headline.includes("MAP") || headline.includes("SIZE")) {
+                cat = "MAP REVEAL";
+                hook = "MASSIVE";
+            } else if (headline.includes("GAMEPLAY") || headline.includes("PHYSICS") || headline.includes("WEATHER")) {
+                cat = "GAMEPLAY LEAK";
+                hook = "REVEALED";
+            } else if (headline.includes("DELAY") || headline.includes("POSTPONE")) {
+                cat = "SPECIAL REPORT";
+                hook = "DELAYED?";
+            }
+            document.getElementById('inputCategory').value = story.category || cat;
+            document.getElementById('inputHook').value = hook;
+
+            // Trigger word parsing & chips
+            handleHeadlineInput();
+
+            // Auto-match the most relevant photo for this story!
+            autoMatchScreenshot(headline, summary, true);
+
+            // Re-render live canvas
+            renderLiveCanvas();
+        }
+
+        // 1-Click Auto-Scrape Top Story for Selected Game
+        async function autoScrapeTopStory() {
+            const btn = document.getElementById('btnAutoScrapeTop');
+            const game = currentSelectedGame || "GTA VI";
+            if (btn) {
+                btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Scraping...</span>`;
+                btn.disabled = true;
+            }
+            notify(`Fetching live breaking news for ${game}...`);
+
+            try {
+                // Ensure shots for this game are loaded so auto-matching works seamlessly
+                if (allScreenshots.length === 0 || (typeof currentLoadedShotsGame !== 'undefined' && currentLoadedShotsGame !== game)) {
+                    await fetchShotsForCurrentGame();
+                }
+
+                const res = await fetch(`/api/news/?game=${encodeURIComponent(game)}`);
+                const data = await res.json();
+                if (data.success && data.stories && data.stories.length > 0) {
+                    const story = data.stories[0];
+                    loadStoryIntoStudio(story);
+                    notify(`⚡ Loaded ${game} story: "${story.title.slice(0, 42)}..."`);
+                } else {
+                    notify(`No stories found for ${game}`);
+                }
+            } catch (e) {
+                notify("Failed to scrape story: " + e.message);
+            } finally {
+                if (btn) {
+                    btn.innerHTML = `<i data-lucide="zap" class="w-3.5 h-3.5 fill-white"></i><span>⚡ Auto-Scrape Story</span>`;
+                    btn.disabled = false;
+                }
+                lucide.createIcons();
+            }
+        }
+
+        // Live Real-Time RSS Refresh for Selected Game
+        async function refreshLiveFeeds() {
+            const game = currentSelectedGame || "GTA VI";
+            const lbl = document.getElementById('labelRefreshRss');
+            const ico = document.getElementById('iconRefreshRss');
+            if (lbl) lbl.innerText = "Scraping...";
+            if (ico) ico.classList.add('animate-spin');
+
+            notify(`Scraping 17 gaming feeds in real-time for ${game}...`);
+            try {
+                const res = await fetch(`/api/news/refresh/?game=${encodeURIComponent(game)}`);
+                const data = await res.json();
+                if (data.success) {
+                    await loadFeeds();
+                    if (data.top_story) {
+                        loadStoryIntoStudio(data.top_story);
+                    }
+                    notify(`17 RSS feeds scraped & top ${game} story applied!`);
+                } else {
+                    notify(data.error || "Failed to refresh feeds");
+                }
+            } catch (e) {
+                notify("Refresh failed: " + e.message);
+            } finally {
+                if (lbl) lbl.innerText = "Fetch Live";
+                if (ico) ico.classList.remove('animate-spin');
+                lucide.createIcons();
+            }
+        }
+
+        async function loadFeeds() {
+            const c = document.getElementById('scrapedContainer');
+            const game = currentSelectedGame || "GTA VI";
+            const modalTitle = document.getElementById('scrapedModalTitle');
+            if (modalTitle) modalTitle.innerText = `Scraped Gaming Outlets (${game})`;
+
+            c.innerHTML = `<div class="p-4 text-center text-xs text-zinc-500 flex items-center justify-center gap-2"><i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Loading ${game} news...</span></div>`;
+            lucide.createIcons();
+
+            try {
+                const res = await fetch(`/api/news/?game=${encodeURIComponent(game)}`);
+                const data = await res.json();
+                if (data.success && data.stories && data.stories.length > 0) {
+                    c.innerHTML = '';
+                    data.stories.forEach(s => {
+                        const d = document.createElement('div');
+                        d.className = "p-3 rounded-xl bg-zinc-950 border border-stage-border hover:border-zinc-500 transition cursor-pointer flex flex-col gap-1";
+                        d.onclick = () => {
+                            loadStoryIntoStudio(s);
+                            toggleScrapedModal();
+                            notify(`Selected ${game} RSS story & auto-matched shot!`);
+                        };
+                        d.innerHTML = `
+                            <div class="flex items-center justify-between text-[10px] text-zinc-500">
+                                <span class="text-vice-pink font-bold uppercase">${s.source || 'News'}</span>
+                                <span>${s.date || 'Today'}</span>
+                            </div>
+                            <span class="text-xs font-bold text-white line-clamp-2">${s.title}</span>
+                            ${s.summary ? `<span class="text-[10px] text-zinc-400 line-clamp-1">${s.summary}</span>` : ''}
+                        `;
+                        c.appendChild(d);
+                    });
+                } else {
+                    c.innerHTML = `<div class="p-6 text-center text-xs text-zinc-500">No stories cached yet for ${game}. Click 'Fetch Live' above!</div>`;
+                }
+            } catch (e) {
+                c.innerHTML = `<div class="p-4 text-center text-xs text-zinc-500">Could not load feeds for ${game}.</div>`;
+            }
+            lucide.createIcons();
+        }
+
+        async function openOutputFolder() {
+            try {
+                await fetch('/api/open-folder/');
+                notify("Opened output folder in Explorer");
+            } catch (e) {}
+        }
+
+        let toastTimeout = null;
+        function notify(text) {
+            const now = Date.now();
+            if (now - lastToastTime < 350) return;
+            lastToastTime = now;
+            const t = document.getElementById('toast');
+            const c = document.getElementById('toastContent');
+            if (!t || !c) return;
+            c.innerText = text;
+            t.classList.remove('opacity-0', 'translate-y-2');
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                t.classList.add('opacity-0', 'translate-y-2');
+            }, 2400);
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            rebuildInteractiveWordChips();
+            handleGameTitleInput();
+            renderLiveCanvas();
+            fetchShotsForCurrentGame();
+        });
+    </script>
+</body>
+</html>
