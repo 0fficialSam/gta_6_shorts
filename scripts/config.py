@@ -55,7 +55,7 @@ DEFAULT_CONFIG = {
     "music": {
         "enabled": True,
         "volume_ducking_db": -21,
-        "bgm_path": "assets/music/synthwave_ambience.wav"
+        "bgm_path": "assets/music/vice_city_night_drive.mp3"
     },
     "video": {
         "width": 1080,

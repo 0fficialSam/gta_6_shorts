@@ -17,7 +17,7 @@
   "music": {
     "enabled": true,
     "volume_ducking_db": -11,
-    "bgm_path": "assets/music/vice_city_night_drive.wav"
+    "bgm_path": "assets/music/vice_city_night_drive.mp3"
   },
   "video": {
     "width": 1080,

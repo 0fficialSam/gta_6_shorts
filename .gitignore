@@ -8,6 +8,11 @@ __pycache__/
 output/
 *.mp4
 *.mov
+*.png
+
+# SQLite Databases
+*.sqlite3
+db.sqlite3
 
 # Auto-downloaded / transient assets
 assets/*.mp3
@@ -17,6 +22,8 @@ assets/music/*.wav
 assets/subtitles_timing.json
 assets/current_script.json
 assets/today_stories.json
+assets/stories_*.json
+assets/used_news.json
 assets/youtube_token.pkl
 
 # Credentials & environment

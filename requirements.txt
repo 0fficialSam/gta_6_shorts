@@ -25,7 +25,11 @@ google-api-python-client>=2.100.0  # YouTube Data API
 google-auth-oauthlib>=1.1.0        # OAuth2 authentication
 google-auth-httplib2>=0.1.1        # Auth transport
 
+# ── CREATOR STUDIO DASHBOARD (Django) ─────────────────────────
+django>=5.0.0
+
 # ── UTILITIES ────────────────────────────────────────────────
 python-dateutil>=2.8.0
 python-dotenv>=1.0.0
+
 
