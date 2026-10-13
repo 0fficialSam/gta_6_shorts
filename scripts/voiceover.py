@@ -62,10 +62,90 @@ def clean_script_for_tts(script: str) -> str:
     return script
 
 
-def synth_procedural_track(path: str, bpm: int = 124, root_f: float = 73.42, duration: float = 65.0):
+# ── BGM CATALOG & ROTATION ───────────────────────────────────────────────────
+BGM_CATALOG = [
+    {
+        "filename": "vice_city_night_drive.mp3",
+        "title": "Outrun Boulevard",
+        "genre": "80s Retro Synthwave",
+        "artist": "Kjartan Abel",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/02/Outrun-Boulevard-by-Kjartan-Abel.ogg",
+        "style": "synthwave",
+        "bpm": 124,
+    },
+    {
+        "filename": "leonida_action_beat.mp3",
+        "title": "Harry Spotter",
+        "genre": "Gym Phonk / Heavy Bass Beat",
+        "artist": "Alexi Action",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f6/Alexi_Action_-_Harry_Spotter_%28Gym_Phonk%3B_midtempo_bass_music_popularized_by_fitness_Internet_meme%29.ogg",
+        "style": "phonk",
+        "bpm": 140,
+    },
+    {
+        "filename": "miami_heist_pulse.mp3",
+        "title": "Cut and Run",
+        "genre": "Fast Action / Heist Suspense",
+        "artist": "Kevin MacLeod",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Cut_and_Run_%28ISRC_USUAN1100851%29.mp3",
+        "style": "tension",
+        "bpm": 136,
+    },
+    {
+        "filename": "sunset_boulevard.mp3",
+        "title": "Laser Groove",
+        "genre": "Miami Beach Synth Funk Groove",
+        "artist": "Kevin MacLeod",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/1/1e/Laser_Groove_%28ISRC_USUAN1700017%29.mp3",
+        "style": "funk",
+        "bpm": 112,
+    },
+]
+
+
+def download_curated_track(item: dict, dest_path: str) -> bool:
+    """Download a royalty-free track from Wikimedia Commons and encode to 192k MP3."""
+    url = item["url"]
+    ffmpeg = find_ffmpeg()
+    if not ffmpeg:
+        return False
+    try:
+        import urllib.request
+        headers = {'User-Agent': 'GTA6ShortsAutomation/1.0 (https://github.com/0fficialSam/gta_6_shorts; satarths1@gmail.com)'}
+        temp_dl = dest_path + ".temp" + os.path.splitext(url)[1]
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, timeout=20) as resp, open(temp_dl, 'wb') as out_f:
+            out_f.write(resp.read())
+
+        if os.path.exists(temp_dl) and os.path.getsize(temp_dl) > 50000:
+            cmd = [
+                ffmpeg, "-y",
+                "-i", temp_dl,
+                "-ar", "44100", "-ac", "2",
+                "-b:a", "192k",
+                dest_path
+            ]
+            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            if os.path.exists(temp_dl):
+                os.remove(temp_dl)
+            return os.path.exists(dest_path) and os.path.getsize(dest_path) > 100000
+    except Exception as e:
+        print(f"  Download warning for {item['filename']}: {e}")
+        if 'temp_dl' in locals() and os.path.exists(temp_dl):
+            try:
+                os.remove(temp_dl)
+            except:
+                pass
+    return False
+
+
+def synth_procedural_track(path: str, style: str = "synthwave", bpm: int = 124, duration: float = 65.0):
     """
-    Synthesizes a high-energy 80s Vice City synthwave gaming beat
-    with punchy kick drum, 80s snare/clap, 16th hats, rolling bassline, and lead arp.
+    Offline fallback synthesizer with 4 genuinely distinct genre arrangements:
+    - synthwave: 80s analog saw bass, 4-on-the-floor kick, gated snare, bright arp
+    - phonk: distorted 808 sub kick, trap snare on 3, pentatonic cowbell stabs
+    - tension: 16th ticking mechanical hats, low 40Hz heartbeat pulse, dark drone
+    - funk: swing groove, slap bass pops, brush snare, warm rhodes chord stabs
     """
     sr = 44100
     total = int(sr * duration)
@@ -73,83 +153,164 @@ def synth_procedural_track(path: str, bpm: int = 124, root_f: float = 73.42, dur
     b_dur = 60.0 / bpm
     bar_dur = b_dur * 4.0
 
-    # 1. 4-on-the-floor punchy kick drum
-    b_phase = (t % b_dur) / b_dur
-    k_env = np.exp(-14.0 * b_phase)
-    k_freq = 150.0 * np.exp(-18.0 * b_phase) + 48.0
-    kick = np.sin(2 * np.pi * k_freq * b_phase * b_dur) * k_env
+    if style == "phonk":
+        # 140 BPM Phonk: Heavy 808 sub kick, snare on beat 3, cowbell melody
+        b_phase = (t % b_dur) / b_dur
+        k_mask = ((t % (2 * b_dur)) < b_dur * 0.4) | (((t % (2 * b_dur)) >= b_dur * 1.5) & ((t % (2 * b_dur)) < b_dur * 1.9))
+        k_env = np.exp(-10.0 * b_phase)
+        k_freq = 95.0 * np.exp(-12.0 * b_phase) + 38.0
+        kick = np.sin(2 * np.pi * k_freq * b_phase * b_dur) * k_env * k_mask * 1.2
+        kick = np.clip(kick * 1.4, -1.0, 1.0)
 
-    # 2. Snare / Clap on beats 2 & 4
-    s_mask = ((t % (2 * b_dur)) >= b_dur) & ((t % (2 * b_dur)) < b_dur * 1.5)
-    s_phase = (t % b_dur) / b_dur
-    noise = (np.random.rand(total) * 2 - 1)
-    s_tone = np.sin(2 * np.pi * 190.0 * s_phase * b_dur) * np.exp(-12.0 * s_phase)
-    s_noise = noise * np.exp(-8.0 * s_phase)
-    snare = (s_tone * 0.4 + s_noise * 0.6) * s_mask
+        s_phase = (t % (2 * b_dur)) / (2 * b_dur)
+        s_mask = (s_phase >= 0.5) & (s_phase < 0.65)
+        sn_sub_phase = ((t % (2 * b_dur)) - b_dur) / b_dur
+        s_noise = (np.random.rand(total) * 2 - 1) * np.exp(-16.0 * np.maximum(sn_sub_phase, 0))
+        snare = s_noise * s_mask * 0.8
 
-    # 3. 16th-note Hi-Hats with rhythmic accents
-    h_dur = b_dur / 4.0
-    h_phase = (t % h_dur) / h_dur
-    h_accent = 1.0 + 0.5 * (((t // h_dur) % 4) == 2)
-    hat = (np.random.rand(total) * 2 - 1) * np.exp(-28.0 * h_phase) * 0.25 * h_accent
+        h_dur = b_dur / 4.0
+        h_phase = (t % h_dur) / h_dur
+        hat = (np.random.rand(total) * 2 - 1) * np.exp(-35.0 * h_phase) * 0.22
 
-    # 4. Driving Bassline (16th-note arpeggiated bass)
-    bass = np.zeros(total)
-    chords = [root_f, root_f * (2**(3/12)), root_f * (2**(5/12)), root_f * (2**(10/12))]
-    for i, rf in enumerate(chords):
-        c_mask = (t % (bar_dur * 4) >= i * bar_dur) & (t % (bar_dur * 4) < (i + 1) * bar_dur)
-        sub_phase = (t % (b_dur / 2.0)) / (b_dur / 2.0)
-        pulse = np.exp(-6.0 * sub_phase)
-        saw = 0.5 * np.sin(2 * np.pi * rf * t) + 0.3 * np.sin(4 * np.pi * rf * t) + 0.15 * np.sin(6 * np.pi * rf * t)
-        bass += saw * pulse * c_mask
+        cowbell = np.zeros(total)
+        cow_notes = [739.99, 880.00, 987.77, 1108.73]
+        step_dur = b_dur / 2.0
+        step_idx = ((t // step_dur) % 8).astype(int)
+        for i, c_freq in enumerate(cow_notes):
+            mask = (step_idx == i * 2)
+            c_phase = (t % step_dur) / step_dur
+            tone = 0.6 * np.sin(2 * np.pi * c_freq * t) + 0.4 * np.sin(2 * np.pi * c_freq * 1.5 * t)
+            cowbell += tone * np.exp(-14.0 * c_phase) * mask * 0.55
 
-    # 5. Synth Lead Arpeggio
-    arp = np.zeros(total)
-    arp_notes = [root_f * 2, root_f * 2.4, root_f * 3, root_f * 3.6]
-    step_dur = b_dur / 2.0
-    step_phase = (t % step_dur) / step_dur
-    for idx, nf in enumerate(arp_notes):
-        step_mask = (t % (b_dur * 2) >= idx * step_dur) & (t % (b_dur * 2) < (idx + 1) * step_dur)
-        lead = np.sin(2 * np.pi * nf * t) * np.exp(-3.5 * step_phase)
-        arp += lead * step_mask * 0.3
+        mix = kick * 0.60 + snare * 0.50 + hat * 0.25 + cowbell * 0.60
 
-    mix = kick * 0.55 + snare * 0.48 + hat * 0.28 + bass * 0.50 + arp * 0.35
+    elif style == "tension":
+        # 136 BPM Heist Suspense: Ominous low drone, heartbeat pulse, clock tick
+        hb_phase = (t % (2 * b_dur)) / (2 * b_dur)
+        k_env = np.exp(-8.0 * hb_phase)
+        kick = np.sin(2 * np.pi * 42.0 * t) * k_env * 0.7
+
+        h_dur = b_dur / 4.0
+        h_phase = (t % h_dur) / h_dur
+        hat = (np.random.rand(total) * 2 - 1) * np.exp(-40.0 * h_phase) * 0.35
+
+        drone_f = 65.41
+        drone = (np.sin(2 * np.pi * drone_f * t) * 0.5 +
+                 np.sin(2 * np.pi * drone_f * 2.01 * t) * 0.3 +
+                 np.sin(2 * np.pi * drone_f * 3.0 * t) * 0.15)
+        drone_swell = 0.5 + 0.5 * np.sin(2 * np.pi * (t / (bar_dur * 4)))
+        drone = drone * drone_swell * 0.65
+
+        ping = np.sin(2 * np.pi * (440.0 + (t % bar_dur) * 120.0) * t) * 0.08
+        mix = kick * 0.50 + hat * 0.35 + drone * 0.55 + ping
+
+    elif style == "funk":
+        # 112 BPM Miami Funk Groove: Swing beat, slap bass plucks, bright chords
+        b_phase = (t % b_dur) / b_dur
+        k_env = np.exp(-16.0 * b_phase)
+        kick = np.sin(2 * np.pi * 55.0 * b_phase * b_dur) * k_env * 0.65
+
+        s_mask = ((t % (2 * b_dur)) >= b_dur) & ((t % (2 * b_dur)) < b_dur * 1.4)
+        s_phase = (t % b_dur) / b_dur
+        snare = (np.random.rand(total) * 2 - 1) * np.exp(-12.0 * s_phase) * s_mask * 0.5
+
+        h_dur = b_dur / 2.0
+        h_phase = (t % h_dur) / h_dur
+        hat = (np.random.rand(total) * 2 - 1) * np.exp(-25.0 * h_phase) * 0.25
+
+        bass = np.zeros(total)
+        funk_chords = [82.41, 98.00, 110.00, 123.47]
+        for i, rf in enumerate(funk_chords):
+            c_mask = (t % (bar_dur * 4) >= i * bar_dur) & (t % (bar_dur * 4) < (i + 1) * bar_dur)
+            b_step = (t % (b_dur / 2.0)) / (b_dur / 2.0)
+            slap = (np.sin(2 * np.pi * rf * t) * 0.6 + np.sin(2 * np.pi * rf * 2 * t) * 0.4) * np.exp(-8.0 * b_step)
+            bass += slap * c_mask * 0.55
+
+        mix = kick * 0.55 + snare * 0.45 + hat * 0.25 + bass * 0.50
+
+    else:
+        # Default: 80s Vice City Synthwave (124 BPM)
+        b_phase = (t % b_dur) / b_dur
+        k_env = np.exp(-14.0 * b_phase)
+        k_freq = 150.0 * np.exp(-18.0 * b_phase) + 48.0
+        kick = np.sin(2 * np.pi * k_freq * b_phase * b_dur) * k_env
+
+        s_mask = ((t % (2 * b_dur)) >= b_dur) & ((t % (2 * b_dur)) < b_dur * 1.5)
+        s_phase = (t % b_dur) / b_dur
+        s_tone = np.sin(2 * np.pi * 190.0 * s_phase * b_dur) * np.exp(-12.0 * s_phase)
+        s_noise = (np.random.rand(total) * 2 - 1) * np.exp(-8.0 * s_phase)
+        snare = (s_tone * 0.4 + s_noise * 0.6) * s_mask
+
+        h_dur = b_dur / 4.0
+        h_phase = (t % h_dur) / h_dur
+        hat = (np.random.rand(total) * 2 - 1) * np.exp(-28.0 * h_phase) * 0.25
+
+        root_f = 73.42
+        bass = np.zeros(total)
+        chords = [root_f, root_f * (2**(3/12)), root_f * (2**(5/12)), root_f * (2**(10/12))]
+        for i, rf in enumerate(chords):
+            c_mask = (t % (bar_dur * 4) >= i * bar_dur) & (t % (bar_dur * 4) < (i + 1) * bar_dur)
+            sub_phase = (t % (b_dur / 2.0)) / (b_dur / 2.0)
+            saw = 0.5 * np.sin(2 * np.pi * rf * t) + 0.3 * np.sin(4 * np.pi * rf * t) + 0.15 * np.sin(6 * np.pi * rf * t)
+            bass += saw * np.exp(-6.0 * sub_phase) * c_mask
+
+        arp = np.zeros(total)
+        arp_notes = [root_f * 2, root_f * 2.4, root_f * 3, root_f * 3.6]
+        step_dur = b_dur / 2.0
+        step_phase = (t % step_dur) / step_dur
+        for idx, nf in enumerate(arp_notes):
+            step_mask = (t % (b_dur * 2) >= idx * step_dur) & (t % (b_dur * 2) < (idx + 1) * step_dur)
+            lead = np.sin(2 * np.pi * nf * t) * np.exp(-3.5 * step_phase)
+            arp += lead * step_mask * 0.3
+
+        mix = kick * 0.55 + snare * 0.48 + hat * 0.28 + bass * 0.50 + arp * 0.35
+
     mix = np.clip(mix * 0.90, -0.95, 0.95)
     raw = (mix * 32767).astype(np.int16)
 
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with wave.open(path, 'w') as wf:
+    temp_wav = path.replace(".mp3", ".wav") if path.endswith(".mp3") else path
+    with wave.open(temp_wav, 'w') as wf:
         wf.setnchannels(1)
         wf.setsampwidth(2)
         wf.setframerate(sr)
         wf.writeframes(raw.tobytes())
-    return path
+
+    if path.endswith(".mp3"):
+        ffmpeg = find_ffmpeg()
+        if ffmpeg:
+            cmd = [ffmpeg, "-y", "-i", temp_wav, "-ar", "44100", "-ac", "2", "-b:a", "192k", path]
+            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            if os.path.exists(temp_wav):
+                os.remove(temp_wav)
+            return path
+    return temp_wav
 
 
 def ensure_music_library():
-    """Ensures a rich library of 4 distinct Vice City tracks is ready."""
+    """Ensures a rich library of 4 completely distinct studio BGM tracks is ready."""
     music_dir = "assets/music"
     os.makedirs(music_dir, exist_ok=True)
-    tracks_spec = [
-        ("vice_city_night_drive.wav", 124, 73.42),
-        ("miami_heist_pulse.wav",     128, 65.41),
-        ("sunset_boulevard.wav",      116, 82.41),
-        ("leonida_action_beat.wav",   130, 55.00),
-    ]
-    for filename, bpm, root_f in tracks_spec:
-        p = os.path.join(music_dir, filename)
-        if not os.path.exists(p) or os.path.getsize(p) < 100000:
-            synth_procedural_track(p, bpm, root_f)
+
+    for item in BGM_CATALOG:
+        dest = os.path.join(music_dir, item["filename"])
+        if not os.path.exists(dest) or os.path.getsize(dest) < 200000:
+            print(f"  Fetching studio BGM: {item['filename']} ({item['genre']})...")
+            ok = download_curated_track(item, dest)
+            if not ok:
+                print(f"  Generating procedural fallback for {item['filename']} ({item['style']})...")
+                synth_procedural_track(dest, style=item["style"], bpm=item["bpm"])
 
 
 def get_bgm_track(seed: str = None) -> str:
-    """Find a background music track in assets/music/, rotating daily."""
+    """Find a background music track in assets/music/, rotating deterministically."""
     music_dir = "assets/music"
     ensure_music_library()
     tracks = (glob_files(music_dir, "*.mp3") +
               glob_files(music_dir, "*.wav") +
               glob_files(music_dir, "*.ogg"))
     tracks = [t for t in tracks if not os.path.basename(t).startswith("test_")]
+    tracks.sort()
 
     if tracks:
         if seed:
@@ -158,7 +319,7 @@ def get_bgm_track(seed: str = None) -> str:
             return tracks[idx]
         return random.choice(tracks)
 
-    return os.path.join(music_dir, "vice_city_night_drive.wav")
+    return os.path.join(music_dir, "vice_city_night_drive.mp3")
 
 
 def glob_files(folder: str, pattern: str) -> list:
@@ -454,8 +615,17 @@ def generate_voiceover(script_data: dict, voice: str = DEFAULT_VOICE, rate: str 
 
     # 4. Mix Background Music
     if enable_music:
-        seed = script_data.get("story", {}).get("title", datetime.now().strftime("%Y-%m-%d"))
-        bgm_track = get_bgm_track(seed=seed)
+        explicit_bgm = script_data.get("bgm_track")
+        if explicit_bgm:
+            if os.path.isabs(explicit_bgm) and os.path.exists(explicit_bgm):
+                bgm_track = explicit_bgm
+            else:
+                cand = os.path.join("assets", "music", os.path.basename(explicit_bgm))
+                bgm_track = cand if os.path.exists(cand) else get_bgm_track(seed=script_data.get("story", {}).get("title"))
+        else:
+            seed = script_data.get("story", {}).get("title", datetime.now().strftime("%Y-%m-%d"))
+            bgm_track = get_bgm_track(seed=seed)
+
         print(f"  Mixing BGM: {os.path.basename(bgm_track)} (audible gaming mix, normalize=0)...")
         mixed = mix_voice_and_bgm(dry_path, bgm_track, final_path, bgm_volume=DEFAULT_BGM_VOL, voice_volume=1.15)
         if mixed and os.path.exists(final_path):

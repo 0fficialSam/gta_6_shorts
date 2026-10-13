@@ -192,8 +192,9 @@ def build_llm_prompt(story: dict, formula_name: str, hook: str, cta: str) -> str
     text   = story.get("text", story.get("summary", ""))[:2500]
     source = story.get("source", "")
     date   = story.get("date", "2026")
+    game_title = story.get("game", "GTA VI") or "GTA VI"
 
-    return f"""You are an elite YouTube Shorts scriptwriter specializing in high-retention gaming content for Grand Theft Auto VI (GTA 6).
+    return f"""You are an elite YouTube Shorts scriptwriter specializing in high-retention gaming content for {game_title}.
 
 VIRAL HOOK FORMULA: {formula_name.upper().replace('_', ' ')}
 MANDATORY OPENING SENTENCE: "{hook}"
@@ -202,7 +203,7 @@ ARTICLE CONTEXT:
 Headline: {title}
 Source: {source} | Date: {date}
 Body details:
-{text if text else "(No full article body available - thoroughly expand on the headline facts and implications for GTA 6 players)"}
+{text if text else f"(No full article body available - thoroughly expand on the headline facts and implications for {game_title} players)"}
 
 MANDATORY CLOSING SENTENCE: "{cta}"
 

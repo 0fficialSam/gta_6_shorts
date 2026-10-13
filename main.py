@@ -62,6 +62,12 @@ def parse_args():
                    help="Path to a video clip (.mp4) to use as background")
     p.add_argument("--no-upload", action="store_true",
                    help="Skip YouTube upload, just save video locally")
+    p.add_argument("--post",      action="store_true",
+                   help="Generate Instagram 4:5 news post card only")
+    p.add_argument("--all",       action="store_true",
+                   help="Generate both YouTube Short video and Instagram 4:5 post card")
+    p.add_argument("--game",      type=str, default="GTA VI",
+                   help="Game title for universal post generator (e.g. 'The Witcher 4', 'Ghost of Yotei', 'Cyberpunk 2077')")
     p.add_argument("--test",      action="store_true",
                    help="Use built-in test story (no internet scraping)")
     return p.parse_args()
@@ -137,14 +143,37 @@ def run_pipeline(args):
         log("  TEST MODE: Using built-in sample story")
 
     else:
-        # ── AUTO MODE: scrape latest GTA 6 news ───────────────────
+        # ── AUTO MODE: scrape latest gaming news ───────────────────
         try:
             from scripts.news_scraper import get_top_story
-            story = get_top_story()
-            log(f"  Scraped: {story['title'][:70]}")
+            game_target = getattr(args, "game", "GTA VI") or "GTA VI"
+            story = get_top_story(game=game_target)
+            log(f"  Scraped ({game_target}): {story['title'][:70]}")
         except Exception as e:
             log(f"  Scraping failed: {e}\n{traceback.format_exc()}")
             sys.exit(1)
+
+    # ── OPTIONAL: GENERATE INSTAGRAM POST ─────────────────────────
+    if getattr(args, "post", False) or getattr(args, "all", False):
+        log("\nGenerating Instagram 4:5 News Post Card...")
+        try:
+            from scripts.instagram_generator import generate_instagram_post
+            game_title = getattr(args, "game", "GTA VI") or "GTA VI"
+            ig_res = generate_instagram_post(
+                headline=story.get("title", ""),
+                summary=story.get("summary", story.get("text", "")[:250]),
+                game_title=game_title,
+                source_credit=story.get("source", "Rockstar Intel")
+            )
+            log(f"  Instagram Post saved: {os.path.abspath(ig_res['image_path'])}")
+            if getattr(args, "post", False):
+                log("\n" + "=" * 60)
+                log(f"DONE (--post for {game_title})! Skipped video rendering.")
+                log(f"  Card : {os.path.abspath(ig_res['image_path'])}")
+                log("=" * 60)
+                return ig_res["image_path"]
+        except Exception as e:
+            log(f"  Instagram card generation error: {e}")
 
     # ── STEP 2: GENERATE SCRIPT ───────────────────────────────────
     log("\nSTEP 2: Generating Script...")
@@ -161,8 +190,8 @@ def run_pipeline(args):
             "GTA 6 Update That Has Everyone Talking Right Now",
         ]
 
-        if args.news:
-            # ── MANUAL: use script exactly as-is, zero rewriting ──
+        if args.news and len(args.news.split()) >= 70:
+            # ── MANUAL FULL SCRIPT: use script exactly as-is, zero rewriting ──
             yt_title    = args.title if args.title else random.choice(YT_TITLES)
             description = (
                 "GTA 6 latest news!\n\n"
@@ -186,7 +215,7 @@ def run_pipeline(args):
             log(f"  Using script as-is: {len(args.news.split())} words")
 
         else:
-            # ── AUTO: generate script from scraped story ───────────
+            # ── AUTO / TOPIC EXPANSION: generate full 50s Short script (120-135 words) ──
             from scripts.script_generator import generate_script
             script_data = generate_script(story)
             if args.title:
@@ -202,7 +231,12 @@ def run_pipeline(args):
     log("\nSTEP 3: Generating Voiceover...")
     try:
         from scripts.voiceover import generate_voiceover
-        audio_path = generate_voiceover(script_data)
+        vo_kwargs = {}
+        if getattr(args, "voice", None):
+            vo_kwargs["voice"] = args.voice
+        if getattr(args, "bgm_track", None):
+            script_data["bgm_track"] = args.bgm_track
+        audio_path = generate_voiceover(script_data, **vo_kwargs)
         log(f"  Audio saved: {audio_path}")
     except Exception as e:
         log(f"  Voiceover failed: {e}\n{traceback.format_exc()}")
