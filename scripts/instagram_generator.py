@@ -134,17 +134,18 @@ def find_highlight_spans(text: str, custom_keywords: list = None) -> list:
 
 
 def get_available_screenshots(base_dir: str = None) -> list:
-    """Collects all 4K screenshots available in the assets directory."""
+    """Collects all 4K screenshots available in the assets directory, including game subfolders."""
     if not base_dir:
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     shot_dir = os.path.join(base_dir, "assets", "backgrounds")
     if not os.path.exists(shot_dir):
         return []
     valid_exts = {".jpg", ".jpeg", ".png", ".webp"}
-    shots = [
-        os.path.join(shot_dir, f) for f in os.listdir(shot_dir)
-        if os.path.splitext(f)[1].lower() in valid_exts
-    ]
+    shots = []
+    for root, _, files in os.walk(shot_dir):
+        for f in files:
+            if os.path.splitext(f)[1].lower() in valid_exts:
+                shots.append(os.path.join(root, f))
     return sorted(shots)
 
 
@@ -357,7 +358,9 @@ def generate_instagram_post(
     source_credit: str = "ROCKSTAR INTEL",
     creator_handle: str = None,
     custom_keywords: list = None,
-    theme_name: str = "vice"
+    theme_name: str = "vice",
+    focal_x: float = None,
+    focal_y: float = None
 ) -> dict:
     """
     Generates a complete, ready-to-post 4:5 Instagram feed post image for ANY video game.
@@ -410,7 +413,12 @@ def generate_instagram_post(
         bg_img = Image.open(background_path).convert("RGB")
         # Check focal point
         fname = os.path.basename(background_path)
-        fx, fy = FOCAL_POINTS.get(fname, (0.5, 0.45))
+        if focal_x is not None and focal_y is not None:
+            fx, fy = float(focal_x), float(focal_y)
+        elif fname in FOCAL_POINTS:
+            fx, fy = FOCAL_POINTS[fname]
+        else:
+            fx, fy = detect_focal_point(bg_img)
         base_canvas = crop_to_4_5(bg_img, fx, fy)
     else:
         # Fallback dark gradient canvas

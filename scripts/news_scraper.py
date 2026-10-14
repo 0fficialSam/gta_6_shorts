@@ -437,20 +437,25 @@ def scrape_feeds(game: str = "GTA VI") -> list:
 
                 seen_urls.add(url)
                 now_dt = datetime.now()
+                dt = parse_date(entry)
+                pub_ts = dt.timestamp() if dt else now_dt.timestamp()
+
                 raw_stories.append({
-                    'title':        title,
-                    'raw_title':    raw_title,
-                    'url':          url,
-                    'score':        score_headline(title, cfg),
-                    'source':       feed_info['name'],
-                    'priority':     feed_info.get('priority', 2),
-                    'summary':      summary,
-                    'text':         '',
-                    'date':         get_date_str(entry),
-                    'scraped_at':   now_dt.strftime('%b %d, %Y, %I:%M %p'),
-                    'scraped_time': now_dt.strftime('%I:%M %p'),
-                    'game':         cfg['title'],
-                    'upvotes':      0,
+                    'title':               title,
+                    'raw_title':           raw_title,
+                    'url':                 url,
+                    'score':               score_headline(title, cfg),
+                    'source':              feed_info['name'],
+                    'priority':            feed_info.get('priority', 2),
+                    'summary':             summary,
+                    'text':                '',
+                    'date':                get_date_str(entry),
+                    'published_timestamp': pub_ts,
+                    'scraped_timestamp':   now_dt.timestamp(),
+                    'scraped_at':          now_dt.strftime('%b %d, %Y, %I:%M %p'),
+                    'scraped_time':        now_dt.strftime('%I:%M %p'),
+                    'game':                cfg['title'],
+                    'upvotes':             0,
                 })
                 count += 1
 
@@ -597,8 +602,32 @@ GAME_FALLBACK_STORIES = {
 FALLBACKS = GAME_FALLBACK_STORIES["GTA VI"]
 
 
+def sort_stories_chronological(stories: list) -> list:
+    """Sorts stories so latest news appears first (at the top) and oldest down."""
+    if not stories:
+        return stories
+
+    def _story_key(s):
+        pub = s.get('published_timestamp')
+        if pub is None:
+            raw_date = s.get('date', '')
+            for fmt in ['%b %d, %Y, %I:%M %p', '%b %d, %Y', '%Y-%m-%d', '%b %d, %Y • %I:%M %p']:
+                try:
+                    pub = datetime.strptime(raw_date, fmt).timestamp()
+                    break
+                except Exception:
+                    pass
+        if pub is None:
+            pub = 0
+        scraped = s.get('scraped_timestamp', 0)
+        score = s.get('score', 0)
+        return (pub, scraped, score)
+
+    return sorted(stories, key=_story_key, reverse=True)
+
+
 def get_game_stories(game: str = "GTA VI", refresh: bool = False) -> list:
-    """Returns cached or live scraped stories for ANY specified game."""
+    """Returns cached or live scraped stories for ANY specified game, sorted latest first."""
     cfg = get_game_search_config(game)
     os.makedirs("assets", exist_ok=True)
     cache_file = os.path.join("assets", f"stories_{cfg['slug']}.json")
@@ -617,6 +646,18 @@ def get_game_stories(game: str = "GTA VI", refresh: bool = False) -> list:
                 s['scraped_at'] = def_at
             if not s.get('scraped_time'):
                 s['scraped_time'] = def_time
+            if not s.get('published_timestamp'):
+                raw_date = s.get('date', '')
+                for fmt in ['%b %d, %Y, %I:%M %p', '%b %d, %Y', '%Y-%m-%d']:
+                    try:
+                        s['published_timestamp'] = datetime.strptime(raw_date, fmt).timestamp()
+                        break
+                    except Exception:
+                        pass
+                if not s.get('published_timestamp'):
+                    s['published_timestamp'] = f_dt.timestamp()
+            if not s.get('scraped_timestamp'):
+                s['scraped_timestamp'] = f_dt.timestamp()
         return story_list
 
     # For GTA VI also check today_stories.json
@@ -626,7 +667,7 @@ def get_game_stories(game: str = "GTA VI", refresh: bool = False) -> list:
             with open(today_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 if data and len(data) > 0:
-                    return _ensure_timestamps(data, today_file)
+                    return sort_stories_chronological(_ensure_timestamps(data, today_file))
         except Exception: pass
 
     # Check cache freshness (valid for 3 hours)
@@ -637,7 +678,7 @@ def get_game_stories(game: str = "GTA VI", refresh: bool = False) -> list:
                 with open(cache_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
                     if data and len(data) > 0:
-                        return _ensure_timestamps(data, cache_file)
+                        return sort_stories_chronological(_ensure_timestamps(data, cache_file))
         except Exception: pass
 
     # Scrape fresh
@@ -645,8 +686,7 @@ def get_game_stories(game: str = "GTA VI", refresh: bool = False) -> list:
     unique = deduplicate_stories(raw)
 
     if unique:
-        unique.sort(key=lambda x: (x.get('priority', 2), -x.get('score', 0)))
-        stories_to_save = unique[:15]
+        stories_to_save = sort_stories_chronological(unique)[:15]
     else:
         # Fallback to curated presets
         preset = None
@@ -666,7 +706,7 @@ def get_game_stories(game: str = "GTA VI", refresh: bool = False) -> list:
                     "text": f"Development reports confirm {cfg['title']} reaches key milestone with gameplay polish and console optimization. Insiders project major announcements soon."
                 }
             ]
-        stories_to_save = _ensure_timestamps(preset)
+        stories_to_save = sort_stories_chronological(_ensure_timestamps(preset))
 
     # Write cache
     try:
@@ -700,7 +740,7 @@ def get_top_story(game: str = "GTA VI") -> dict:
             story['game'] = cfg['title']
             return story
 
-    fresh.sort(key=lambda x: (x.get('priority', 2), -x.get('score', 0)))
+    fresh = sort_stories_chronological(fresh)
 
     story = None
     for candidate in fresh[:5]:
