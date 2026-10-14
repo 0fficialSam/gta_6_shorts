@@ -757,65 +757,149 @@ def detect_focal_point(img: Image.Image) -> tuple:
 
 
 # ── DYNAMIC 4K IMAGE BACKGROUND ENGINE (KEN BURNS & DAILY VARIETY) ───────────
+def score_image_for_sentence(fname: str, text: str, game_title: str = "GTA VI") -> int:
+    """Calculates semantic relevance score of an image filename against a sentence/hook text."""
+    fn = fname.lower()
+    t = text.lower()
+    score = 0
+
+    # 1. Duo Lucia & Jason
+    has_duo = ("lucia" in t and "jason" in t) or any(w in t for w in ["duo", "partners", "couple", "both", "two protagonists"])
+    if has_duo:
+        if "jason_and_lucia" in fn: score += 120
+        elif "trailer_29" in fn: score += 95
+        elif "lucia" in fn and "jason" in fn: score += 100
+        elif "lucia" in fn or "jason" in fn: score += 30
+
+    # 2. Solo Lucia
+    elif any(w in t for w in ["lucia", "female", "woman", "girl"]) and "jason" not in t:
+        if "lucia_caminos" in fn: score += 120
+        elif any(k in fn for k in ["trailer_02", "trailer_03", "trailer_05", "trailer_16"]): score += 95
+        elif "lucia" in fn and "jason" not in fn: score += 80
+
+    # 3. Solo Jason
+    elif any(w in t for w in ["jason", "male", "guy"]) and "lucia" not in t:
+        if "jason_duval" in fn: score += 120
+        elif "trailer_20" in fn: score += 95
+        elif "jason" in fn and "lucia" not in fn: score += 80
+
+    # 4. Heist & Robberies
+    if any(w in t for w in ["heist", "robbery", "store", "cash", "money", "rob", "convenience", "register"]):
+        if any(k in fn for k in ["stock_305", "trailer_31", "trailer_32", "trailer_34"]): score += 110
+
+    # 5. Police, Chases & Law Enforcement
+    if any(w in t for w in ["cop", "police", "arrest", "jail", "prison", "siren", "wanted", "pursuit", "bodycam", "cctv"]):
+        if any(k in fn for k in ["police", "cop", "trailer_01", "trailer_04", "trailer_11", "trailer_14", "trailer_33"]): score += 105
+
+    # 6. Vehicles, Supercars & Speed
+    if any(w in t for w in ["car", "vehicle", "drive", "physics", "supercar", "cheetah", "lowrider", "drift", "racing", "speed", "bike", "motorcycle", "custom"]):
+        if any(k in fn for k in ["cheetah", "grotti", "ambrosia", "ganado", "stanier", "trailer_17", "trailer_18", "trailer_22"]): score += 100
+
+    # 7. Beach, Ocean & Yachts
+    if any(w in t for w in ["beach", "bikini", "ocean", "coast", "water", "yacht", "boat", "sea", "dolphins"]):
+        if any(k in fn for k in ["beach", "trailer_06", "trailer_07", "trailer_12", "trailer_14", "squalo"]): score += 95
+
+    # 8. Nightlife & Neon
+    if any(w in t for w in ["night", "neon", "club", "strip", "skyline", "party", "lights", "evening"]):
+        if any(k in fn for k in ["night", "neon", "trailer_19", "trailer_28", "trailer_30"]): score += 95
+
+    # 9. Swamps, Everglades & Weather
+    if any(w in t for w in ["swamp", "alligator", "everglades", "nature", "weather", "hurricane", "flood", "rain", "storm", "wetlands"]):
+        if any(k in fn for k in ["swamp", "alligator", "grassrivers", "trailer_10", "trailer_11", "trailer_25"]): score += 95
+
+    # Non-GTA games matching:
+    # Wolverine
+    if any(w in t for w in ["claw", "adamantium", "combat", "fight", "weapon x"]):
+        if any(k in fn for k in ["claw", "combat", "fight"]): score += 100
+    if any(w in t for w in ["bar", "madripoor", "princess", "patch", "jean"]):
+        if any(k in fn for k in ["bar", "princess", "madripoor"]): score += 100
+
+    # Ghost of Yotei
+    if any(w in t for w in ["katana", "sword", "dual"]):
+        if any(k in fn for k in ["katana", "sword", "combat"]): score += 100
+    if any(w in t for w in ["yotei", "mountain", "snow", "hokkaido", "landscape", "feudal"]):
+        if any(k in fn for k in ["mountain", "yotei", "landscape", "snow"]): score += 100
+
+    # Witcher 4
+    if any(w in t for w in ["lynx", "school", "medallion"]):
+        if any(k in fn for k in ["lynx", "medallion"]): score += 100
+    if any(w in t for w in ["monster", "combat", "sword"]):
+        if any(k in fn for k in ["monster", "combat"]): score += 100
+
+    # Cyberpunk
+    if any(w in t for w in ["night city", "neon", "cyber"]):
+        if any(k in fn for k in ["night", "city", "neon"]): score += 100
+    if any(w in t for w in ["car", "vehicle", "drive"]):
+        if any(k in fn for k in ["car", "vehicle"]): score += 100
+
+    return score
+
+
 class DynamicImageBackgroundEngine:
     """
     Renders authentic 4K GTA 6 screenshots with cinematic camera motion:
     - Hybrid Framing Mode:
         * Portrait / character close-ups -> Full-screen 9:16 crop with subject-anchored tracking
         * Wide foreground shots (counters, vehicles, duos) -> Smart Pillarbox Blur so 100% of the scene is visible
-    - Smart story-aware shot curation across all 98 4K assets (characters, world, vehicles)
+    - Smart script-aware shot curation across all 98 4K assets (characters, world, vehicles)
+    - Sentence-by-sentence narrative progression matching voiceover topic
     - Organic shot durations (3.8s - 4.6s) giving ample breathing room for visual storytelling
     - 4 Subject-anchored camera patterns: Hero Push-In, Hero Pull-Back, Foreground Reveal Sweep, Tracking Drift
     - Ultra-fast startup & render: pre-blurs background proxies once in <0.2s for >30 FPS render speed
     """
-    def __init__(self, image_paths: list, seed: str = None, story_text: str = "", max_shots: int = 16):
+    def __init__(self, image_paths: list, seed: str = None, story_text: str = "", max_shots: int = 16, hero_image: str = None, sentences: list = None, game_title: str = "GTA VI"):
         self.images = []
         self.focal_points = []
         self.is_wide = []
         self.blurred_bgs = []
         rng = random.Random(seed) if seed else random.Random()
 
-        # Story-aware shot curation from the 98-image library
-        shuffled = list(image_paths)
-        rng.shuffle(shuffled)
+        # Parse sentences if not supplied
+        if not sentences:
+            sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', story_text) if s.strip()]
+        if not sentences:
+            sentences = [story_text[:80]] if story_text else ["GTA 6 News"]
 
         selected_paths = []
         seen = set()
-        text_lower = (story_text or "").lower()
 
-        def add_matching(keyword_predicate, limit=4):
-            added = 0
-            for p in shuffled:
-                fname = os.path.basename(p).lower()
-                if p not in seen and keyword_predicate(fname):
-                    selected_paths.append(p)
-                    seen.add(p)
-                    added += 1
-                    if added >= limit:
-                        break
+        # Phase 1: Sentence-by-Sentence Script-Driven Curation
+        # For each sentence (starting with the Opening Hook sentence 0), score and select top matching shots
+        for s in sentences:
+            if len(selected_paths) >= max_shots:
+                break
+            candidates = []
+            for p in image_paths:
+                if p not in seen:
+                    fname = os.path.basename(p)
+                    sc = score_image_for_sentence(fname, s, game_title)
+                    if sc > 0:
+                        candidates.append((sc, p))
 
-        # Priority 1: Match scenes to story topic
-        if any(w in text_lower for w in ["lucia", "female", "protagonist", "woman", "girl"]):
-            add_matching(lambda f: "lucia" in f, 4)
-        if "jason" in text_lower:
-            add_matching(lambda f: "jason" in f, 4)
-        if any(w in text_lower for w in ["car", "vehicle", "drive", "race", "speed", "custom"]):
-            add_matching(lambda f: any(k in f for k in ["car", "cheetah", "ganado", "stanier", "squalo", "customs", "trailer_17", "trailer_18", "trailer_22"]), 4)
-        if any(w in text_lower for w in ["map", "city", "location", "world", "lake", "swamp", "beach", "vice"]):
-            add_matching(lambda f: any(k in f for k in ["vice", "keys", "kalaga", "gellhorn", "grassrivers", "ambrosia", "trailer_01", "trailer_07", "trailer_10"]), 4)
-        if any(w in text_lower for w in ["heist", "robbery", "crime", "police", "cop", "bodycam", "prison"]):
-            add_matching(lambda f: any(k in f for k in ["heist", "prison", "caminos_05", "trailer_02", "trailer_03", "trailer_04", "trailer_05", "trailer_33", "trailer_34"]), 4)
+            if candidates:
+                candidates.sort(key=lambda x: x[0], reverse=True)
+                top_score = candidates[0][0]
+                # Pick randomly among top-tier candidate matches for genuine variety across videos!
+                top_tier = [p for sc, p in candidates if sc >= top_score - 25]
+                chosen = rng.choice(top_tier)
+                selected_paths.append(chosen)
+                seen.add(chosen)
 
-        # Priority 2: Fill remaining scenes with a diverse mix from shuffled pool
-        for p in shuffled:
-            if p not in seen:
+        # Phase 2: Fill remaining scene slots to reach max_shots (~14-16 scenes) with diverse shots from pool
+        if len(selected_paths) < max_shots:
+            remaining = [p for p in image_paths if p not in seen]
+            rng.shuffle(remaining)
+            for p in remaining:
                 selected_paths.append(p)
                 seen.add(p)
                 if len(selected_paths) >= max_shots:
                     break
 
-        # Weave selected shots so matching scenes are spread evenly
-        rng.shuffle(selected_paths)
+        # If hero_image was explicitly provided (e.g. via CLI flag), position it at 0
+        if hero_image and os.path.exists(hero_image):
+            if hero_image in selected_paths:
+                selected_paths.remove(hero_image)
+            selected_paths.insert(0, hero_image)
 
         # Load and prepare shots with Hybrid Framing support
         for p in selected_paths:
@@ -1220,55 +1304,99 @@ def get_audio_duration(ffmpeg, audio_path):
 
 
 # ── MAIN VIDEO ASSEMBLER ───────────────────────────────────────────────────────
-def assemble_video(script_data: dict, audio_path: str, clip_override: str = None) -> str:
-    print("Assembling GTA 6 Short...")
+def assemble_video(script_data: dict, audio_path: str, clip_override: str = None,
+                   hero_image: str = None, progress_cb=None) -> str:
+    print("Assembling Short Video...")
 
     if not os.path.exists(audio_path):
         alt = audio_path.replace(".mp3", ".wav") if ".mp3" in audio_path else audio_path.replace(".wav", ".mp3")
         if os.path.exists(alt):
             audio_path = alt
         else:
-            print(f"ERROR: Audio not found: {audio_path}")
-            sys.exit(1)
+            raise FileNotFoundError(f"Audio not found: {audio_path}")
 
     ffmpeg = find_ffmpeg()
     if not ffmpeg:
-        print("ERROR: ffmpeg not found. Run: pip install imageio-ffmpeg")
-        sys.exit(1)
+        raise RuntimeError("ffmpeg not found. Run: pip install imageio-ffmpeg")
 
     # 1. Resolve background source
     clip_path, bg_imgs, bg_source = None, [], "generate"
+    
+    # Check if clip_override is an image or video
     if clip_override and os.path.exists(clip_override):
-        clip_path, bg_source = clip_override, "clip"
-        print(f"  BG: your clip -> {clip_path}")
-    else:
+        ext = os.path.splitext(clip_override)[1].lower()
+        if ext in [".mp4", ".mov", ".mkv", ".webm", ".avi"]:
+            clip_path = clip_override
+            bg_source = "clip"
+            print(f"  BG: your video clip -> {clip_path}")
+        elif ext in [".jpg", ".jpeg", ".png", ".webp"]:
+            # It's an image! Use as hero_image for dynamic image sequence
+            hero_image = clip_override
+            clip_path = None
+            bg_source = "images"
+            print(f"  BG: custom hero image -> {hero_image}")
+
+    if not clip_path and not hero_image:
         clips = glob.glob("assets/clips/*.mp4") + glob.glob("assets/clips/*.mov")
         if clips:
             clip_path, bg_source = clips[0], "clip"
             print(f"  BG: clip from assets/clips/ -> {clip_path}")
+
+    if bg_source == "images" or not clip_path:
+        # Determine target game
+        game_title = script_data.get("game", "") or script_data.get("story", {}).get("game", "") or "GTA VI"
+        try:
+            from scripts.game_image_fetcher import get_game_slug
+            game_slug = get_game_slug(game_title)
+        except Exception:
+            game_slug = "gta_vi"
+
+        extensions = ["*.jpg", "*.jpeg", "*.png", "*.webp"]
+        imgs = []
+        
+        # 1. First check game-specific backgrounds directory
+        if game_slug:
+            game_bg_dir = Path("assets/backgrounds") / game_slug
+            if game_bg_dir.exists():
+                for ext in extensions:
+                    imgs.extend(game_bg_dir.glob(ext))
+
+        # 2. Also check root assets/backgrounds directory
+        for ext in extensions:
+            imgs.extend(Path("assets/backgrounds").glob(ext))
+
+        # Deduplicate while preserving order
+        seen_paths = set()
+        deduped_imgs = []
+        for p in imgs:
+            sp = str(p.resolve()) if hasattr(p, "resolve") else str(p)
+            if sp not in seen_paths:
+                seen_paths.add(sp)
+                deduped_imgs.append(str(p))
+
+        if hero_image and os.path.exists(hero_image):
+            h_resolved = str(Path(hero_image).resolve())
+            if h_resolved not in seen_paths:
+                deduped_imgs.insert(0, hero_image)
+
+        if deduped_imgs:
+            bg_imgs = deduped_imgs
+            bg_source = "images"
+            print(f"  BG: {len(bg_imgs)} background image(s) loaded for {game_title}")
         else:
-            extensions = ["*.jpg", "*.jpeg", "*.png", "*.webp"]
-            imgs = []
-            for ext in extensions:
-                imgs.extend(Path("assets/backgrounds").glob(ext))
-            if imgs:
-                bg_imgs = [str(p) for p in imgs]
-                bg_source = "images"
-                print(f"  BG: {len(bg_imgs)} background image(s)")
-            else:
-                try:
-                    from scripts.background_fetcher import fetch_backgrounds
-                    fetch_backgrounds()
-                    imgs = list(Path("assets/backgrounds").glob("*.jpg"))
-                    if imgs:
-                        bg_imgs = [str(p) for p in imgs]
-                        bg_source = "images"
-                        print(f"  BG: downloaded {len(bg_imgs)} images")
-                    else:
-                        bg_source = "generate"
-                except Exception as e:
-                    print(f"  BG: fallback to procedural scene ({e})")
+            try:
+                from scripts.background_fetcher import fetch_backgrounds
+                fetch_backgrounds()
+                imgs = list(Path("assets/backgrounds").glob("*.jpg"))
+                if imgs:
+                    bg_imgs = [str(p) for p in imgs]
+                    bg_source = "images"
+                    print(f"  BG: downloaded {len(bg_imgs)} images")
+                else:
                     bg_source = "generate"
+            except Exception as e:
+                print(f"  BG: fallback to procedural scene ({e})")
+                bg_source = "generate"
 
     if bg_source == "generate":
         print("  BG: procedural Vice City night scene")
@@ -1299,6 +1427,8 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
     if subtitles_timing:
         print(f"  Subtitles: using {len(subtitles_timing)} speech-synchronized timestamps")
 
+    if progress_cb:
+        progress_cb("Preparing kinetic dynamic captions...", 62)
     kinetic_chunks = prepare_kinetic_chunks(subtitles_timing, raw, audio_dur, COVER_DUR)
     print(f"  Kinetic Subtitles: {len(kinetic_chunks)} animated chunks ready (1:1 speech-synced)")
 
@@ -1335,9 +1465,9 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
         stderr=subprocess.PIPE
     )
 
-    # 4. Initialize resources & daily aesthetic theme
-    daily_seed = f"{datetime.now().strftime('%Y-%m-%d')}_{story_title}"
-    theme = get_daily_theme(daily_seed)
+    # 4. Initialize resources & aesthetic theme
+    run_seed = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{story_title}_{random.randint(100, 999)}"
+    theme = get_daily_theme(run_seed)
     creator_handle = get_creator_handle()
     print(f"  Daily Visual Theme: {theme['name']}")
     print(f"  Creator Branding: {creator_handle}")
@@ -1348,12 +1478,16 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
 
     dynamic_img_engine = None
     if bg_source == "images" and bg_imgs:
-        dynamic_img_engine = DynamicImageBackgroundEngine(bg_imgs, seed=daily_seed, story_text=raw)
-        print(f"  BG: dynamic 4K GTA 6 engine active ({len(dynamic_img_engine.images)} curated scenes from {len(bg_imgs)} library, daily shuffle & cuts)")
+        dynamic_img_engine = DynamicImageBackgroundEngine(
+            bg_imgs, seed=run_seed, story_text=raw, max_shots=16, hero_image=hero_image, sentences=sentences, game_title=game_title
+        )
+        print(f"  BG: dynamic script-curated 4K engine active ({len(dynamic_img_engine.images)} shots from {len(bg_imgs)} library, matched to script sentences)")
 
     proc_engine = ProceduralBackgroundEngine() if bg_source == "generate" or not (bg_reader or dynamic_img_engine) else None
 
     print(f"  Rendering stream directly to FFmpeg...")
+    if progress_cb:
+        progress_cb("Rendering frames via FFmpeg stdin pipe...", 68)
     start_time = time.time()
 
     try:
@@ -1398,6 +1532,9 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
                 eta = (total_frames - (i + 1)) / max(fps_render, 0.001)
                 bar = '#' * (pct // 5) + '.' * (20 - pct // 5)
                 print(f"  [{bar}] {pct}% | {fps_render:.1f} fps | ETA: {eta:.0f}s", end="\r", flush=True)
+                if progress_cb and ((i % (FPS * 3) == 0) or (i == total_frames - 1)):
+                    overall_pct = 70 + int(pct * 0.25)
+                    progress_cb(f"Rendering frame {i+1}/{total_frames} ({pct}%) | {fps_render:.1f} fps", overall_pct)
 
     finally:
         if bg_reader:
@@ -1408,12 +1545,16 @@ def assemble_video(script_data: dict, audio_path: str, clip_override: str = None
             except:
                 pass
 
+    if progress_cb:
+        progress_cb("Finalizing video encoding & faststart muxing...", 97)
+
     _, stderr_err = pipe_out.communicate()
     total_time = time.time() - start_time
 
     if pipe_out.returncode != 0:
-        print(f"\nFFmpeg error:\n{stderr_err.decode(errors='replace')[-1500:]}")
-        sys.exit(1)
+        err_msg = stderr_err.decode(errors='replace')[-1500:]
+        print(f"\nFFmpeg error:\n{err_msg}")
+        raise RuntimeError(f"FFmpeg render error: {err_msg}")
 
     size_mb = os.path.getsize(output_path) / (1024 * 1024)
     print(f"\n  Done in {total_time:.1f}s ({total_frames / max(total_time, 0.1):.1f} fps)! Output: {output_path} ({size_mb:.1f} MB)")

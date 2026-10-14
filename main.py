@@ -60,6 +60,8 @@ def parse_args():
                    help="Cover card headline + YouTube title. Defaults to first sentence of --news.")
     p.add_argument("--clip",      type=str, default=None,
                    help="Path to a video clip (.mp4) to use as background")
+    p.add_argument("--image",     type=str, default=None,
+                   help="Path to hero background image (.jpg/.png) for dynamic sequence")
     p.add_argument("--no-upload", action="store_true",
                    help="Skip YouTube upload, just save video locally")
     p.add_argument("--post",      action="store_true",
@@ -82,7 +84,7 @@ def extract_headline(script_text: str, max_len: int = 80) -> str:
     return first[:max_len].rsplit(' ', 1)[0] + "..."
 
 
-def run_pipeline(args):
+def run_pipeline(args, progress_cb=None):
     cfg = get_config()
     tts_v = cfg.get("tts", {}).get("voice", "en-US-ChristopherNeural")
     launch_d = cfg.get("target_release_date", "2026-11-19")
@@ -93,12 +95,15 @@ def run_pipeline(args):
     log(f"  Voice Engine  : {tts_v}")
     log(f"  --news        : {(args.news[:60] + '...') if args.news else '(auto-scrape)'}")
     log(f"  --title       : {args.title or '(auto from first sentence of --news)'}")
-    log(f"  --clip        : {args.clip or '(auto)'}")
+    log(f"  --clip        : {getattr(args, 'clip', None) or '(auto)'}")
+    log(f"  --image       : {getattr(args, 'image', None) or getattr(args, 'hero_image', None) or '(auto)'}")
     log(f"  --upload      : {not args.no_upload}")
     log("=" * 60)
 
     # ── STEP 1: GET NEWS / SCRIPT ──────────────────────────────────
     log("\nSTEP 1: Getting GTA 6 News...")
+    if progress_cb:
+        progress_cb("Retrieving story headline & summary...", 12)
 
     if args.news:
         # ── MANUAL MODE ───────────────────────────────────────────
@@ -151,7 +156,7 @@ def run_pipeline(args):
             log(f"  Scraped ({game_target}): {story['title'][:70]}")
         except Exception as e:
             log(f"  Scraping failed: {e}\n{traceback.format_exc()}")
-            sys.exit(1)
+            raise RuntimeError(f"News scraping failed: {e}")
 
     # ── OPTIONAL: GENERATE INSTAGRAM POST ─────────────────────────
     if getattr(args, "post", False) or getattr(args, "all", False):
@@ -177,6 +182,8 @@ def run_pipeline(args):
 
     # ── STEP 2: GENERATE SCRIPT ───────────────────────────────────
     log("\nSTEP 2: Generating Script...")
+    if progress_cb:
+        progress_cb("Generating script & viral hook structure...", 28)
     try:
         YT_TITLES = [
             "GTA 6 JUST CHANGED EVERYTHING",
@@ -211,6 +218,7 @@ def run_pipeline(args):
                     "GamingShorts", "Shorts",
                 ]),
                 "method": "Manual (user provided)",
+                "game": getattr(args, "game", "GTA VI") or "GTA VI",
             }
             log(f"  Using script as-is: {len(args.news.split())} words")
 
@@ -220,15 +228,18 @@ def run_pipeline(args):
             script_data = generate_script(story)
             if args.title:
                 script_data["title"] = args.title
+            script_data["game"] = getattr(args, "game", "GTA VI") or "GTA VI"
 
         log(f"  Script ready: {len(script_data['script'].split())} words via {script_data['method']}")
 
     except Exception as e:
         log(f"  Script generation failed: {e}\n{traceback.format_exc()}")
-        sys.exit(1)
+        raise RuntimeError(f"Script generation failed: {e}")
 
     # ── STEP 3: VOICEOVER ─────────────────────────────────────────
     log("\nSTEP 3: Generating Voiceover...")
+    if progress_cb:
+        progress_cb("Synthesizing neural voiceover & word timestamps...", 45)
     try:
         from scripts.voiceover import generate_voiceover
         vo_kwargs = {}
@@ -240,24 +251,34 @@ def run_pipeline(args):
         log(f"  Audio saved: {audio_path}")
     except Exception as e:
         log(f"  Voiceover failed: {e}\n{traceback.format_exc()}")
-        sys.exit(1)
+        raise RuntimeError(f"Voiceover synthesis failed: {e}")
 
-    # ── STEP 4: RESOLVE BACKGROUND CLIP ──────────────────────────
+    # ── STEP 4: RESOLVE BACKGROUND CLIP / IMAGES ──────────────────
     log("\nSTEP 4: Resolving Background...")
+    if progress_cb:
+        progress_cb("Resolving background visual assets...", 58)
     clip_path = None
+    hero_image = getattr(args, "hero_image", None) or getattr(args, "image", None)
 
-    if args.clip:
-        if not os.path.exists(args.clip):
-            log(f"  WARNING: Clip not found at '{args.clip}' — using auto background")
+    if getattr(args, "clip", None):
+        cand_clip = args.clip
+        ext = os.path.splitext(cand_clip)[1].lower()
+        if ext in [".jpg", ".jpeg", ".png", ".webp"]:
+            hero_image = cand_clip
+            log(f"  Note: --clip '{args.clip}' is an image. Using as hero image for dynamic sequence.")
+        elif not os.path.exists(cand_clip):
+            log(f"  WARNING: Clip not found at '{cand_clip}' — using auto background")
         else:
-            dest = os.path.join("assets/clips", os.path.basename(args.clip))
+            dest = os.path.join("assets/clips", os.path.basename(cand_clip))
             if not os.path.exists(dest):
-                shutil.copy2(args.clip, dest)
+                shutil.copy2(cand_clip, dest)
                 log(f"  Copied clip to: {dest}")
             clip_path = dest
-            log(f"  Using custom clip: {args.clip}")
+            log(f"  Using custom clip: {cand_clip}")
+    elif hero_image:
+        log(f"  Using custom hero image: {hero_image}")
     else:
-        log("  No clip provided — using auto background")
+        log("  No clip or hero image provided — using auto dynamic backgrounds")
 
     # ── STEP 5: ASSEMBLE VIDEO ────────────────────────────────────
     log("\nSTEP 5: Assembling Video...")
@@ -268,11 +289,16 @@ def run_pipeline(args):
             if os.path.exists(alt):
                 audio_path = alt
 
-        video_path = assemble_video(script_data, audio_path, clip_override=clip_path)
+        video_path = assemble_video(
+            script_data, audio_path,
+            clip_override=clip_path,
+            hero_image=hero_image,
+            progress_cb=progress_cb
+        )
         log(f"  Video created: {video_path}")
     except Exception as e:
         log(f"  Video assembly failed: {e}\n{traceback.format_exc()}")
-        sys.exit(1)
+        raise RuntimeError(f"Video assembly failed: {e}")
 
     # ── STEP 6: UPLOAD ────────────────────────────────────────────
     log("\nSTEP 6: YouTube Upload...")
@@ -287,6 +313,9 @@ def run_pipeline(args):
         except Exception as e:
             log(f"  Upload failed: {e}")
             log(f"  Video saved locally: {video_path}")
+
+    if progress_cb:
+        progress_cb("Complete! Short video ready.", 100)
 
     log("\n" + "=" * 60)
     log("DONE!")
