@@ -305,10 +305,16 @@ def api_generate_instagram(request):
     # Visual background selection
     background_filename = body.get("background_filename", None)
     background_path = body.get("background_path", None)
+    focal_x = body.get("focal_x", None)
+    focal_y = body.get("focal_y", None)
     if background_filename:
         clean_bg = os.path.normpath(background_filename).replace('\\', '/').lstrip('/')
         if '..' not in clean_bg:
             cand_path = (ASSETS_DIR / "backgrounds" / clean_bg).resolve()
+            if not cand_path.exists():
+                matches = list((ASSETS_DIR / "backgrounds").glob(f"**/{os.path.basename(clean_bg)}"))
+                if matches:
+                    cand_path = matches[0].resolve()
             if cand_path.exists() and str(cand_path).startswith(str((ASSETS_DIR / "backgrounds").resolve())):
                 background_path = str(cand_path)
 
@@ -329,7 +335,9 @@ def api_generate_instagram(request):
             background_path=background_path,
             source_credit=source_credit,
             custom_keywords=custom_keywords,
-            theme_name=theme_name
+            theme_name=theme_name,
+            focal_x=focal_x,
+            focal_y=focal_y
         )
         fname = os.path.basename(res["image_path"])
         res["image_url"] = f"/media/{fname}"
@@ -495,6 +503,10 @@ def api_generate_video(request):
         clean_bg = os.path.normpath(background_filename).replace('\\', '/').lstrip('/')
         if '..' not in clean_bg:
             cand_p = (ASSETS_DIR / "backgrounds" / clean_bg).resolve()
+            if not cand_p.exists():
+                matches = list((ASSETS_DIR / "backgrounds").glob(f"**/{os.path.basename(clean_bg)}"))
+                if matches:
+                    cand_p = matches[0].resolve()
             if cand_p.exists() and str(cand_p).startswith(str((ASSETS_DIR / "backgrounds").resolve())):
                 bg_cand = str(cand_p)
 
@@ -524,7 +536,16 @@ def api_generate_video(request):
                     self.title = headline if (headline and not use_auto_scrape) else None
                     self.game = game
                     self.test = False
-                    self.clip = bg_cand
+                    is_vid = False
+                    is_img = False
+                    if bg_cand:
+                        ext = os.path.splitext(bg_cand)[1].lower()
+                        if ext in [".mp4", ".mov", ".mkv", ".webm", ".avi"]:
+                            is_vid = True
+                        elif ext in [".jpg", ".jpeg", ".png", ".webp"]:
+                            is_img = True
+                    self.clip = bg_cand if is_vid else None
+                    self.hero_image = None  # Video Shorts always auto-curate multi-image scenes from the script
                     self.voice = voice
                     self.bgm_track = bgm_track
                     self.date = None
@@ -534,10 +555,10 @@ def api_generate_video(request):
 
             # Execute pipeline step by step with live logs
             import main
-            log_task("Running script and voice synthesis...", 25)
+            log_task("Starting Short video synthesis...", 10)
 
-            # We can capture output and track files
-            output_file = main.run_pipeline(args)
+            # Pass log_task as callback to report live progress to frontend
+            output_file = main.run_pipeline(args, progress_cb=log_task)
 
             if output_file and os.path.exists(output_file):
                 fname = os.path.basename(output_file)
@@ -551,7 +572,7 @@ def api_generate_video(request):
             else:
                 raise RuntimeError("Video rendering finished but output file could not be located.")
 
-        except Exception as e:
+        except BaseException as e:
             import traceback
             err_trace = traceback.format_exc()
             print(f"[Studio Render Error]\n{err_trace}")

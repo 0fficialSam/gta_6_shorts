@@ -286,7 +286,7 @@
                             <!-- Interactive Live DOM Mockup Layer -->
                             <div id="stageMockupLayer" class="w-full h-full relative">
                                 <!-- Background Image Layer with Subject-Anchored Crop Position -->
-                                <img id="liveBgImg" src="/assets/backgrounds/ULTIMATE_EDITION_STOCK_305_04.jpg" class="w-full h-full object-cover" style="object-position: 50% 45%;">
+                                <img id="liveBgImg" src="/assets/backgrounds/Jason_and_Lucia_01.jpg" class="w-full h-full object-cover" style="object-position: 50% 45%;">
                                 
                                 <!-- Content Overlay -->
                                 <div class="absolute inset-0 p-4 flex flex-col justify-between pointer-events-none">
@@ -297,6 +297,7 @@
                                         <div class="h-8 px-3.5 rounded-full bg-black/75 border border-white/20 backdrop-blur-md shadow-md flex items-center gap-2 flex-shrink-0">
                                             <span id="liveGameDot" class="w-2 h-2 rounded-full bg-vice-cyan flex-shrink-0 animate-pulse shadow-[0_0_8px_#05d9e8]"></span>
                                             <span id="liveGameText" class="text-xs font-bold text-white tracking-wider uppercase font-mono">GTA VI</span>
+                                            <span id="liveCategoryText" class="hidden"></span>
                                         </div>
 
                                         <!-- Right Badge: Creator Watermark [ @CREATOR_HANDLE ] -->
@@ -370,10 +371,13 @@
                 <div id="horizontalShotStripContainer" class="w-full max-w-[480px] mt-4 p-3 rounded-2xl bg-[#14171F] border border-[#222733] flex flex-col gap-2">
                     
                     <div class="flex items-center justify-between text-xs px-0.5">
-                        <div class="flex items-center gap-1.5">
+                        <div class="flex items-center gap-1.5 flex-wrap">
                             <i data-lucide="image" class="w-4 h-4 text-[#FFE600]"></i>
-                            <span class="font-extrabold text-white uppercase tracking-wider text-xs">Background Shots</span>
+                            <span class="font-extrabold text-white uppercase tracking-wider text-xs">Post Background Shot</span>
+                            <span class="text-[10px] font-mono text-zinc-400 bg-zinc-900/90 px-2 py-0.5 rounded border border-white/10">(4:5 Post • Videos Auto-Curate)</span>
                             <span id="stripActiveCountBadge" class="text-[11px] font-mono text-zinc-400">(98 available)</span>
+                            <span id="activePhotoBadge" class="hidden text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/40 text-emerald-400">Photo</span>
+                            <span id="currentAssetLabel" class="text-[11px] font-mono text-[#FFE600] font-bold truncate max-w-[140px]" title="Jason_and_Lucia_01.jpg">Jason_and_Lucia_01.jpg</span>
                         </div>
                         
                         <div class="flex items-center gap-2">
@@ -452,9 +456,11 @@
                         </span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button type="button" onclick="refreshLiveFeeds()" class="h-8 px-3 rounded-lg bg-[#FFE600] hover:bg-[#E6CF00] text-black font-bold text-xs flex items-center gap-1.5 transition shadow-sm">
-                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="newsFeedRefreshIcon"></i>
-                            <span id="newsFeedRefreshLabel">Fetch Live Feeds</span>
+                        <button type="button" id="btnRefreshNewsFeeds" onclick="refreshLiveFeeds()" class="h-8 px-3 rounded-lg bg-[#FFE600] hover:bg-[#E6CF00] text-black font-bold text-xs flex items-center gap-1.5 transition shadow-sm select-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 pointer-events-none">
+                                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>
+                            </svg>
+                            <span>Fetch Live Feeds</span>
                         </button>
                         <button type="button" onclick="switchNavView('create')" class="h-8 px-3 rounded-lg bg-[#14171F] hover:bg-[#1F2432] border border-[#222733] text-xs font-bold text-zinc-300 hover:text-white transition">
                             Back to Editor
@@ -592,7 +598,7 @@
             <div class="grid grid-cols-2 gap-2.5">
                 <div>
                     <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Hook Word</label>
-                    <input id="inputHook" oninput="renderLiveCanvas()" type="text" value="LEAKED" class="w-full bg-[#0B0D12] border border-[#222733] rounded-lg px-3 py-2 text-xs font-bold text-vice-pink focus:outline-none focus:border-vice-pink">
+                    <input id="inputHook" oninput="renderLiveCanvas(); saveSettingsToStorage();" type="text" value="LEAKED" class="w-full bg-[#0B0D12] border border-[#222733] rounded-lg px-3 py-2 text-xs font-bold text-vice-pink focus:outline-none focus:border-vice-pink">
                     <div class="flex items-center gap-1 overflow-x-auto text-xs pt-1.5 scrollbar-none">
                         <button onclick="setHookWord('LEAKED')" class="px-2 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[11px] font-semibold">LEAKED</button>
                         <button onclick="setHookWord('CONFIRMED')" class="px-2 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[11px] font-semibold">CONFIRMED</button>
@@ -601,10 +607,10 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Category Pill</label>
-                    <input id="inputCategory" oninput="renderLiveCanvas()" type="text" value="EXCLUSIVE LEAK" class="w-full bg-[#0B0D12] border border-[#222733] rounded-lg px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-[#FFE600]">
+                    <input id="inputCategory" oninput="renderLiveCanvas(); saveSettingsToStorage();" type="text" value="EXCLUSIVE LEAK" class="w-full bg-[#0B0D12] border border-[#222733] rounded-lg px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-[#FFE600]">
                     <div class="flex items-center gap-1 overflow-x-auto text-xs pt-1.5 scrollbar-none">
-                        <button onclick="document.getElementById('inputCategory').value='EXCLUSIVE LEAK'; renderLiveCanvas();" class="px-2 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[11px] font-semibold">EXCLUSIVE</button>
-                        <button onclick="document.getElementById('inputCategory').value='RELEASE DATE'; renderLiveCanvas();" class="px-2 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[11px] font-semibold">LAUNCH</button>
+                        <button onclick="document.getElementById('inputCategory').value='EXCLUSIVE LEAK'; renderLiveCanvas(); saveSettingsToStorage();" class="px-2 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[11px] font-semibold">EXCLUSIVE</button>
+                        <button onclick="document.getElementById('inputCategory').value='RELEASE DATE'; renderLiveCanvas(); saveSettingsToStorage();" class="px-2 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[11px] font-semibold">LAUNCH</button>
                     </div>
                 </div>
             </div>
@@ -615,7 +621,7 @@
                     <label class="font-bold text-zinc-300">Story Context / Spoken Voiceover</label>
                     <span class="text-xs text-zinc-500">Post subtext</span>
                 </div>
-                <textarea id="inputSummary" oninput="renderLiveCanvas()" rows="2" class="w-full bg-[#0B0D12] border border-[#222733] rounded-xl p-3 text-xs sm:text-sm text-zinc-200 focus:outline-none focus:border-[#FFE600] transition resize-none placeholder:text-zinc-700 leading-relaxed">Internal development footage surfaces online showing realistic vehicle physics, high-speed police chases, and new Vice City map details.</textarea>
+                <textarea id="inputSummary" oninput="renderLiveCanvas(); saveSettingsToStorage();" rows="2" class="w-full bg-[#0B0D12] border border-[#222733] rounded-xl p-3 text-xs sm:text-sm text-zinc-200 focus:outline-none focus:border-[#FFE600] transition resize-none placeholder:text-zinc-700 leading-relaxed">Internal development footage surfaces online showing realistic vehicle physics, high-speed police chases, and new Vice City map details.</textarea>
             </div>
 
             <!-- 6. COLLAPSIBLE ADVANCED SETTINGS ACCORDION (KEEPS MAIN UI CLEAN) -->
@@ -931,6 +937,27 @@
                         const lastScrapedEl = document.getElementById('newsLastScrapedText');
                         if (lastScrapedEl) lastScrapedEl.innerText = data.last_scraped;
                     }
+
+                    // Sort stories latest first (newest at top, oldest down)
+                    const parseStoryTimestamp = (s) => {
+                        if (s.published_timestamp) return Number(s.published_timestamp);
+                        if (s.date) {
+                            const clean = s.date.replace(/•/g, ' ').replace(/\s+/g, ' ').trim();
+                            const parsed = Date.parse(clean);
+                            if (!isNaN(parsed)) return parsed / 1000;
+                        }
+                        return 0;
+                    };
+                    data.stories.sort((a, b) => {
+                        const tA = parseStoryTimestamp(a);
+                        const tB = parseStoryTimestamp(b);
+                        if (tB !== tA) return tB - tA;
+                        const sA = Number(a.scraped_timestamp || 0);
+                        const sB = Number(b.scraped_timestamp || 0);
+                        if (sB !== sA) return sB - sA;
+                        return (b.score || 0) - (a.score || 0);
+                    });
+
                     grid.innerHTML = '';
                     data.stories.forEach(s => {
                         const card = document.createElement('div');
@@ -1061,7 +1088,7 @@ const PRESETS = [
                 category: "EXCLUSIVE LEAK",
                 hook: "LEAKED",
                 source: "ROCKSTAR INTEL",
-                bg: "ULTIMATE_EDITION_STOCK_305_04.jpg"
+                bg: "Jason_and_Lucia_01.jpg"
             },
             {
                 headline: "ROCKSTAR GAMES REPORTEDLY TARGETS SEPTEMBER 2026 RELEASE WINDOW ACROSS PS5 AND XBOX",
@@ -1093,7 +1120,7 @@ const PRESETS = [
         let currentMode = 'both';
         let currentToolTab = 'story';
         let currentSelectedGame = 'GTA VI';
-        let currentBgFilename = 'ULTIMATE_EDITION_STOCK_305_04.jpg';
+        let currentBgFilename = 'Jason_and_Lucia_01.jpg';
         let currentBgFocalX = 0.50;
         let currentBgFocalY = 0.45;
         let isManualSelection = false;
@@ -1190,7 +1217,8 @@ const PRESETS = [
                 source: "ROCKSTAR INTEL",
                 avatar: "VI",
                 location: "Leonida, Vice City",
-                highlights: ['25', 'MINUTES', 'UNCENSORED', 'LUCIA', 'JASON']
+                highlights: ['25', 'MINUTES', 'UNCENSORED', 'LUCIA', 'JASON'],
+                bg: "Jason_and_Lucia_01.jpg"
             },
             "Ghost of Yōtei": {
                 headline: "PLAYSTATION CONFIRMS GHOST OF YOTEI GAMEPLAY DETAILS, DUAL KATANAS AND 1600S HOKKAIDO MAP",
@@ -1315,7 +1343,8 @@ const PRESETS = [
             }
 
             renderLiveCanvas();
-            fetchShotsForCurrentGame();
+            fetchShotsForCurrentGame(false, true);
+            saveSettingsToStorage();
         }
 
         function handleGameTitleInput() {
@@ -1351,7 +1380,7 @@ const PRESETS = [
             if (newsViewLbl) newsViewLbl.innerText = currentSelectedGame;
         }
 
-        async function fetchShotsForCurrentGame(force = false) {
+        async function fetchShotsForCurrentGame(force = false, shouldAutoMatch = false) {
             const game = currentSelectedGame || document.getElementById('inputGameTitle').value.trim() || "GTA VI";
             const btn = document.getElementById('btnFetchGameShots');
             const btnText = document.getElementById('btnFetchGameText');
@@ -1386,21 +1415,42 @@ const PRESETS = [
                     renderScreenshotsGrid(data.screenshots);
 
                     currentLoadedShotsGame = game;
-                    const curHl = document.getElementById('inputHeadline').value.trim();
-                    if (curHl && !isManualSelection) {
-                        autoMatchScreenshot();
-                    } else if (!isManualSelection) {
-                        const first = data.screenshots[0];
-                        selectScreenshot(first.filename, first.url, first.category, first.focal_x, first.focal_y, false);
+
+                    // ONLY auto-match if explicitly requested (e.g. switched game or clicked Auto-Match)
+                    // or if the canvas has NO background image loaded yet.
+                    // DO NOT replace the canvas image on normal background fetches or initial page load!
+                    if (shouldAutoMatch || !currentBgFilename) {
+                        const curHl = document.getElementById('inputHeadline').value.trim();
+                        if (curHl && !isManualSelection) {
+                            autoMatchScreenshot();
+                        } else if (!isManualSelection) {
+                            const first = data.screenshots[0];
+                            selectScreenshot(first.filename, first.url, first.category, first.focal_x, first.focal_y, false);
+                        }
+                    } else {
+                        // Ensure the active card in the horizontal strip has the active ring
+                        const activeStripCard = document.querySelector(`#horizontalShotStrip > div[data-filename="${currentBgFilename}"]`);
+                        if (activeStripCard) {
+                            activeStripCard.className = "w-24 h-14 rounded-lg overflow-hidden border flex-shrink-0 cursor-pointer relative group transition-all active-strip-card ring-2 ring-[#FFE600] border-[#FFE600]";
+                            if (!activeStripCard.querySelector('.active-tag-strip')) {
+                                const tag = document.createElement('span');
+                                tag.className = "active-tag-strip absolute top-1 right-1 text-[9px] bg-[#FFE600] text-black px-1 rounded font-black shadow";
+                                tag.innerText = "ACTIVE";
+                                activeStripCard.appendChild(tag);
+                            }
+                        }
                     }
+
                     if (badge) badge.innerText = `${data.total} Shots Cached (${data.screenshots[0].source || 'press'})`;
-                    notify(`Loaded ${data.total} 4K shots for ${game}!`);
+                    if (force) {
+                        notify(`Loaded ${data.total} 4K shots for ${game}!`);
+                    }
                 } else {
-                    notify(`Using local shots for ${game}`);
+                    if (force) notify(`Using local shots for ${game}`);
                 }
             } catch (e) {
                 if (e.name === 'AbortError') return;
-                notify(`Failed to fetch shots for ${game}`);
+                if (force) notify(`Failed to fetch shots for ${game}`);
             } finally {
                 if (btnText) btnText.innerText = "Fetch 4K Shots";
                 if (btn) btn.disabled = false;
@@ -1500,6 +1550,18 @@ const PRESETS = [
             } else if (mode === 'vault') {
                 switchNavView('archive');
             }
+
+            // Dynamically highlight active mode's download button
+            const downPost = document.getElementById('stageDownloadPostBtn');
+            const downVideo = document.getElementById('stageDownloadVideoBtn');
+            if (mode === 'video') {
+                if (downVideo) downVideo.className = "flex-1 h-10 px-3 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-extrabold flex items-center justify-center gap-1.5 transition shadow-sm";
+                if (downPost) downPost.className = "flex-1 h-10 px-3 rounded-xl bg-[#14171F] hover:bg-[#1F2432] border border-[#222733] text-zinc-300 hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition";
+            } else {
+                if (downPost) downPost.className = "flex-1 h-10 px-3 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-extrabold flex items-center justify-center gap-1.5 transition shadow-sm";
+                if (downVideo) downVideo.className = "flex-1 h-10 px-3 rounded-xl bg-[#14171F] hover:bg-[#1F2432] border border-[#222733] text-zinc-300 hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition";
+            }
+
             lucide.createIcons();
         }
 
@@ -1595,6 +1657,7 @@ const PRESETS = [
             document.getElementById('charCountLabel').innerText = `${headline.length} chars`;
             rebuildInteractiveWordChips();
             renderLiveCanvas();
+            saveSettingsToStorage();
         }
 
         function rebuildInteractiveWordChips() {
@@ -1621,6 +1684,7 @@ const PRESETS = [
                     }
                     rebuildInteractiveWordChips();
                     renderLiveCanvas();
+                    saveSettingsToStorage();
                 };
                 container.appendChild(chip);
             });
@@ -1692,6 +1756,7 @@ const PRESETS = [
         function setHookWord(word) {
             document.getElementById('inputHook').value = word;
             renderLiveCanvas();
+            saveSettingsToStorage();
             notify(`Hook set: ${word}`);
         }
 
@@ -1776,7 +1841,7 @@ const PRESETS = [
 
             const bgImg = document.getElementById('liveBgImg');
             if (bgImg) {
-                bgImg.src = url;
+                bgImg.src = url || `/assets/backgrounds/${filename}`;
                 bgImg.style.objectPosition = `${(fx * 100).toFixed(1)}% ${(fy * 100).toFixed(1)}%`;
             }
 
@@ -1815,7 +1880,10 @@ const PRESETS = [
                 setCanvasViewMode('mockup');
             }
 
-            notify(`Selected: ${filename.split('/').pop().slice(0, 24)}...`);
+            if (isUserClick) {
+                notify(`Selected: ${filename.split('/').pop().slice(0, 24)}...`);
+            }
+            saveSettingsToStorage();
         }
 
         // Semantic Auto-Match & Cycle Engine (Auto-Relates Photo to News Topic)
@@ -2331,12 +2399,21 @@ const PRESETS = [
             const custom_keywords = Array.from(manualHighlightWords);
 
             if (!headline) {
-                notify("Please enter a headline");
+                notify("Please enter a headline", "error");
                 return null;
             }
 
             const lblPost = document.getElementById('labelDownloadPost');
             if (lblPost) lblPost.innerText = "Rendering PNG...";
+
+            const masterBtn = document.getElementById('masterActionBtn');
+            const origMasterHtml = masterBtn ? masterBtn.innerHTML : null;
+            if (masterBtn) {
+                masterBtn.disabled = true;
+                masterBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i><span class="font-black text-black">Rendering 4:5 Post...</span>';
+                lucide.createIcons();
+            }
+
             notify(`Rendering 4:5 News Post for ${currentSelectedGame}...`);
 
             try {
@@ -2347,6 +2424,8 @@ const PRESETS = [
                         headline, summary, category, hook_word, source_credit,
                         game_title: currentSelectedGame,
                         background_filename: currentBgFilename,
+                        focal_x: currentBgFocalX,
+                        focal_y: currentBgFocalY,
                         custom_keywords,
                         theme: currentThemePalette
                     })
@@ -2366,15 +2445,20 @@ const PRESETS = [
                     if (togglePill) togglePill.classList.remove('hidden');
                     setCanvasViewMode('rendered');
 
-                    notify(`4:5 ${data.game_title || currentSelectedGame} Post Ready!`);
+                    notify(`4:5 ${data.game_title || currentSelectedGame} Post Ready!`, 'success');
                     return data.image_url;
                 } else {
-                    notify(data.error || "Failed to generate post");
+                    notify(data.error || "Failed to generate post", "error");
                 }
             } catch (e) {
-                notify("Failed to generate post: " + e.message);
+                notify("Failed to generate post: " + e.message, "error");
             } finally {
                 if (lblPost) lblPost.innerText = "Download Post (PNG)";
+                if (masterBtn && origMasterHtml) {
+                    masterBtn.disabled = false;
+                    masterBtn.innerHTML = origMasterHtml;
+                    lucide.createIcons();
+                }
             }
             return null;
         }
@@ -2444,8 +2528,7 @@ const PRESETS = [
                         auto_scrape: useAutoScrape,
                         game: currentSelectedGame || "GTA VI",
                         voice: currentVoiceProfile,
-                        bgm_track: currentSelectedBgmTrack,
-                        background_filename: currentBgFilename
+                        bgm_track: currentSelectedBgmTrack
                     })
                 });
                 const data = await res.json();
@@ -2463,22 +2546,30 @@ const PRESETS = [
                             if (st.status === 'success') {
                                 clearInterval(videoPollInterval);
                                 const player = document.getElementById('stageVideoPlayer');
-                                player.src = st.output_url;
-                                player.load();
-                                document.getElementById('stageVideoPlaceholder').classList.add('hidden');
+                                if (player) {
+                                    player.src = st.output_url;
+                                    player.load();
+                                }
+                                const ph = document.getElementById('stageVideoPlaceholder');
+                                if (ph) ph.classList.add('hidden');
                                 lastGeneratedVideoUrl = st.output_url;
                                 pWidget.classList.add('hidden');
-                                notify("9:16 Short Video Render Complete!");
+                                setMode('video');
+                                notify("9:16 Short Video Render Complete!", "success");
                             } else if (st.status === 'error') {
                                 clearInterval(videoPollInterval);
                                 pWidget.classList.add('hidden');
-                                notify("Render error: " + st.error);
+                                notify("Render error: " + (st.error || "Unknown error"), "error");
                             }
                         } catch (e) {}
                     }, 1800);
+                } else {
+                    pWidget.classList.add('hidden');
+                    notify("Failed to start video: " + (data.error || "Unknown error"), "error");
                 }
             } catch (e) {
-                notify("Video pipeline failed to start");
+                pWidget.classList.add('hidden');
+                notify("Video pipeline failed to start: " + e.message, "error");
             }
         }
 
@@ -2599,15 +2690,7 @@ const PRESETS = [
         }
 
         function toggleScrapedModal() {
-            const m = document.getElementById('scrapedModal');
-            if (m) {
-                m.classList.toggle('hidden');
-                if (!m.classList.contains('hidden')) {
-                    loadFeeds();
-                }
-            } else {
-                switchNavView('news');
-            }
+            switchNavView('news');
         }
 
         // Populate a story into studio controls and trigger live WYSIWYG
@@ -2654,6 +2737,7 @@ const PRESETS = [
 
             // Re-render live canvas
             renderLiveCanvas();
+            saveSettingsToStorage();
         }
 
         // 1-Click Auto-Scrape Top Story for Selected Game
@@ -2695,10 +2779,34 @@ const PRESETS = [
         // Live Real-Time RSS Refresh for Selected Game
         async function refreshLiveFeeds() {
             const game = currentSelectedGame || "GTA VI";
-            const lbl = document.getElementById('newsFeedRefreshLabel');
-            const ico = document.getElementById('newsFeedRefreshIcon');
-            if (lbl) lbl.innerText = "Scraping...";
-            if (ico) ico.classList.add('animate-spin');
+            const btn = document.getElementById('btnRefreshNewsFeeds');
+
+            const setBtnLoading = (loading) => {
+                if (!btn) return;
+                if (loading) {
+                    btn.disabled = true;
+                    btn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 animate-spin pointer-events-none">
+                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                        </svg>
+                        <span>Scraping...</span>
+                    `;
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 pointer-events-none">
+                            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                            <path d="M21 3v5h-5"/>
+                            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                            <path d="M8 16H3v5"/>
+                        </svg>
+                        <span>Fetch Live Feeds</span>
+                    `;
+                }
+            };
+
+            setBtnLoading(true);
+            const safetyTimer = setTimeout(() => setBtnLoading(false), 20000);
 
             notify(`Scraping 17 gaming feeds in real-time for ${game}...`);
             try {
@@ -2716,64 +2824,13 @@ const PRESETS = [
             } catch (e) {
                 notify("Refresh failed: " + e.message, 'error');
             } finally {
-                if (lbl) lbl.innerText = "Fetch Live Feeds";
-                if (ico) ico.classList.remove('animate-spin');
-                lucide.createIcons();
+                clearTimeout(safetyTimer);
+                setBtnLoading(false);
             }
         }
 
         async function loadFeeds() {
-            const c = document.getElementById('scrapedContainer');
-            if (!c) {
-                await loadNewsFeedGrid();
-                return;
-            }
-            const game = currentSelectedGame || "GTA VI";
-            const modalTitle = document.getElementById('scrapedModalTitle');
-            if (modalTitle) modalTitle.innerText = `Scraped Gaming Outlets (${game})`;
-
-            c.innerHTML = `<div class="p-4 text-center text-xs text-zinc-500 flex items-center justify-center gap-2"><i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Loading ${game} news...</span></div>`;
-            lucide.createIcons();
-
-            try {
-                const res = await fetch(`/api/news/?game=${encodeURIComponent(game)}`);
-                const data = await res.json();
-                if (data.success && data.stories && data.stories.length > 0) {
-                    c.innerHTML = '';
-                    data.stories.forEach(s => {
-                        const d = document.createElement('div');
-                        d.className = "p-3.5 rounded-xl bg-zinc-950 border border-stage-border hover:border-zinc-500 transition cursor-pointer flex flex-col gap-1.5";
-                        d.onclick = () => {
-                            loadStoryIntoStudio(s);
-                            toggleScrapedModal();
-                            notify(`Selected ${game} RSS story & auto-matched shot!`);
-                        };
-                        const scrapTimeDisplay = s.scraped_time || (s.scraped_at ? s.scraped_at.split('•').pop().trim() : '');
-                        d.innerHTML = `
-                            <div class="flex items-center justify-between text-xs text-zinc-400 gap-2 flex-wrap">
-                                <span class="text-vice-pink font-bold uppercase text-[11px]">${s.source || 'News'}</span>
-                                <div class="flex items-center gap-1.5 flex-wrap justify-end">
-                                    ${scrapTimeDisplay ? `
-                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-cyan-950/60 border border-vice-cyan/35 text-vice-cyan text-[10px] font-mono font-bold">
-                                        <i data-lucide="clock" class="w-3 h-3 text-vice-cyan"></i>
-                                        <span>${scrapTimeDisplay}</span>
-                                    </span>
-                                    ` : ''}
-                                    <span class="text-[11px] font-mono text-zinc-400">${s.date || 'Today'}</span>
-                                </div>
-                            </div>
-                            <span class="text-xs sm:text-sm font-bold text-white line-clamp-2 leading-snug">${s.title}</span>
-                            ${s.summary ? `<span class="text-xs text-zinc-400 line-clamp-2 leading-relaxed">${s.summary}</span>` : ''}
-                        `;
-                        c.appendChild(d);
-                    });
-                } else {
-                    c.innerHTML = `<div class="p-6 text-center text-xs text-zinc-500">No stories cached yet for ${game}. Click 'Fetch Live' above!</div>`;
-                }
-            } catch (e) {
-                c.innerHTML = `<div class="p-4 text-center text-xs text-zinc-500">Could not load feeds for ${game}.</div>`;
-            }
-            lucide.createIcons();
+            await loadNewsFeedGrid();
         }
 
         async function openOutputFolder() {
@@ -2822,39 +2879,112 @@ const PRESETS = [
             }, 2800);
         }
 
-                // LocalStorage Settings Persistence
+        // LocalStorage Settings & Draft Persistence
         function saveSettingsToStorage() {
             try {
                 localStorage.setItem('gta_studio_game', currentSelectedGame || 'GTA VI');
-                localStorage.setItem('gta_studio_voice', selectedVoice || 'en-US-BrianMultilingualNeural');
-                localStorage.setItem('gta_studio_music', selectedMusicTrack || 'vice_city_night_drive.mp3');
-                localStorage.setItem('gta_studio_theme', currentTheme || 'vice');
-                localStorage.setItem('gta_studio_mode', currentMode || 'image');
+                localStorage.setItem('gta_studio_voice', currentVoiceProfile || 'en-US-BrianMultilingualNeural');
+                localStorage.setItem('gta_studio_music', currentSelectedBgmTrack || 'vice_city_night_drive.mp3');
+                localStorage.setItem('gta_studio_theme', currentThemePalette || 'vice');
+                localStorage.setItem('gta_studio_mode', currentMode || 'both');
+
+                // Persist full active post draft
+                const draft = {
+                    game: currentSelectedGame || 'GTA VI',
+                    headline: document.getElementById('inputHeadline')?.value || '',
+                    summary: document.getElementById('inputSummary')?.value || '',
+                    category: document.getElementById('inputCategory')?.value || '',
+                    hook: document.getElementById('inputHook')?.value || '',
+                    source: document.getElementById('inputSource')?.value || '',
+                    bgFilename: currentBgFilename,
+                    focalX: currentBgFocalX,
+                    focalY: currentBgFocalY,
+                    highlights: Array.from(manualHighlightWords),
+                    isManualSelection: isManualSelection
+                };
+                localStorage.setItem('gta_studio_draft', JSON.stringify(draft));
             } catch(e) {}
         }
 
         function restoreSettingsFromStorage() {
             try {
-                const savedGame = localStorage.getItem('gta_studio_game');
-                if (savedGame) {
-                    currentSelectedGame = savedGame;
-                    const input = document.getElementById('inputGameTitle');
-                    if (input) input.value = savedGame;
-                    const gameText = document.getElementById('liveGameText');
-                    if (gameText) gameText.innerText = savedGame;
-                    const topBadge = document.getElementById('currentNewsGameLabel');
-                    if (topBadge) topBadge.innerText = savedGame;
+                const rawDraft = localStorage.getItem('gta_studio_draft');
+                if (rawDraft) {
+                    const draft = JSON.parse(rawDraft);
+                    if (draft && draft.headline) {
+                        currentSelectedGame = draft.game || 'GTA VI';
+                        const inputGame = document.getElementById('inputGameTitle');
+                        if (inputGame) inputGame.value = currentSelectedGame;
+
+                        const hl = document.getElementById('inputHeadline');
+                        if (hl) hl.value = draft.headline;
+
+                        const sum = document.getElementById('inputSummary');
+                        if (sum) sum.value = draft.summary;
+
+                        const cat = document.getElementById('inputCategory');
+                        if (cat) cat.value = draft.category || 'EXCLUSIVE LEAK';
+
+                        const hook = document.getElementById('inputHook');
+                        if (hook) hook.value = draft.hook || 'LEAKED';
+
+                        const src = document.getElementById('inputSource');
+                        if (src) src.value = draft.source || 'GAMING INTEL';
+
+                        if (draft.bgFilename) {
+                            currentBgFilename = draft.bgFilename;
+                            currentBgFocalX = draft.focalX !== undefined ? draft.focalX : 0.50;
+                            currentBgFocalY = draft.focalY !== undefined ? draft.focalY : 0.45;
+                            const bgImg = document.getElementById('liveBgImg');
+                            if (bgImg) {
+                                bgImg.src = `/assets/backgrounds/${draft.bgFilename}`;
+                                bgImg.style.objectPosition = `${(currentBgFocalX * 100).toFixed(1)}% ${(currentBgFocalY * 100).toFixed(1)}%`;
+                            }
+                            const assetLbl = document.getElementById('currentAssetLabel');
+                            if (assetLbl) {
+                                assetLbl.innerText = draft.bgFilename;
+                                assetLbl.title = draft.bgFilename;
+                            }
+                        }
+
+                        if (draft.highlights && Array.isArray(draft.highlights)) {
+                            manualHighlightWords = new Set(draft.highlights);
+                        }
+                        if (draft.isManualSelection !== undefined) {
+                            isManualSelection = draft.isManualSelection;
+                        }
+                    }
+                } else {
+                    const savedGame = localStorage.getItem('gta_studio_game');
+                    if (savedGame && savedGame !== 'GTA VI' && GAME_STORY_PRESETS[savedGame]) {
+                        const preset = GAME_STORY_PRESETS[savedGame];
+                        currentSelectedGame = savedGame;
+                        const inputGame = document.getElementById('inputGameTitle');
+                        if (inputGame) inputGame.value = savedGame;
+                        document.getElementById('inputHeadline').value = preset.headline;
+                        document.getElementById('inputSummary').value = preset.summary;
+                        document.getElementById('inputCategory').value = preset.category;
+                        document.getElementById('inputHook').value = preset.hook;
+                        document.getElementById('inputSource').value = preset.source;
+                        if (preset.highlights) manualHighlightWords = new Set(preset.highlights);
+                        if (preset.bg) {
+                            currentBgFilename = preset.bg;
+                            const bgImg = document.getElementById('liveBgImg');
+                            if (bgImg) bgImg.src = `/assets/backgrounds/${preset.bg}`;
+                        }
+                    }
                 }
+
                 const savedVoice = localStorage.getItem('gta_studio_voice');
                 if (savedVoice) {
-                    selectedVoice = savedVoice;
+                    selectVoiceProfile(savedVoice);
                 }
                 const savedTheme = localStorage.getItem('gta_studio_theme');
                 if (savedTheme) {
                     setThemePalette(savedTheme, false);
                 }
                 const savedMode = localStorage.getItem('gta_studio_mode');
-                if (savedMode && ['image', 'video'].includes(savedMode)) {
+                if (savedMode && ['both', 'image', 'video'].includes(savedMode)) {
                     setMode(savedMode);
                 }
             } catch(e) {}
@@ -2888,6 +3018,47 @@ const PRESETS = [
             }, { passive: false });
         }
 
+        // Automatic recovery of background video render tasks on page load / reload
+        async function checkRunningTaskOnLoad() {
+            try {
+                const res = await fetch('/api/status/');
+                const st = await res.json();
+                if (st && st.status === 'running') {
+                    const pWidget = document.getElementById('renderProgressWidget');
+                    if (pWidget) pWidget.classList.remove('hidden');
+                    updatePipelineSteps(st.progress, st.message);
+
+                    if (videoPollInterval) clearInterval(videoPollInterval);
+                    videoPollInterval = setInterval(async () => {
+                        try {
+                            const sres = await fetch('/api/status/');
+                            const liveSt = await sres.json();
+                            updatePipelineSteps(liveSt.progress, liveSt.message);
+
+                            if (liveSt.status === 'success') {
+                                clearInterval(videoPollInterval);
+                                const player = document.getElementById('stageVideoPlayer');
+                                if (player) {
+                                    player.src = liveSt.output_url;
+                                    player.load();
+                                }
+                                const ph = document.getElementById('stageVideoPlaceholder');
+                                if (ph) ph.classList.add('hidden');
+                                lastGeneratedVideoUrl = liveSt.output_url;
+                                if (pWidget) pWidget.classList.add('hidden');
+                                setMode('video');
+                                notify("9:16 Short Video Render Complete!", "success");
+                            } else if (liveSt.status === 'error') {
+                                clearInterval(videoPollInterval);
+                                if (pWidget) pWidget.classList.add('hidden');
+                                notify("Render error: " + (liveSt.error || "Unknown error"), "error");
+                            }
+                        } catch (e) {}
+                    }, 1800);
+                }
+            } catch (e) {}
+        }
+
         // Initialize
         window.addEventListener('DOMContentLoaded', () => {
             restoreSettingsFromStorage();
@@ -2896,8 +3067,9 @@ const PRESETS = [
             rebuildInteractiveWordChips();
             handleGameTitleInput();
             renderLiveCanvas();
-            fetchShotsForCurrentGame();
+            fetchShotsForCurrentGame(false, false);
             initStageScrollDelegation();
+            checkRunningTaskOnLoad();
         });
     </script>
 </body>
