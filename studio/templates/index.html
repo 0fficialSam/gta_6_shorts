@@ -599,18 +599,23 @@
                 <div>
                     <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Hook Word</label>
                     <input id="inputHook" oninput="renderLiveCanvas(); saveSettingsToStorage();" type="text" value="LEAKED" class="w-full bg-[#0B0D12] border border-[#222733] rounded-lg px-3 py-2 text-xs font-bold text-vice-pink focus:outline-none focus:border-vice-pink">
-                    <div class="flex items-center gap-1 overflow-x-auto text-xs pt-1.5 scrollbar-none">
-                        <button onclick="setHookWord('LEAKED')" class="px-2 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[11px] font-semibold">LEAKED</button>
-                        <button onclick="setHookWord('CONFIRMED')" class="px-2 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[11px] font-semibold">CONFIRMED</button>
-                        <button onclick="setHookWord('REVEALED')" class="px-2 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[11px] font-semibold">REVEALED</button>
+                    <div class="flex flex-wrap items-center gap-1 text-xs pt-1.5">
+                        <button type="button" onclick="setHookWord('NEW')" class="px-1.5 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[10px] font-semibold whitespace-nowrap">NEW</button>
+                        <button type="button" onclick="setHookWord('REPORT')" class="px-1.5 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[10px] font-semibold whitespace-nowrap">REPORT</button>
+                        <button type="button" onclick="setHookWord('RUMOR')" class="px-1.5 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[10px] font-semibold whitespace-nowrap">RUMOR</button>
+                        <button type="button" onclick="setHookWord('LEAK')" class="px-1.5 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[10px] font-semibold whitespace-nowrap">LEAK</button>
+                        <button type="button" onclick="setHookWord('UPDATE')" class="px-1.5 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[10px] font-semibold whitespace-nowrap">UPDATE</button>
+                        <button type="button" onclick="setHookWord('TRAILER')" class="px-1.5 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[10px] font-semibold whitespace-nowrap">TRAILER</button>
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Category Pill</label>
                     <input id="inputCategory" oninput="renderLiveCanvas(); saveSettingsToStorage();" type="text" value="EXCLUSIVE LEAK" class="w-full bg-[#0B0D12] border border-[#222733] rounded-lg px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-[#FFE600]">
-                    <div class="flex items-center gap-1 overflow-x-auto text-xs pt-1.5 scrollbar-none">
-                        <button onclick="document.getElementById('inputCategory').value='EXCLUSIVE LEAK'; renderLiveCanvas(); saveSettingsToStorage();" class="px-2 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[11px] font-semibold">EXCLUSIVE</button>
-                        <button onclick="document.getElementById('inputCategory').value='RELEASE DATE'; renderLiveCanvas(); saveSettingsToStorage();" class="px-2 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[11px] font-semibold">LAUNCH</button>
+                    <div class="flex flex-wrap items-center gap-1 text-xs pt-1.5">
+                        <button type="button" onclick="document.getElementById('inputCategory').value='EXCLUSIVE LEAK'; renderLiveCanvas(); saveSettingsToStorage();" class="px-1.5 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[10px] font-semibold whitespace-nowrap">LEAK</button>
+                        <button type="button" onclick="document.getElementById('inputCategory').value='TRAILER'; renderLiveCanvas(); saveSettingsToStorage();" class="px-1.5 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[10px] font-semibold whitespace-nowrap">TRAILER</button>
+                        <button type="button" onclick="document.getElementById('inputCategory').value='RELEASE DATE'; renderLiveCanvas(); saveSettingsToStorage();" class="px-1.5 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[10px] font-semibold whitespace-nowrap">LAUNCH</button>
+                        <button type="button" onclick="document.getElementById('inputCategory').value='TECH AND SPECS'; renderLiveCanvas(); saveSettingsToStorage();" class="px-1.5 py-0.5 rounded bg-[#0B0D12] hover:bg-[#1F2432] text-zinc-400 hover:text-white text-[10px] font-semibold whitespace-nowrap">SPECS</button>
                     </div>
                 </div>
             </div>
@@ -2771,35 +2776,62 @@ const PRESETS = [
             if (!story) return;
             isManualSelection = false;
             if (canvasViewMode === 'rendered') setCanvasViewMode('mockup');
-            const headline = (story.title || "").toUpperCase();
+            let headline = (story.headline || story.title || "").trim();
+            // Clean any trailing " - Outlet" or " | Outlet" if uncleaned
+            headline = headline.replace(/\s*[\-–—|/]\s*(?:Root(?:\-Nation(?:\.com)?)?|Mashable|Variety|Kotaku|The Hollywood Reporter|IGN|Dexerto|GameSpot|GamesRadar\+?|Polygon|PC Gamer|Forbes|Bloomberg|Eurogamer|Screen Rant|ComicBook|Comic Book|GamingBible|TechRadar|Digital Trends|Insider Gaming|Rockstar Intel|Reddit|BBC|CNN|The Verge|YouTube|X|Twitter|[\w\s\.\+]{2,30})\s*$/i, '').trim();
+            headline = headline.replace(/[\-–—|/]\s*$/, '').trim().toUpperCase();
             document.getElementById('inputHeadline').value = headline;
             
-            const summary = story.summary || story.text || "";
+            const summary = (story.summary || story.text || "").trim();
             document.getElementById('inputSummary').value = summary.slice(0, 320);
             
             const src = (story.source || "GAMING INTEL").toUpperCase();
             document.getElementById('inputSource').value = src;
 
-            // Auto-detect category & hook
-            let cat = "EXCLUSIVE LEAK";
-            let hook = "LEAKED";
-            if (headline.includes("RELEASE") || headline.includes("LAUNCH") || headline.includes("DATE")) {
-                cat = "RELEASE DATE";
-                hook = "CONFIRMED";
-            } else if (headline.includes("TRAILER")) {
-                cat = "TRAILER 2";
-                hook = "TRAILER 2";
-            } else if (headline.includes("MAP") || headline.includes("SIZE")) {
-                cat = "MAP REVEAL";
-                hook = "MASSIVE";
-            } else if (headline.includes("GAMEPLAY") || headline.includes("PHYSICS") || headline.includes("WEATHER")) {
-                cat = "GAMEPLAY LEAK";
-                hook = "REVEALED";
-            } else if (headline.includes("DELAY") || headline.includes("POSTPONE")) {
-                cat = "SPECIAL REPORT";
-                hook = "DELAYED?";
+            // Auto-detect category & hook conforming strictly to editorial guidelines
+            const isOfficial = /rockstar|take-two|take two/i.test(src);
+            let cat = story.category;
+            if (!cat) {
+                if (headline.includes("TRAILER") || headline.includes("TEASER")) {
+                    cat = "TRAILER";
+                } else if (headline.includes("RELEASE") || headline.includes("LAUNCH") || headline.includes("DATE")) {
+                    cat = "RELEASE DATE";
+                } else if (headline.includes("LEAK") || headline.includes("CYBERLEEK")) {
+                    cat = "EXCLUSIVE LEAK";
+                } else if (headline.includes("MAP") || headline.includes("VICE CITY")) {
+                    cat = "MAP REVEAL";
+                } else if (headline.includes("SPEC") || headline.includes("STORAGE") || headline.includes("SIZE")) {
+                    cat = "TECH AND SPECS";
+                } else if (headline.includes("MUSIC") || headline.includes("SOUNDTRACK") || headline.includes("SCORE")) {
+                    cat = "SOUNDTRACK";
+                } else if (headline.includes("GAMEPLAY") || headline.includes("PHYSICS")) {
+                    cat = "GAMEPLAY";
+                } else {
+                    cat = "SPECIAL REPORT";
+                }
+            } else if (headline.includes("TRAILER") && cat !== "TRAILER") {
+                cat = "TRAILER";
             }
-            document.getElementById('inputCategory').value = story.category || cat;
+            document.getElementById('inputCategory').value = cat;
+
+            let hook = story.hook;
+            if (!hook) {
+                if (isOfficial) {
+                    hook = "CONFIRMED";
+                } else if (headline.includes("TRAILER")) {
+                    hook = "TRAILER";
+                } else if (headline.includes("LEAK") || headline.includes("CYBERLEEK")) {
+                    hook = "LEAK";
+                } else if (headline.includes("RUMOR") || headline.includes("RUMOUR")) {
+                    hook = "RUMOR";
+                } else if (headline.includes("REPORT") || headline.includes("CLAIM")) {
+                    hook = "REPORT";
+                } else {
+                    hook = "UPDATE";
+                }
+            } else if (!isOfficial && (hook === "CONFIRMED" || hook === "OFFICIAL")) {
+                hook = headline.includes("TRAILER") ? "TRAILER" : (headline.includes("LEAK") ? "LEAK" : "REPORT");
+            }
             document.getElementById('inputHook').value = hook;
 
             // Trigger word parsing & chips

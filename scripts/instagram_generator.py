@@ -426,8 +426,12 @@ def generate_instagram_post(
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     game_clean = (game_title or "GTA VI").strip().upper()
 
-    t_cfg = THEME_COLORS.get((theme_name or "vice").lower(), THEME_COLORS["vice"])
+    from scripts.story_enhancer import clean_scraped_title, is_official_source, sanitize_summary
+    headline = clean_scraped_title(headline)
+    if summary:
+        summary = sanitize_summary(summary, headline, category, game_clean)
 
+    t_cfg = THEME_COLORS.get((theme_name or "vice").lower(), THEME_COLORS["vice"])
 
     # 1. Select & crop background (smart semantic matching for ANY game)
     if not background_path or not os.path.exists(background_path):
@@ -509,21 +513,37 @@ def generate_instagram_post(
     )
     draw.text(((b_pill_x1 + b_pill_x2) // 2, bar_cy), brand_text, font=bar_font, fill=(255, 255, 255), anchor="mm")
 
-    # 4. HOOK WORD (e.g., "CYBERLEAK", "CONFIRMED", "LEAKED", "REVEALED")
-    if not hook_word:
-        upper_hl = headline.upper()
-        if "LEAK" in upper_hl:
-            hook_word = "LEAKED"
-        elif "CONFIRM" in upper_hl or "OFFICIAL" in upper_hl:
+    # 4. HOOK WORD (Strict rules: CONFIRMED/OFFICIAL only for Rockstar/Take-Two)
+    is_official = is_official_source(source_credit, headline)
+    upper_hl = headline.upper()
+    if not is_official and (str(hook_word).upper() in ["CONFIRMED", "OFFICIAL"]):
+        if "TRAILER" in upper_hl:
+            hook_word = "TRAILER"
+        elif "LEAK" in upper_hl:
+            hook_word = "LEAK"
+        elif "RUMOR" in upper_hl:
+            hook_word = "RUMOR"
+        elif "REPORT" in upper_hl:
+            hook_word = "REPORT"
+        else:
+            hook_word = "UPDATE"
+    elif not hook_word:
+        if is_official and ("CONFIRM" in upper_hl or "OFFICIAL" in upper_hl):
             hook_word = "CONFIRMED"
-        elif "DELAY" in upper_hl:
-            hook_word = "DELAYED?"
-        elif "TRAILER 2" in upper_hl:
-            hook_word = "TRAILER 2"
-        elif "ROCKSTAR" in upper_hl:
-            hook_word = "ROCKSTAR GAMES"
-        elif "MAP" in upper_hl:
-            hook_word = "MAP REVEAL"
+        elif "TRAILER" in upper_hl:
+            hook_word = "TRAILER"
+        elif "LEAK" in upper_hl:
+            hook_word = "LEAK"
+        elif "RUMOR" in upper_hl:
+            hook_word = "RUMOR"
+        elif "REPORT" in upper_hl:
+            hook_word = "REPORT"
+        else:
+            hook_word = "UPDATE"
+
+    # Rule 5: Trailer stories must have category TRAILER, not RELEASE DATE
+    if ("TRAILER" in upper_hl or "TEASER" in upper_hl) and str(category).upper() in ["RELEASE DATE", "LAUNCH"]:
+        category = "TRAILER"
 
     # 5. HEADLINE PREPARATION (ARIAL BLACK / MONTSERRAT 900)
     headline_clean = headline.strip().upper()

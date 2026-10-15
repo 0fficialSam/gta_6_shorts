@@ -360,8 +360,8 @@ def score_headline(title: str, cfg: dict = None) -> int:
 
 def clean_title(title: str) -> str:
     """Remove source name suffixes that Google News / aggregators append."""
-    cleaned = re.sub(r'\s*[-–—|]\s*[\w\s,&\.]{2,40}$', '', title).strip()
-    return cleaned if len(cleaned) > 20 else title
+    from scripts.story_enhancer import clean_scraped_title
+    return clean_scraped_title(title)
 
 
 # ── FULL ARTICLE FETCHER ──────────────────────────────────────────────────────
@@ -682,6 +682,46 @@ def get_game_stories(game: str = "GTA VI", refresh: bool = False) -> list:
                 s['scraped_timestamp'] = f_dt.timestamp()
         return story_list
 
+    def _ensure_enhanced_stories(stories_list, game_title):
+        from scripts.story_enhancer import (
+            enhance_story_for_post, clean_scraped_title,
+            synthesize_clean_summary, infer_story_category, infer_fallback_hook
+        )
+        updated = False
+        for idx, s in enumerate(stories_list):
+            raw_t = s.get('title', '')
+            raw_sum = s.get('summary', '')
+            cl_t = clean_scraped_title(raw_t)
+            is_same_summary = raw_sum.strip().lower() == raw_t.strip().lower() or '.com' in raw_sum.lower() or len(raw_sum.split()) < 11
+            needs_enhance = (cl_t != raw_t) or is_same_summary or ('hook' not in s) or ('category' not in s)
+            if needs_enhance:
+                if idx < 5:
+                    enh = enhance_story_for_post(
+                        raw_title=s.get('raw_title') or raw_t,
+                        raw_summary=raw_sum,
+                        source=s.get('source', ''),
+                        game=game_title
+                    )
+                else:
+                    cat = infer_story_category(cl_t)
+                    enh = {
+                        'headline': cl_t,
+                        'summary': synthesize_clean_summary(cl_t, cat, game_title),
+                        'hook': infer_fallback_hook(cl_t, is_official=False),
+                        'category': cat
+                    }
+                s['title'] = enh['headline']
+                s['headline'] = enh['headline']
+                s['summary'] = enh['summary']
+                s['hook'] = enh['hook']
+                s['category'] = enh['category']
+                updated = True
+            else:
+                s['title'] = cl_t
+                if 'headline' not in s:
+                    s['headline'] = cl_t
+        return stories_list, updated
+
     # For GTA VI also check today_stories.json
     today_file = "assets/today_stories.json"
     if not refresh and cfg['slug'] == 'gta_vi' and os.path.exists(today_file):
@@ -689,6 +729,12 @@ def get_game_stories(game: str = "GTA VI", refresh: bool = False) -> list:
             with open(today_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 if data and len(data) > 0:
+                    data, was_up = _ensure_enhanced_stories(data, cfg['title'])
+                    if was_up:
+                        try:
+                            with open(today_file, "w", encoding="utf-8") as fw:
+                                json.dump(data, fw, indent=2, ensure_ascii=False)
+                        except Exception: pass
                     return sort_stories_chronological(_ensure_timestamps(data, today_file))
         except Exception: pass
 
@@ -700,6 +746,12 @@ def get_game_stories(game: str = "GTA VI", refresh: bool = False) -> list:
                 with open(cache_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
                     if data and len(data) > 0:
+                        data, was_up = _ensure_enhanced_stories(data, cfg['title'])
+                        if was_up:
+                            try:
+                                with open(cache_file, "w", encoding="utf-8") as fw:
+                                    json.dump(data, fw, indent=2, ensure_ascii=False)
+                            except Exception: pass
                         return sort_stories_chronological(_ensure_timestamps(data, cache_file))
         except Exception: pass
 
@@ -709,6 +761,7 @@ def get_game_stories(game: str = "GTA VI", refresh: bool = False) -> list:
 
     if unique:
         stories_to_save = sort_stories_chronological(unique)[:15]
+        stories_to_save, _ = _ensure_enhanced_stories(stories_to_save, cfg['title'])
     else:
         # Fallback to curated presets
         preset = None
@@ -729,6 +782,7 @@ def get_game_stories(game: str = "GTA VI", refresh: bool = False) -> list:
                 }
             ]
         stories_to_save = sort_stories_chronological(_ensure_timestamps(preset))
+        stories_to_save, _ = _ensure_enhanced_stories(stories_to_save, cfg['title'])
 
     # Write cache
     try:
@@ -780,6 +834,19 @@ def get_top_story(game: str = "GTA VI") -> dict:
         story = fresh[0]
 
     story['game'] = cfg['title']
+    from scripts.story_enhancer import enhance_story_for_post
+    enh = enhance_story_for_post(
+        raw_title=story.get('raw_title') or story.get('title', ''),
+        raw_summary=story.get('summary', ''),
+        source=story.get('source', ''),
+        game=cfg['title']
+    )
+    story['title'] = enh['headline']
+    story['headline'] = enh['headline']
+    story['summary'] = enh['summary']
+    story['hook'] = enh['hook']
+    story['category'] = enh['category']
+
     mark_as_used(story, registry)
 
     # Cache today's list

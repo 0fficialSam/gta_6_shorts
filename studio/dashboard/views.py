@@ -301,6 +301,11 @@ def api_generate_instagram(request):
     category = str(body.get("category", "LEAKS & RUMORS") or "LEAKS & RUMORS").strip()
     hook_word = str(body.get("hook_word", "") or "").strip() or None
     source_credit = str(body.get("source_credit", "ROCKSTAR INTEL") or "ROCKSTAR INTEL").strip()
+
+    from scripts.story_enhancer import clean_scraped_title, sanitize_summary
+    headline = clean_scraped_title(headline)
+    if summary:
+        summary = sanitize_summary(summary, headline, category, game_title)
     
     # Visual background selection
     background_filename = body.get("background_filename", None)
