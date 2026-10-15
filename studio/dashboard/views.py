@@ -295,12 +295,12 @@ def api_generate_instagram(request):
     except Exception:
         body = request.POST.dict()
 
-    headline = body.get("headline", "").strip()
-    summary = body.get("summary", "").strip()
-    game_title = body.get("game_title", "GTA VI").strip()
-    category = body.get("category", "LEAKS & RUMORS").strip()
-    hook_word = body.get("hook_word", "").strip() or None
-    source_credit = body.get("source_credit", "ROCKSTAR INTEL").strip()
+    headline = str(body.get("headline", "") or "").strip()
+    summary = str(body.get("summary", "") or "").strip()
+    game_title = str(body.get("game_title", "GTA VI") or "GTA VI").strip()
+    category = str(body.get("category", "LEAKS & RUMORS") or "LEAKS & RUMORS").strip()
+    hook_word = str(body.get("hook_word", "") or "").strip() or None
+    source_credit = str(body.get("source_credit", "ROCKSTAR INTEL") or "ROCKSTAR INTEL").strip()
     
     # Visual background selection
     background_filename = body.get("background_filename", None)
@@ -425,9 +425,17 @@ def api_upload_shot(request):
 
     if "image" in request.FILES:
         uploaded_file = request.FILES["image"]
+        if uploaded_file.size < 1000:
+            return JsonResponse({"success": False, "error": "Uploaded file is too small or empty"}, status=400)
+
+        header = uploaded_file.read(64)
+        if not is_valid_image_bytes(header):
+            return JsonResponse({"success": False, "error": "Uploaded file is not a valid image (JPEG, PNG, WebP)"}, status=400)
+        uploaded_file.seek(0)
+
         ext = os.path.splitext(uploaded_file.name)[1].lower()
         if ext not in [".jpg", ".jpeg", ".png", ".webp"]:
-            ext = ".jpg"
+            ext = ".png" if header.startswith(b'\x89PNG') else ".jpg"
         filename = f"custom_{timestamp}{ext}"
         saved_path = target_dir / filename
         with open(saved_path, "wb") as f:
