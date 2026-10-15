@@ -1,0 +1,18 @@
+[2026-10-14 23:57:41] ============================================================
+[2026-10-14 23:57:41] GTA 6 SHORTS AUTOMATION STARTED
+[2026-10-14 23:57:41]   Target Launch : 2026-11-19
+[2026-10-14 23:57:41]   Voice Engine  : en-US-BrianMultilingualNeural
+[2026-10-14 23:57:41]   --news        : (auto-scrape)
+[2026-10-14 23:57:41]   --title       : (auto from first sentence of --news)
+[2026-10-14 23:57:41]   --clip        : (auto)
+[2026-10-14 23:57:41]   --image       : (auto)
+[2026-10-14 23:57:41]   --upload      : False
+[2026-10-14 23:57:41] ============================================================
+[2026-10-14 23:57:41] 
+STEP 1: Getting GTA 6 News...
+[2026-10-14 23:57:42]   Scraped (GTA VI): Where to buy the PS5 Pro ahead of GTA 6 release
+[2026-10-14 23:57:42] 
+STEP 2: Generating Script...
+[2026-10-14 23:57:42]   Script ready: 137 words via Dynamic Free Builder (contrarian_take)
+[2026-10-14 23:57:42] 
+STEP 3: Generating Voiceover...
