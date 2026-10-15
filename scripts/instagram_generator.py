@@ -97,6 +97,51 @@ HIGHLIGHT_PATTERNS = [
 ]
 
 
+THEME_COLORS = {
+    "vice": {
+        "name": "Vice Neon",
+        "highlight": (255, 230, 0),    # Electric Yellow
+        "accent_hex": "#FFE600",
+        "accent_rgb": (255, 230, 0),
+        "glow_rgba": (255, 230, 0, 70),
+        "hook": (255, 42, 109),        # Vice Pink
+        "border": (0, 240, 255),       # Cyan
+        "cat_fill": (255, 42, 109)
+    },
+    "sunset": {
+        "name": "Miami Sunset",
+        "highlight": (255, 183, 3),    # Warm Amber
+        "accent_hex": "#FFB703",
+        "accent_rgb": (255, 183, 3),
+        "glow_rgba": (255, 183, 3, 70),
+        "hook": (255, 107, 53),        # Sunset Orange
+        "border": (157, 78, 221),      # Violet
+        "cat_fill": (255, 107, 53)
+    },
+    "ocean": {
+        "name": "Ocean Drive",
+        "highlight": (254, 228, 64),   # Sun Yellow
+        "accent_hex": "#FEE440",
+        "accent_rgb": (254, 228, 64),
+        "glow_rgba": (254, 228, 64, 70),
+        "hook": (0, 245, 212),         # Aquamarine Teal
+        "border": (0, 187, 249),       # Sky Blue
+        "cat_fill": (0, 245, 212)
+    },
+    "gold": {
+        "name": "Vice City Gold",
+        "highlight": (255, 215, 0),    # Pure Gold
+        "accent_hex": "#FFD700",
+        "accent_rgb": (255, 215, 0),
+        "glow_rgba": (255, 215, 0, 70),
+        "hook": (217, 4, 41),          # Crimson
+        "border": (255, 195, 0),       # Amber Gold
+        "cat_fill": (217, 4, 41)
+    }
+}
+THEME_PALETTES = THEME_COLORS
+
+
 def find_highlight_spans(text: str, custom_keywords: list = None) -> list:
     """Finds (start, end) index spans for words that should be highlighted."""
     spans = []
@@ -373,32 +418,6 @@ def generate_instagram_post(
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     game_clean = (game_title or "GTA VI").strip().upper()
 
-    THEME_COLORS = {
-        "vice": {
-            "highlight": (255, 230, 0),    # Electric Yellow
-            "hook": (255, 42, 109),        # Vice Pink
-            "border": (0, 240, 255),       # Cyan
-            "cat_fill": (255, 42, 109)
-        },
-        "sunset": {
-            "highlight": (255, 183, 3),    # Warm Amber
-            "hook": (255, 107, 53),        # Sunset Orange
-            "border": (157, 78, 221),      # Violet
-            "cat_fill": (255, 107, 53)
-        },
-        "ocean": {
-            "highlight": (254, 228, 64),   # Sun Yellow
-            "hook": (0, 245, 212),         # Aquamarine Teal
-            "border": (0, 187, 249),       # Sky Blue
-            "cat_fill": (0, 245, 212)
-        },
-        "gold": {
-            "highlight": (255, 215, 0),    # Pure Gold
-            "hook": (217, 4, 41),          # Crimson
-            "border": (255, 195, 0),       # Amber Gold
-            "cat_fill": (217, 4, 41)
-        }
-    }
     t_cfg = THEME_COLORS.get((theme_name or "vice").lower(), THEME_COLORS["vice"])
 
 

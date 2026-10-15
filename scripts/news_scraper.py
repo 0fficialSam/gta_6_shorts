@@ -6,11 +6,18 @@ Universal Gaming News Scraper
 - Fetches full article body text
 - Tracks used stories to never repeat
 """
-import feedparser, json, os, re, requests, hashlib, time, random, unicodedata, urllib.parse
+import feedparser, json, os, sys, re, requests, hashlib, time, random, unicodedata, urllib.parse
 from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 from email.utils import parsedate_to_datetime
 from urllib.parse import urlparse
+
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 # ── Direct gaming sites — universal articles for all platforms & games ─────────
 RSS_FEEDS = [
