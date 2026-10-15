@@ -571,8 +571,7 @@ def generate_voiceover(script_data: dict, voice: str = DEFAULT_VOICE, rate: str 
         success = generate_voice_pyttsx3(script, raw_path)
 
     if not success or not os.path.exists(raw_path):
-        print("ERROR: All TTS engines failed.")
-        sys.exit(1)
+        raise RuntimeError("All TTS engines (Edge-TTS, gTTS, pyttsx3) failed to synthesize audio.")
 
     # Professional Studio Vocal Chain (EQ + Broadcast Compression)
     print("  Applying studio vocal mastering (EQ, presence boost & broadcast compression)...")
