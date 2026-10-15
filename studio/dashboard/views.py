@@ -196,7 +196,7 @@ def api_match_screenshot(request):
 
     alternatives = [
         {"shot": s, "score": sc, "reason": r}
-        for sc, r, s in ranked[:8]
+        for sc, r, s in ranked[:32]
     ]
 
     return JsonResponse({

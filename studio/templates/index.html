@@ -1820,6 +1820,7 @@ const PRESETS = [
                         tag.innerText = "ACTIVE";
                         c.appendChild(tag);
                     }
+                    c.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
                 } else {
                     c.className = "w-24 h-14 rounded-lg overflow-hidden border flex-shrink-0 cursor-pointer relative group transition-all border-[#222733] hover:border-zinc-400 opacity-70 hover:opacity-100";
                     const old = c.querySelector('.active-tag-strip');
@@ -1914,6 +1915,11 @@ const PRESETS = [
                 if (data.success && data.matched_shot) {
                     if (data.alternatives && data.alternatives.length > 0) {
                         activeMatchedAlternatives = data.alternatives.map(a => a.shot);
+                        activeAlternativeIndex = 0;
+                        // Prioritize matched alternatives at the front of the horizontal strip
+                        const altFilenames = new Set(activeMatchedAlternatives.map(s => s.filename));
+                        const remaining = allScreenshots.filter(s => !altFilenames.has(s.filename));
+                        renderHorizontalShotStrip([...activeMatchedAlternatives, ...remaining]);
                     }
                     const m = data.matched_shot;
                     selectScreenshot(m.filename, m.url, m.category, m.focal_x, m.focal_y, false);
@@ -1931,8 +1937,6 @@ const PRESETS = [
         function clientFallbackMatch(h, s, game) {
             if (!allScreenshots || allScreenshots.length === 0) return;
             const fullText = (h + ' ' + s).toLowerCase();
-            let best = allScreenshots[0];
-            let maxScore = -1;
             let ranked = [];
 
             const isGta = game.toLowerCase().includes('gta') || game.toLowerCase().includes('grand theft');
@@ -1946,36 +1950,102 @@ const PRESETS = [
                 const cat = (shot.category || '').toLowerCase();
 
                 if (isGta) {
+                    // Baseline editorial quality
+                    if (fn.includes('jason_and_lucia_01')) score += 25;
+                    else if (fn.includes('jason_and_lucia_02')) score += 24;
+                    else if (fn.includes('vice_city_08') || fn.includes('vice_city_10') || fn.includes('vice_city_style_01')) score += 22;
+                    else if (fn.includes('lucia_caminos_01')) score += 20;
+                    else if (fn.includes('jason_duval_01')) score += 20;
+
                     if (hasDuo) {
-                        if (fn.includes('jason_and_lucia')) score += 100;
-                        else if (cat.includes('lucia & jason') || (fn.includes('jason') && fn.includes('lucia'))) score += 85;
-                        else if (fn.includes('trailer_29')) score += 75;
+                        if (fn.includes('jason_and_lucia')) score += 110;
+                        else if (cat.includes('lucia & jason') || (fn.includes('jason') && fn.includes('lucia'))) score += 90;
+                        else if (fn.includes('trailer_29')) score += 80;
+                        else if (fn.includes('lucia') || fn.includes('jason')) score += 25;
                     } else if (hasLucia && !hasJason) {
-                        if (fn.includes('lucia_caminos')) score += 100;
-                        else if (['trailer_02', 'trailer_03', 'trailer_05', 'trailer_16'].some(k => fn.includes(k))) score += 75;
-                        else if (cat === 'lucia') score += 65;
+                        if (fn.includes('lucia_caminos')) score += 110;
+                        else if (['trailer_02', 'trailer_03', 'trailer_05', 'trailer_16'].some(k => fn.includes(k))) score += 85;
+                        else if (cat === 'lucia' || (fn.includes('lucia') && !fn.includes('jason'))) score += 70;
+                        else if (cat.includes('lucia & jason') || fn.includes('jason')) score -= 40;
                     } else if (hasJason && !hasLucia) {
-                        if (fn.includes('jason_duval')) score += 100;
-                        else if (fn.includes('trailer_20')) score += 75;
-                        else if (cat === 'jason') score += 65;
+                        if (fn.includes('jason_duval')) score += 110;
+                        else if (fn.includes('trailer_20')) score += 85;
+                        else if (cat === 'jason' || (fn.includes('jason') && !fn.includes('lucia'))) score += 70;
+                        else if (cat.includes('lucia & jason') || fn.includes('lucia')) score -= 40;
+                    }
+
+                    // Music & Soundtrack
+                    if (/\b(music|soundtrack|score|song|songs|radio|artist|sza|tame impala|justice|audio|track|tracks|band|album)\b/i.test(fullText)) {
+                        if (cat === 'night & neon' || ['trailer_28', 'trailer_30', 'trailer_22'].some(k => fn.includes(k))) score += 120;
+                        else if (fn.includes('trailer_29') || fn.includes('cheetah')) score += 65;
+                    }
+
+                    // Vehicles & Supercars
+                    if (/\b(car|cars|vehicle|vehicles|drive|driving|physics|supercar|supercars|cheetah|grotti|lowrider|drift|racing|speed|custom|bike|bikes|motorcycle|highway)\b/i.test(fullText)) {
+                        if (cat === 'vehicles' || ['cheetah', 'grotti', 'ambrosia', 'car', 'customs', 'trailer_17', 'trailer_18', 'trailer_22', 'ganado', 'stanier'].some(k => fn.includes(k))) score += 110;
+                    }
+
+                    // Police & Law
+                    if (/\b(cop|cops|police|arrest|arrested|jail|prison|siren|sirens|wanted|pursuit|bodycam|cctv|sheriff|fbi)\b/i.test(fullText)) {
+                        if (cat === 'police' || ['police', 'cop', 'trailer_01', 'trailer_04', 'trailer_11', 'trailer_14'].some(k => fn.includes(k))) score += 110;
+                    }
+
+                    // Beach & Ocean
+                    if (/\b(beach|bikini|ocean|coast|coastal|\bwater\b|yacht|boat|sea|sand|sun|swim)\b/i.test(fullText)) {
+                        if (cat === 'beach' || ['beach', 'trailer_06', 'trailer_07', 'trailer_12', 'trailer_14', 'squalo', 'port_gellhorn'].some(k => fn.includes(k))) score += 110;
+                    }
+
+                    // Nature & Swamps
+                    if (/\b(swamp|swamps|alligator|alligators|gator|gators|everglades|nature|wildlife|wetlands|grassrivers)\b/i.test(fullText)) {
+                        if (cat === 'nature & swamps' || ['swamp', 'alligator', 'grassrivers', 'trailer_10', 'trailer_11', 'trailer_17', 'trailer_25'].some(k => fn.includes(k))) score += 110;
+                    }
+
+                    // Heist & Robbery
+                    if (/\b(heist|heists|robbery|robberies|rob|robbing|store|cash|money|convenience|vault|gun|guns|weapon)\b/i.test(fullText)) {
+                        if (cat === 'robbery & heist' || ['stock_305', 'trailer_31', 'trailer_32', 'trailer_33', 'trailer_34'].some(k => fn.includes(k))) score += 110;
+                    }
+
+                    // Tech, Storage & Graphics
+                    if (/\b(file size|storage|gb|gigabyte|requirement|requirements|specs|engine|graphic|graphics|fidelity|pc|console|ps5|hardware|resolution)\b/i.test(fullText)) {
+                        if (['vice_city_08', 'vice_city_10', 'kalaga', 'port_gellhorn_06', 'keys', 'vice_city_style_01'].some(k => fn.includes(k))) score += 95;
+                        else if (fn.includes('jason_and_lucia')) score += 50;
+                    }
+
+                    // Map & Landmarks
+                    if (/\b(map|location|city|vice city|leonida|keys|port gellhorn|kalaga|world|scale|size|island|downtown)\b/i.test(fullText)) {
+                        if (['keys', 'vice_city_08', 'vice_city_10', 'kalaga', 'port_gellhorn', 'vice_city_style_01', 'trailer_08'].some(k => fn.includes(k))) score += 95;
+                    }
+
+                    // General Big News: Trailer, Launch, Story, Release, Awards, Leaks, Price
+                    if (/\b(trailer|launch|release|date|reveal|reveals|story|detail|details|announced|unveil|leak|leaks|cyberleek|awards|eligible|price|tag|switch|official|rockstar|take-two)\b/i.test(fullText)) {
+                        if (fn.includes('jason_and_lucia')) score += 65;
+                        else if (['vice_city_08', 'vice_city_10', 'vice_city_style_01', 'trailer_08'].some(k => fn.includes(k)) || cat === 'cinematic') score += 50;
                     }
                 } else {
-                    if (cat && fullText.includes(cat.toLowerCase())) score += 35;
+                    if (cat && fullText.includes(cat.toLowerCase())) score += 45;
                 }
 
                 ranked.push({ score, shot });
-                if (score > maxScore) {
-                    maxScore = score;
-                    best = shot;
-                }
             });
 
-            ranked.sort((a, b) => b.score - a.score);
-            activeMatchedAlternatives = ranked.slice(0, 8).map(r => r.shot);
+            ranked.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                const bDuo = (b.shot.filename || '').toLowerCase().includes('jason_and_lucia');
+                const aDuo = (a.shot.filename || '').toLowerCase().includes('jason_and_lucia');
+                if (bDuo !== aDuo) return bDuo ? 1 : -1;
+                return (a.shot.filename || '').localeCompare(b.shot.filename || '');
+            });
+
+            activeMatchedAlternatives = ranked.slice(0, 32).map(r => r.shot);
             activeAlternativeIndex = 0;
+            const best = activeMatchedAlternatives[0] || allScreenshots[0];
+
+            const altFilenames = new Set(activeMatchedAlternatives.map(s => s.filename));
+            const remaining = allScreenshots.filter(s => !altFilenames.has(s.filename));
+            renderHorizontalShotStrip([...activeMatchedAlternatives, ...remaining]);
 
             selectScreenshot(best.filename, best.url, best.category, best.focal_x, best.focal_y, false);
-            notify(`✨ Auto-Matched: ${best.category || 'Photo'}`);
+            notify(`✨ Auto-Matched: ${best.category || 'Photo'} (${best.filename.split('/').pop().slice(0, 22)}...)`);
         }
 
         // Cycle through next matching alternatives for this story

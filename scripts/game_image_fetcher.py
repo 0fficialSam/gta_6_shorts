@@ -212,6 +212,18 @@ def rank_matching_images(shots: list, headline: str, summary: str = "", game_nam
         reasons = []
 
         if is_gta6(game_clean):
+            # Baseline editorial weighting (ensures iconic flagship shots win over obscure assets on generic news)
+            if "jason_and_lucia_01" in fn:
+                score += 25
+            elif "jason_and_lucia_02" in fn:
+                score += 24
+            elif "vice_city_08" in fn or "vice_city_10" in fn or "vice_city_style_01" in fn:
+                score += 22
+            elif "lucia_caminos_01" in fn:
+                score += 20
+            elif "jason_duval_01" in fn:
+                score += 20
+
             has_lucia_text = bool(re.search(r'\b(lucia|female|woman|girl)\b', full_text))
             has_jason_text = bool(re.search(r'\b(jason|male|guy)\b', full_text))
             has_duo_text = (has_lucia_text and has_jason_text) or bool(re.search(r'\b(duo|partners|couple|protagonists|both|lucia\s*(?:&|and)\s*jason|jason\s*(?:&|and)\s*lucia)\b', full_text))
@@ -219,83 +231,108 @@ def rank_matching_images(shots: list, headline: str, summary: str = "", game_nam
             # 1. DUO MATCH (Lucia AND Jason)
             if has_duo_text:
                 if "jason_and_lucia" in fn:
-                    score += 100
+                    score += 110
                     reasons.append("Lucia & Jason Duo Render")
                 elif "lucia & jason" in cat or ("jason" in fn and "lucia" in fn):
-                    score += 85
+                    score += 90
                     reasons.append("Both Lucia & Jason Duo Match")
                 elif "trailer_29" in fn:
-                    score += 75
+                    score += 80
                     reasons.append("Duo Car Conversation Scene")
                 elif "lucia" in fn or "jason" in fn:
-                    score += 15
+                    score += 25
                     reasons.append("Partial Duo Match")
 
             # 2. SOLO LUCIA MATCH (News is about Lucia, NOT Jason)
             elif has_lucia_text and not has_jason_text:
                 if "lucia_caminos" in fn:
-                    score += 100
+                    score += 110
                     reasons.append("Solo Lucia Hero Render")
                 elif any(k in fn for k in ["trailer_02", "trailer_03", "trailer_05", "trailer_16"]):
-                    score += 75
+                    score += 85
                     reasons.append("Solo Lucia Scene")
                 elif cat == "lucia" or ("lucia" in fn and "jason" not in fn):
-                    score += 65
+                    score += 70
                     reasons.append("Lucia Character Match")
                 elif "lucia & jason" in cat or "jason" in fn:
-                    # Penalize duo / Jason shots when news is strictly about Lucia
                     score -= 40
 
             # 3. SOLO JASON MATCH (News is about Jason, NOT Lucia)
             elif has_jason_text and not has_lucia_text:
                 if "jason_duval" in fn:
-                    score += 100
+                    score += 110
                     reasons.append("Solo Jason Hero Render")
                 elif any(k in fn for k in ["trailer_20"]):
-                    score += 75
+                    score += 85
                     reasons.append("Solo Jason Scene")
                 elif cat == "jason" or ("jason" in fn and "lucia" not in fn):
-                    score += 65
+                    score += 70
                     reasons.append("Jason Character Match")
                 elif "lucia & jason" in cat or "lucia" in fn:
-                    # Penalize duo / Lucia shots when news is strictly about Jason
                     score -= 40
 
-            # 4. VEHICLES & SUPERCAR PHYSICS
-            if any(k in full_text for k in ["car", "vehicle", "drive", "physics", "supercar", "cheetah", "lowrider", "drift", "racing", "speed", "custom"]):
-                if cat == "vehicles" or any(k in fn for k in ["cheetah", "grotti", "car", "customs", "trailer_17", "trailer_18", "trailer_22", "ganado", "stanier"]):
-                    score += 50
+            # 4. MUSIC, SOUNDTRACK, SCORE & RADIO
+            if re.search(r'\b(music|soundtrack|score|song|songs|radio|artist|sza|tame impala|justice|audio|track|tracks|band|album|theme)\b', full_text):
+                if cat == "night & neon" or any(k in fn for k in ["trailer_28", "trailer_30", "trailer_22"]):
+                    score += 120
+                    reasons.append("Soundtrack & Nightlife Neon")
+                elif any(k in fn for k in ["trailer_29", "cheetah"]):
+                    score += 65
+                    reasons.append("Cruising with Radio")
+
+            # 5. VEHICLES & SUPERCAR PHYSICS
+            if re.search(r'\b(car|cars|vehicle|vehicles|drive|driving|physics|supercar|supercars|cheetah|grotti|lowrider|drift|racing|speed|custom|bike|bikes|motorcycle|highway)\b', full_text):
+                if cat == "vehicles" or any(k in fn for k in ["cheetah", "grotti", "ambrosia", "car", "customs", "trailer_17", "trailer_18", "trailer_22", "ganado", "stanier"]):
+                    score += 110
                     reasons.append("Vehicle & Supercar Topic")
 
-            # 5. POLICE, ARREST & PRISON
-            if any(k in full_text for k in ["cop", "police", "arrest", "jail", "prison", "siren", "wanted", "pursuit", "bodycam", "cctv"]):
-                if cat == "police" or any(k in fn for k in ["police", "cop", "trailer_02", "trailer_04", "trailer_11", "trailer_14"]):
-                    score += 50
+            # 6. POLICE, ARREST & PRISON
+            if re.search(r'\b(cop|cops|police|arrest|arrested|jail|prison|siren|sirens|wanted|pursuit|bodycam|cctv|sheriff|fbi)\b', full_text):
+                if cat == "police" or any(k in fn for k in ["police", "cop", "trailer_01", "trailer_04", "trailer_11", "trailer_14"]):
+                    score += 110
                     reasons.append("Police & Law Enforcement Topic")
 
-            # 6. BEACH & OCEAN
-            if any(k in full_text for k in ["beach", "bikini", "ocean", "coast", "water", "yacht", "boat", "sea", "dolphins"]):
-                if cat == "beach" or any(k in fn for k in ["beach", "trailer_06", "trailer_07", "trailer_12", "trailer_14", "squalo"]):
-                    score += 50
+            # 7. BEACH, OCEAN & COASTLINE
+            if re.search(r'\b(beach|bikini|ocean|coast|coastal|\bwater\b|yacht|boat|sea|sand|sun|swim)\b', full_text):
+                if cat == "beach" or any(k in fn for k in ["beach", "trailer_06", "trailer_07", "trailer_12", "trailer_14", "squalo", "port_gellhorn"]):
+                    score += 110
                     reasons.append("Beach & Ocean Environment")
 
-            # 7. NIGHT & NEON CLUBS
-            if any(k in full_text for k in ["night", "neon", "club", "strip", "skyline", "party", "dance", "dj"]):
-                if cat == "night & neon" or any(k in fn for k in ["night", "neon", "trailer_19", "trailer_28", "trailer_30"]):
-                    score += 50
-                    reasons.append("Night & Neon Nightlife")
-
-            # 8. NATURE & SWAMPS
-            if any(k in full_text for k in ["swamp", "alligator", "everglades", "nature", "wildlife", "wetlands", "lake", "grassrivers"]):
-                if cat == "nature & swamps" or any(k in fn for k in ["swamp", "alligator", "grassrivers", "trailer_10", "trailer_11", "trailer_25"]):
-                    score += 50
+            # 8. NATURE, SWAMPS & WILDLIFE
+            if re.search(r'\b(swamp|swamps|alligator|alligators|gator|gators|everglades|nature|wildlife|wetlands|grassrivers)\b', full_text):
+                if cat == "nature & swamps" or any(k in fn for k in ["swamp", "alligator", "grassrivers", "trailer_10", "trailer_11", "trailer_17", "trailer_25"]):
+                    score += 110
                     reasons.append("Everglades & Swamp Wildlife")
 
             # 9. HEIST & STORE ROBBERIES
-            if any(k in full_text for k in ["heist", "robbery", "store", "cash", "money", "convenience"]):
-                if any(k in fn for k in ["stock_305", "trailer_32", "trailer_33", "trailer_34"]):
-                    score += 50
+            if re.search(r'\b(heist|heists|robbery|robberies|rob|robbing|store|cash|money|convenience|vault|gun|guns|weapon)\b', full_text):
+                if any(k in fn for k in ["stock_305", "trailer_31", "trailer_32", "trailer_33", "trailer_34"]):
+                    score += 110
                     reasons.append("Heist & Robbery Action")
+
+            # 10. STORAGE, FILE SIZE, SPECS, TECH & GRAPHICS
+            if re.search(r'\b(file size|storage|gb|gigabyte|requirement|requirements|specs|engine|graphic|graphics|fidelity|pc|console|ps5|hardware|resolution)\b', full_text):
+                if any(k in fn for k in ["vice_city_08", "vice_city_10", "kalaga", "port_gellhorn_06", "keys", "vice_city_style_01"]):
+                    score += 95
+                    reasons.append("4K Graphics & Engine Panorama")
+                elif "jason_and_lucia" in fn:
+                    score += 50
+                    reasons.append("Next-Gen Fidelity Key Art")
+
+            # 11. MAP, LOCATION & VICE CITY LANDMARKS
+            if re.search(r'\b(map|location|city|vice city|leonida|keys|port gellhorn|kalaga|world|scale|size|island|downtown)\b', full_text):
+                if any(k in fn for k in ["keys", "vice_city_08", "vice_city_10", "kalaga", "port_gellhorn", "vice_city_style_01", "trailer_08"]):
+                    score += 95
+                    reasons.append("World & Map Landmarks")
+
+            # 12. GENERAL BIG NEWS: TRAILER, LAUNCH, RELEASE DATE, STORY DETAILS, AWARDS, LEAKS, PRICE
+            if re.search(r'\b(trailer|launch|release|date|reveal|reveals|story|detail|details|announced|unveil|leak|leaks|cyberleek|awards|eligible|price|tag|switch|official|rockstar|take-two)\b', full_text):
+                if "jason_and_lucia" in fn:
+                    score += 65
+                    reasons.append("Official GTA VI Story Key Art")
+                elif any(k in fn for k in ["vice_city_08", "vice_city_10", "vice_city_style_01", "trailer_08"]) or cat == "cinematic":
+                    score += 50
+                    reasons.append("Vice City Cinematic Atmosphere")
 
         else:
             # ── UNIVERSAL GAME SPECIFIC MATCHING ──
@@ -362,26 +399,38 @@ def rank_matching_images(shots: list, headline: str, summary: str = "", game_nam
                         score += 50
                         reasons.append("Erdtree & Lands Between")
 
-            # Universal keyword token overlap
-            text_tokens = set(re.findall(r'[a-z0-9]{4,}', full_text))
-            stop = {'game', 'this', 'that', 'with', 'from', 'have', 'more', 'about', 'leak', 'news', 'update', 'video', 'confirmed', 'revealed', 'report'}
-            meaningful_tokens = text_tokens - stop
-            for tok in meaningful_tokens:
-                if tok in fn or tok in title or tok in cat:
-                    score += 15
-                    reasons.append(f"Keyword match '{tok}'")
+        # Universal keyword token overlap (executed for ALL games!)
+        text_tokens = set(re.findall(r'[a-z0-9]{4,}', full_text))
+        stop = {'game', 'this', 'that', 'with', 'from', 'have', 'more', 'about', 'leak', 'news', 'update', 'video', 'confirmed', 'revealed', 'report'}
+        meaningful_tokens = text_tokens - stop
+        for tok in meaningful_tokens:
+            if tok in fn or tok in title or tok in cat:
+                score += 15
+                reasons.append(f"Keyword match '{tok}'")
 
         primary_reason = reasons[0] if reasons else "Editorial Fit"
         ranked.append((score, primary_reason, s))
 
-    ranked.sort(key=lambda x: x[0], reverse=True)
+    # Deterministic tie-breaker favoring flagship shots over obscure ones
+    def _sort_priority(item):
+        sc, r, s = item
+        fn = (s.get("filename") or "").lower()
+        priority = 0
+        if "jason_and_lucia_01" in fn: priority = 100
+        elif "jason_and_lucia" in fn: priority = 80
+        elif "vice_city_08" in fn or "vice_city_10" in fn or "vice_city" in fn: priority = 60
+        elif "lucia_caminos" in fn or "jason_duval" in fn: priority = 50
+        elif "trailer" in fn: priority = 30
+        return (sc, priority, fn)
+
+    ranked.sort(key=_sort_priority, reverse=True)
     return ranked
 
 
 def find_best_matching_image(shots: list, headline: str, summary: str = "", game_name: str = "GTA VI") -> dict:
     """
     Finds the single best matching screenshot for a news headline and summary.
-    100% Deterministic: resolves ties stably by highest score, then alphabetical filename.
+    100% Deterministic: resolves ties stably by highest score, then flagship editorial weight.
     """
     if not shots:
         return None
@@ -389,13 +438,6 @@ def find_best_matching_image(shots: list, headline: str, summary: str = "", game
     ranked = rank_matching_images(shots, headline, summary, game_name)
     if not ranked:
         return shots[0]
-
-    top_score = ranked[0][0]
-    if top_score > 0:
-        top_tier = [s for sc, r, s in ranked if sc == top_score]
-        # Deterministic tie-breaker: sort by filename alphabetically
-        top_tier.sort(key=lambda s: s.get("filename", ""))
-        return top_tier[0]
 
     return ranked[0][2]
 
