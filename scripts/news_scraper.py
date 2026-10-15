@@ -64,6 +64,7 @@ def normalize_search_text(text: str) -> str:
     """Normalize unicode and remove accents (e.g. Yōtei -> yotei) for robust matching."""
     if not text:
         return ""
+    text = str(text)
     nfkd = unicodedata.normalize('NFKD', text)
     return ''.join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
 
@@ -276,18 +277,32 @@ def mark_as_used(story: dict, registry: dict):
 
 # ── DATE PARSING & RELEVANCE ──────────────────────────────────────────────────
 def parse_date(entry) -> datetime | None:
-    for field in ['published', 'updated']:
+    for field in ['published', 'updated', 'published_parsed', 'created', 'date']:
         val = entry.get(field, '')
         if val:
-            try: return parsedate_to_datetime(val)
-            except: pass
+            if isinstance(val, datetime):
+                return val
+            try:
+                from dateutil import parser as dt_parser
+                return dt_parser.parse(str(val))
+            except Exception:
+                try:
+                    return parsedate_to_datetime(str(val))
+                except Exception:
+                    pass
     return None
 
 def is_recent(entry) -> bool:
     dt = parse_date(entry)
-    if dt is None: return True
-    try: return dt >= datetime.now(timezone.utc) - timedelta(days=MAX_AGE_DAYS)
-    except: return True
+    if dt is None:
+        return True
+    try:
+        now_utc = datetime.now(timezone.utc)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt >= now_utc - timedelta(days=MAX_AGE_DAYS)
+    except:
+        return True
 
 def get_date_str(entry) -> str:
     dt = parse_date(entry)
