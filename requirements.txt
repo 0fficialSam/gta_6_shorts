@@ -11,7 +11,7 @@ pyttsx3>=2.90            # Offline TTS (free, no internet needed)
 
 # ── AUDIO PROCESSING & TTS ───────────────────────────────────
 pydub>=0.25.1            # Audio manipulation
-edge-tts>=6.1.0          # Studio neural TTS voices (free)
+edge-tts>=7.3.1          # Studio neural TTS voices (free)
 
 # ── VIDEO CREATION & FFMPEG ──────────────────────────────────
 imageio-ffmpeg>=0.5.0    # Bundled standalone FFmpeg binary for Windows
