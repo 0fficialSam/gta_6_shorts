@@ -1120,6 +1120,9 @@ const PRESETS = [
         let currentMode = 'both';
         let currentToolTab = 'story';
         let currentSelectedGame = 'GTA VI';
+        let currentLoadedShotsGame = 'GTA VI';
+        let currentScrapedStoryIndex = 0;
+        let lastScrapedGame = null;
         let currentBgFilename = 'Jason_and_Lucia_01.jpg';
         let currentBgFocalX = 0.50;
         let currentBgFocalY = 0.45;
@@ -2740,14 +2743,46 @@ const PRESETS = [
             saveSettingsToStorage();
         }
 
+        function renderAutoScrapeButton(state = 'idle') {
+            const btn = document.getElementById('btnAutoScrapeTop');
+            if (!btn) return;
+            const game = currentSelectedGame || 'GTA VI';
+
+            if (state === 'loading') {
+                btn.disabled = true;
+                btn.innerHTML = `
+                    <div class="flex items-center gap-2 pointer-events-none">
+                        <i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i>
+                        <span>SCRAPING FRESH STORY...</span>
+                    </div>
+                    <span class="text-[11px] font-mono font-bold bg-black/15 px-2 py-0.5 rounded-full uppercase" id="currentNewsGameLabel">${game}</span>
+                `;
+            } else if (state === 'success') {
+                btn.disabled = false;
+                btn.innerHTML = `
+                    <div class="flex items-center gap-2 pointer-events-none">
+                        <i data-lucide="check" class="w-4 h-4 text-black stroke-[3]"></i>
+                        <span>STORY LOADED!</span>
+                    </div>
+                    <span class="text-[11px] font-mono font-bold bg-black/15 px-2 py-0.5 rounded-full uppercase" id="currentNewsGameLabel">${game}</span>
+                `;
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = `
+                    <div class="flex items-center gap-2 pointer-events-none">
+                        <i data-lucide="zap" class="w-4 h-4 fill-black group-hover:scale-110 transition"></i>
+                        <span>⚡ AUTO-SCRAPE FRESH STORY</span>
+                    </div>
+                    <span class="text-[11px] font-mono font-bold bg-black/15 px-2 py-0.5 rounded-full uppercase" id="currentNewsGameLabel">${game}</span>
+                `;
+            }
+            lucide.createIcons();
+        }
+
         // 1-Click Auto-Scrape Top Story for Selected Game
         async function autoScrapeTopStory() {
-            const btn = document.getElementById('btnAutoScrapeTop');
             const game = currentSelectedGame || "GTA VI";
-            if (btn) {
-                btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Scraping...</span>`;
-                btn.disabled = true;
-            }
+            renderAutoScrapeButton('loading');
             notify(`Fetching live breaking news for ${game}...`);
 
             try {
@@ -2759,20 +2794,32 @@ const PRESETS = [
                 const res = await fetch(`/api/news/?game=${encodeURIComponent(game)}`);
                 const data = await res.json();
                 if (data.success && data.stories && data.stories.length > 0) {
-                    const story = data.stories[0];
+                    if (lastScrapedGame !== game) {
+                        currentScrapedStoryIndex = 0;
+                        lastScrapedGame = game;
+                    }
+
+                    const curHeadline = (document.getElementById('inputHeadline')?.value || '').trim().toUpperCase();
+                    // If current headline already matches the story at current index, cycle to next story
+                    if (data.stories.length > 1 && curHeadline === (data.stories[currentScrapedStoryIndex % data.stories.length].title || '').trim().toUpperCase()) {
+                        currentScrapedStoryIndex = (currentScrapedStoryIndex + 1) % data.stories.length;
+                    }
+
+                    const story = data.stories[currentScrapedStoryIndex % data.stories.length];
                     loadStoryIntoStudio(story);
-                    notify(`⚡ Loaded ${game} story: "${story.title.slice(0, 42)}..."`);
+                    notify(`⚡ Loaded ${game} story (${(currentScrapedStoryIndex % data.stories.length) + 1}/${data.stories.length}): "${story.title.slice(0, 42)}..."`, 'success');
+
+                    renderAutoScrapeButton('success');
+                    setTimeout(() => {
+                        renderAutoScrapeButton('idle');
+                    }, 1200);
                 } else {
                     notify(`No stories found for ${game}`);
+                    renderAutoScrapeButton('idle');
                 }
             } catch (e) {
-                notify("Failed to scrape story: " + e.message);
-            } finally {
-                if (btn) {
-                    btn.innerHTML = `<i data-lucide="zap" class="w-3.5 h-3.5 fill-white"></i><span>⚡ Auto-Scrape Story</span>`;
-                    btn.disabled = false;
-                }
-                lucide.createIcons();
+                notify("Failed to scrape story: " + e.message, 'error');
+                renderAutoScrapeButton('idle');
             }
         }
 
