@@ -144,13 +144,18 @@ THEME_PALETTES = THEME_COLORS
 
 def find_highlight_spans(text: str, custom_keywords: list = None) -> list:
     """Finds (start, end) index spans for words that should be highlighted."""
+    if not text:
+        return []
+    text = str(text)
     spans = []
     if custom_keywords is not None:
+        if isinstance(custom_keywords, str):
+            custom_keywords = [custom_keywords]
         # User explicitly specified keywords/chips from UI -> honor user choice 1:1!
         patterns = []
         for kw in custom_keywords:
-            if kw and kw.strip():
-                patterns.append(r'\b' + re.escape(kw.strip().upper()) + r'\b')
+            if kw is not None and str(kw).strip():
+                patterns.append(r'\b' + re.escape(str(kw).strip().upper()) + r'\b')
     else:
         # CLI / Auto Mode fallback -> use automatic viral pattern heuristics
         patterns = list(HIGHLIGHT_PATTERNS)
@@ -428,18 +433,31 @@ def generate_instagram_post(
         except Exception as e:
             print(f"Smart background selection error: {e}")
 
+    base_canvas = None
     if background_path and os.path.exists(background_path):
-        bg_img = Image.open(background_path).convert("RGB")
-        # Check focal point
-        fname = os.path.basename(background_path)
-        if focal_x is not None and focal_y is not None:
-            fx, fy = float(focal_x), float(focal_y)
-        elif fname in FOCAL_POINTS:
-            fx, fy = FOCAL_POINTS[fname]
-        else:
-            fx, fy = detect_focal_point(bg_img)
-        base_canvas = crop_to_4_5(bg_img, fx, fy)
-    else:
+        try:
+            bg_img = Image.open(background_path).convert("RGB")
+            # Check focal point
+            fname = os.path.basename(background_path)
+            fx, fy = None, None
+            if focal_x is not None and focal_y is not None:
+                try:
+                    fx, fy = float(focal_x), float(focal_y)
+                    if not (0.0 <= fx <= 1.0 and 0.0 <= fy <= 1.0):
+                        fx, fy = None, None
+                except (ValueError, TypeError):
+                    fx, fy = None, None
+            if fx is None or fy is None:
+                if fname in FOCAL_POINTS:
+                    fx, fy = FOCAL_POINTS[fname]
+                else:
+                    fx, fy = detect_focal_point(bg_img)
+            base_canvas = crop_to_4_5(bg_img, fx, fy)
+        except Exception as e:
+            print(f"[instagram_generator] Warning loading background {background_path}: {e}")
+            base_canvas = None
+
+    if base_canvas is None:
         # Fallback dark gradient canvas
         base_canvas = Image.new("RGB", (IG_WIDTH, IG_HEIGHT), (15, 17, 24))
 
