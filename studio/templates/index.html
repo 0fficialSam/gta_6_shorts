@@ -309,7 +309,7 @@
                                     <!-- Lower Typography Block: Velvet Dark Gradient Scrim -->
                                     <div class="flex flex-col items-center text-center w-full pt-14 pb-3.5 px-4 bg-gradient-to-t from-black/95 via-black/80 to-transparent rounded-b-xl">
                                         <!-- Hook Badge -->
-                                        <div id="liveHookText" class="h-7 px-3.5 rounded-md bg-zinc-950/90 border border-vice-pink text-vice-pink text-xs font-black tracking-widest uppercase mb-2 shadow-[0_0_12px_rgba(255,42,109,0.35)] inline-flex items-center">
+                                        <div id="liveHookText" class="h-7 px-3.5 rounded-md bg-zinc-950/90 border border-vice-pink text-white text-xs font-black tracking-widest uppercase mb-2 shadow-[0_0_12px_rgba(255,42,109,0.35)] inline-flex items-center">
                                             LEAKED
                                         </div>
 
@@ -1721,9 +1721,9 @@ const PRESETS = [
             const hookEl = document.getElementById('liveHookText');
             if (hookEl) {
                 hookEl.innerText = hook;
-                hookEl.style.color = pal.hookColor;
+                hookEl.style.color = '#FFFFFF';
                 hookEl.style.borderColor = pal.hookColor + '80';
-                hookEl.style.backgroundColor = pal.hookColor + '25';
+                hookEl.style.backgroundColor = 'rgba(14, 18, 26, 0.95)';
                 hookEl.style.boxShadow = `0 0 12px ${pal.hookColor}40`;
             }
 

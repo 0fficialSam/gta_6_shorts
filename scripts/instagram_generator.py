@@ -625,7 +625,7 @@ def generate_instagram_post(
         draw.rounded_rectangle(
             [(hk_x1, hk_y1), (hk_x2, hk_y2)],
             radius=10,
-            fill=(12, 14, 22),
+            fill=(14, 18, 26),
             outline=t_cfg["hook"],
             width=2
         )
@@ -633,7 +633,7 @@ def generate_instagram_post(
             ((hk_x1 + hk_x2) // 2, (hk_y1 + hk_y2) // 2),
             hook_clean,
             font=hook_font,
-            fill=t_cfg["hook"],
+            fill=(255, 255, 255),
             anchor="mm"
         )
         current_y = hk_y2 + hook_gap  # Exactly 10px below hook badge!

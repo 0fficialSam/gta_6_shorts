@@ -479,6 +479,42 @@ class FeatureUnitTests(TestCase):
         self.assertIn("#", caption)
         self.assertGreater(len(caption.split("#")), 4)
 
+    def test_title_cleaner_three_edge_cases(self):
+        """Verify strict title cleaner: only remove trailing ' - Source', never split words, keep quotes."""
+        from scripts.story_enhancer import clean_scraped_title
+
+        # Case 1: Hyphen inside a word (eye-watering) must NOT be split
+        t1 = "GTA 6 trailer reveals eye-watering visuals - IGN"
+        self.assertEqual(clean_scraped_title(t1), "GTA 6 trailer reveals eye-watering visuals")
+
+        # Case 2: Quote marks inside title ('GTA 6') must be kept intact
+        t2 = "'GTA 6' leak: Cyberleek says it is over - GameRant"
+        self.assertEqual(clean_scraped_title(t2), "'GTA 6' leak: Cyberleek says it is over")
+
+        # Case 3: Multiple hyphens with compound name (Take-Two) and intermediate dash
+        t3 = "Rockstar confirms GTA 6 - Take-Two update - Root-Nation.com"
+        self.assertEqual(clean_scraped_title(t3), "Rockstar confirms GTA 6 - Take-Two update")
+
+        # Case 4: No trailing source
+        t4 = "Rockstar Games Officially Reaffirms Grand Theft Auto VI Fall 2026 Release Window in Earnings Call"
+        self.assertEqual(clean_scraped_title(t4), t4)
+
+    def test_factual_summary_rules(self):
+        """Verify summary never invents facts, avoids forbidden buzzwords, and respects 14-word limit."""
+        from scripts.story_enhancer import neutral_factual_rephrase, sanitize_summary, FORBIDDEN_BUZZWORDS
+
+        # Must not contain forbidden buzzwords
+        summary = neutral_factual_rephrase("GTA 6 trailer reveals eye-watering visuals", "", "GTA VI")
+        for pat in FORBIDDEN_BUZZWORDS:
+            self.assertIsNone(re.search(pat, summary, re.IGNORECASE))
+        self.assertLessEqual(len(summary.split()), 14)
+
+        # Reject summary inventing facts like "analysts"
+        bad_summary = "Industry analysts report that GTA 6 will change gaming forever."
+        sanitized = sanitize_summary(bad_summary, "GTA 6 trailer reveals eye-watering visuals", "TRAILER", "GTA VI")
+        self.assertNotIn("analysts", sanitized.lower())
+        self.assertLessEqual(len(sanitized.split()), 14)
+
     # ── Video Assembler Feature Tests ──
     def test_video_score_image_for_sentence_semantic_accuracy(self):
         """Verify sentence-to-image semantic matching rules."""

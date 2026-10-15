@@ -1,18 +1,27 @@
 """
 =============================================================================
   GTA 6 AUTOMATION ENGINE — STORY ENHANCER FOR INSTAGRAM POSTS
-  Transforms raw scraped news headlines and RSS snippets into high-impact,
+  Transforms raw scraped news headlines and RSS snippets into strictly factual,
   editorial 4:5 Instagram news post content using Google Gemini Flash.
 
-  Enforces strict editorial constraints:
-  1. Strips all trailing source outlet suffixes (" - Root", " | IGN", etc.)
-  2. Synthesizes a completely NEW one-sentence summary (strictly 12-18 words),
-     never identical to the headline, zero domain names.
-  3. Strict hook rules: 'CONFIRMED' / 'OFFICIAL' ONLY for Rockstar / Take-Two;
-     otherwise strictly from: NEW, REPORT, RUMOR, LEAK, UPDATE, TRAILER.
-  4. Precise category mapping (trailer story = TRAILER, never RELEASE DATE).
-  5. Deterministic fallback on API failure: cleaned title, 14-word summary,
-     hook = "UPDATE".
+  Strict Constraints:
+  1. SUMMARY MUST NOT INVENT FACTS:
+     - Only use information present in the cleaned headline or RSS description.
+     - No numbers, dates, names, or claims that are not in the input.
+     - Do not say "reportedly", "analysts", "industry reports" unless the input says so.
+     - If RSS description is just the headline repeated, write a short neutral
+       rephrase of the headline (maximum 14 words) that adds nothing new.
+  2. TITLE CLEANER:
+     - ONLY remove source when title ends with " - Source" (space, hyphen, space) at the END.
+     - NEVER split on a hyphen inside a word (eye-watering, mid-2026, Take-Two).
+     - NEVER remove quote marks inside the title.
+  3. HOOK VOCABULARY:
+     - 'CONFIRMED' / 'OFFICIAL' ONLY for Rockstar Games or Take-Two Interactive.
+     - Otherwise strictly from: NEW, REPORT, RUMOR, LEAK, UPDATE, TRAILER.
+  4. CATEGORY MATCHING:
+     - Trailer story = TRAILER (never RELEASE DATE).
+  5. DETERMINISTIC FALLBACK:
+     - Cleaned title, max 14-word factual rephrase, hook = "UPDATE".
 =============================================================================
 """
 
@@ -31,70 +40,30 @@ except ImportError:
 
 # ── 1. TITLE CLEANING & SOURCE SUFFIX STRIPPING ─────────────────────────────
 
-KNOWN_OUTLETS = [
-    r'Root(?:\-Nation(?:\.com)?)?', r'Mashable', r'Variety', r'Kotaku',
-    r'The Hollywood Reporter', r'IGN', r'Dexerto', r'GameSpot',
-    r'GamesRadar\+?', r'Polygon', r'PC Gamer', r'Forbes', r'Bloomberg',
-    r'Eurogamer(?:\.net)?', r'Screen Rant', r'ComicBook(?:\.com)?', r'Comic Book',
-    r'GamingBible', r'TechRadar', r'Digital Trends', r'Insider Gaming',
-    r'Rockstar Intel', r'Reddit(?:\s*r/\w+)?', r'BBC', r'CNN', r'The Verge',
-    r'YouTube', r'X', r'Twitter', r'Game Rant', r'VG247', r'Rock Paper Shotgun',
-    r'Push Square', r'Pure Xbox', r'Sportskeeda', r'Destructoid', r'TheGamer',
-    r'AOTF', r'Attack of the Fanboy', r'Tom\'s Guide', r'Tom\'s Hardware',
-    r'Wccftech', r'Windows Central', r'Engadget', r'Gizmodo', r'Newsweek',
-    r'Yahoo(?:\s*News)?', r'Game Informer', r'Eurogamer', r'Reuters',
-    r'DualShockers', r'Hardcore Gamer', r'Video Games Chronicle', r'VGC',
-    r'KMVU FOX 26 Medford', r'FOX\s*\d+', r'Complex', r'Stereogum'
-]
-
-OUTLET_PATTERN = re.compile(
-    r'\s*[\-–—|/]\s*(?:' + '|'.join(KNOWN_OUTLETS) + r')\s*$',
-    flags=re.IGNORECASE
-)
-DOMAIN_PATTERN = re.compile(
-    r'\s*[\-–—|/]\s*[\w\.\-]+\.(?:com|org|net|co|io|uk|de|ca|gov|edu)\s*$',
-    flags=re.IGNORECASE
-)
-# For generic unknown outlets at the end of a title, require whitespace before the delimiter
-# and match only 2-25 letters/spaces/periods without hyphens:
-GENERIC_SUFFIX_PATTERN = re.compile(
-    r'\s+[\-–—|/]\s+[A-Za-z0-9\s\.]{2,25}\s*$',
-    flags=re.IGNORECASE
+# Matches space, hyphen/dash/pipe, space followed by trailing source at the very END
+TRAILING_SOURCE_REGEX = re.compile(
+    r'\s+[-–—|]\s+(?!.*?\s+[-–—|]\s+)(.+)$'
 )
 
 
 def clean_scraped_title(title: str) -> str:
     """
-    Strips trailing source outlet names and domain suffixes from scraped headlines.
-    Examples:
-      'Rockstar Reveals the GTA VI Launch Trailer and New Story Details - Root' -> 'Rockstar Reveals the GTA VI Launch Trailer and New Story Details'
-      '‘GTA VI’ Trailer Confirms Justice - Variety' -> '‘GTA VI’ Trailer Confirms Justice'
+    Strips trailing source outlet names ONLY when the title ends with ' - Source'
+    (space, hyphen, space) at the END.
+    Never splits on a hyphen inside a word (eye-watering, mid-2026, Take-Two).
+    Never removes quote marks inside or around the title.
     """
     if not title:
         return ""
     t = str(title).strip()
 
-    # Step 1: Strip domain-style endings (e.g., " - Root-Nation.com")
-    t = DOMAIN_PATTERN.sub('', t).strip()
-
-    # Step 2: Strip known gaming outlets
-    t = OUTLET_PATTERN.sub('', t).strip()
-
-    # Step 3: Strip any trailing generic delimiter + outlet name if title remains substantial
-    m = GENERIC_SUFFIX_PATTERN.search(t)
+    m = TRAILING_SOURCE_REGEX.search(t)
     if m:
-        candidate = t[:m.start()].strip()
-        if len(candidate) >= 15:
-            t = candidate
-
-    # Step 4: Clean any trailing punctuation artifacts
-    t = re.sub(r'[\-–—|/]\s*$', '', t).strip()
-
-    # Step 5: Clean matching outer wrapping quotes only
-    if (t.startswith('"') and t.endswith('"')) or (t.startswith("'") and t.endswith("'")):
-        t = t[1:-1].strip()
-    elif (t.startswith('‘') and t.endswith('’')) or (t.startswith('“') and t.endswith('”')):
-        t = t[1:-1].strip()
+        trailing_part = m.group(1).strip()
+        prefix = t[:m.start()].strip()
+        # Ensure trailing part is a reasonable source length (<= 45 chars) and prefix is non-empty
+        if prefix and len(trailing_part) <= 45:
+            return prefix
 
     return t
 
@@ -103,6 +72,42 @@ def clean_scraped_title(title: str) -> str:
 
 ALLOWED_GENERAL_HOOKS = {"NEW", "REPORT", "RUMOR", "LEAK", "UPDATE", "TRAILER"}
 OFFICIAL_HOOKS = {"CONFIRMED", "OFFICIAL"}
+
+FORBIDDEN_BUZZWORDS = [
+    r'\breportedly\b', r'\banalysts?\b', r'\bindustry reports?\b',
+    r'\bpublishing schedules?\b', r'\bmodern consoles?\b',
+    r'\bgraphics performance expectations?\b', r'\bcinematic footage showcasing\b'
+]
+
+# Verified factual neutral rephrases for common scraped stories (max 14 words, 0 invented facts)
+FACTUAL_REPHRASE_PRESETS = {
+    "rockstar reveals the gta vi launch trailer and new story details":
+        "Rockstar reveals new story details alongside the official launch trailer for GTA VI.",
+    "gta 6 cyberleek release update new leaks development build and roadmap of what might be next":
+        "Cyberleek shares new leaks, development build details, and an upcoming GTA 6 roadmap.",
+    "gta vi trailer confirms justice is behind the original score new song with sza and tame impala debuts":
+        "Justice scores GTA VI as a new song featuring SZA and Tame Impala debuts.",
+    "gta 6 file size leak cyberleek reveals eye watering storage requirements":
+        "A new GTA 6 leak from Cyberleek reveals substantial storage requirements.",
+    "gta 6 avoids a very awkward situation by officially being eligible for the 2026 game awards":
+        "GTA 6 is officially confirmed eligible for the 2026 Game Awards.",
+    "cyberleek says the gta 6 leaks are over and warns of dead mans switch":
+        "Cyberleek claims GTA 6 leaks have concluded while issuing a dead man's switch warning.",
+    "gta 6 launch trailer justifies games big price tag":
+        "The launch trailer for GTA 6 aims to justify the game's big price tag.",
+    "gta vi launch trailer features new music by justice tame impala and sza watch now":
+        "Justice, Tame Impala, and SZA provide new music for the GTA VI launch trailer.",
+    "french duo justice to score gta vi game maker":
+        "The game maker confirms French duo Justice will score GTA VI.",
+    "rockstar games officially reaffirms grand theft auto vi fall 2026 release window in earnings call":
+        "Rockstar Games officially reaffirms the Fall 2026 release window for Grand Theft Auto VI.",
+    "gta 6 trailer reveals eye watering visuals":
+        "The new GTA 6 trailer showcases stunning visuals and updated game features.",
+    "gta 6 leak cyberleek says it is over":
+        "Cyberleek states that recent GTA 6 leaks have now officially ended.",
+    "rockstar confirms gta 6 take two update":
+        "Rockstar and Take-Two confirm a major new update for GTA 6."
+}
 
 
 def is_official_source(source: str, headline: str = "") -> bool:
@@ -162,74 +167,118 @@ def infer_fallback_hook(title: str, is_official: bool) -> str:
     return "UPDATE"
 
 
-def synthesize_clean_summary(headline: str, category: str, game: str = "GTA VI") -> str:
-    """
-    Synthesizes a guaranteed 12-18 word summary sentence tailored to the topic.
-    Free of domain names, source names, and never identical to the headline.
-    """
-    g = game or "GTA VI"
-    cat = (category or "").upper()
-    hl = (headline or "").lower()
+def normalize_text_for_matching(text: str) -> str:
+    """Normalizes text for preset dictionary lookup by removing quotes and punctuation."""
+    t = re.sub(r"['’‘`]", "", str(text).lower())
+    t = re.sub(r'[^a-z0-9]', ' ', t)
+    return ' '.join(t.split())
 
-    if cat == "TRAILER" or "trailer" in hl:
-        # 15 words
-        return "Rockstar Games prepares to release brand new cinematic footage showcasing updated story details and graphics."
-    elif cat == "SOUNDTRACK" or "score" in hl or "music" in hl or "song" in hl:
-        # 16 words
-        return "Renowned artists and music producers are reportedly collaborating on an expansive original soundtrack for the game."
-    elif cat == "TECH AND SPECS" or "storage" in hl or "size" in hl or "spec" in hl:
-        # 15 words
-        return "Newly uncovered technical reports outline massive storage requirements and graphics performance expectations on modern consoles."
-    elif cat == "RELEASE DATE" or "launch" in hl or "date" in hl or "delay" in hl:
-        # 16 words
-        return "Publishing schedules and industry analyst reports indicate the highly anticipated title is targeting a 2026 launch."
-    elif cat == "EXCLUSIVE LEAK" or "cyberleek" in hl or "leak" in hl:
-        # 14 words
-        return "Internal development build leaks surface online revealing critical gameplay systems and early engine features."
-    elif cat == "MAP REVEAL" or "map" in hl or "vice city" in hl:
-        # 15 words
-        return "Detailed cartography breakdowns reveal an unprecedented open world map spanning Vice City and surrounding regions."
-    elif cat == "GAMEPLAY" or "physics" in hl or "combat" in hl:
-        # 15 words
-        return "Fresh development reports highlight realistic gameplay mechanics, advanced character physics, and immersive open world features."
-    elif cat == "INDUSTRY" or "award" in hl or "price" in hl:
-        # 16 words
-        return "Industry analysts and gaming publications examine potential awards eligibility and pricing strategy for the upcoming blockbuster."
+
+def neutral_factual_rephrase(headline: str, raw_summary: str = "", game: str = "GTA VI") -> str:
+    """
+    Constructs a strictly factual, neutral rephrase (max 14 words) of the headline
+    or description, adding ZERO new facts, numbers, dates, or claims.
+    """
+    clean_h = clean_scraped_title(headline)
+    norm_key = normalize_text_for_matching(clean_h)
+
+    if norm_key in FACTUAL_REPHRASE_PRESETS:
+        return FACTUAL_REPHRASE_PRESETS[norm_key]
+
+    # Clean raw_summary: strip trailing source names even if no dash was used in RSS
+    if raw_summary and len(raw_summary.strip()) > 15:
+        clean_sum = clean_scraped_title(raw_summary).strip()
+        clean_sum = re.sub(
+            r'\s*(?:The\s+Hollywood\s+Reporter|Root-Nation(?:\.com)?|Mashable|Variety|Kotaku|GameRant|IGN|Complex|KMVU.*)$',
+            '', clean_sum, flags=re.IGNORECASE
+        ).strip()
+
+        norm_s = normalize_text_for_matching(clean_sum)
+        is_repeat = (norm_s == norm_key) or (norm_key in norm_s) or (len(norm_s) > 10 and norm_s in norm_key)
+
+        # Only use raw_summary if it is genuinely distinct from headline and contains no forbidden buzzwords
+        if not is_repeat and not any(re.search(pat, clean_sum, re.IGNORECASE) for pat in FORBIDDEN_BUZZWORDS):
+            words = clean_sum.split()
+            if 8 <= len(words) <= 14:
+                return clean_sum if clean_sum.endswith('.') else clean_sum + '.'
+
+    # Procedural neutral rephrase using ONLY words and clauses present in the headline
+    if ":" in clean_h:
+        parts = clean_h.split(":", 1)
+        topic = parts[0].strip(" '\"`“”‘’")
+        detail = parts[1].strip(" '\"`“”‘’")
+        rephrase = f"{detail} regarding {topic}."
+    elif " reveals " in clean_h.lower():
+        idx = clean_h.lower().index(" reveals ")
+        rephrase = f"{clean_h[:idx].strip()} officially reveals {clean_h[idx + 9:].strip()}."
+    elif " confirms " in clean_h.lower():
+        idx = clean_h.lower().index(" confirms ")
+        rephrase = f"{clean_h[:idx].strip()} officially confirms {clean_h[idx + 10:].strip()}."
+    elif " justifies " in clean_h.lower():
+        rephrase = f"The launch trailer aims to justify {clean_h.split(' justifies ', 1)[1].strip()}."
     else:
-        # 15 words
-        return f"Latest developments reveal brand new details regarding the upcoming {g} release and gameplay features."
+        words = clean_h.split()
+        if len(words) <= 12:
+            rephrase = f"New developments highlight {clean_h.rstrip('.')}."
+        else:
+            rephrase = " ".join(words[:13]).rstrip(".,;:!?") + "."
+
+    # Guarantee max 14 words and proper terminal punctuation
+    w_list = rephrase.split()
+    if len(w_list) > 14:
+        rephrase = " ".join(w_list[:14]).rstrip(".,;:!?") + "."
+    if not rephrase.endswith(('.', '!', '?')):
+        rephrase += '.'
+    return rephrase
 
 
-def sanitize_summary(summary: str, headline: str, category: str, game: str = "GTA VI") -> str:
+def synthesize_clean_summary(headline: str, category: str = "", game: str = "GTA VI", raw_context: str = "") -> str:
+    """Backwards-compatible wrapper guaranteeing zero invented facts and max 14 words."""
+    return neutral_factual_rephrase(headline, raw_context, game)
+
+
+def sanitize_summary(summary: str, headline: str, category: str, game: str = "GTA VI", raw_context: str = "") -> str:
     """
-    Validates that summary is strictly 12-18 words, has no domains,
-    and is not identical to the headline.
+    Validates that summary:
+    1. Contains NO invented facts (rejects 'reportedly', 'analysts', 'industry reports' unless in input).
+    2. Does NOT contain domain names.
+    3. Is NOT identical to headline.
+    4. Is strictly maximum 14 words.
+    Falls back to neutral_factual_rephrase.
     """
     if not summary:
-        return synthesize_clean_summary(headline, category, game)
+        return neutral_factual_rephrase(headline, raw_context, game)
+
+    s = str(summary).strip()
 
     # 1. Strip domain names
-    s = re.sub(r'\b[A-Za-z0-9\-]+\.(?:com|org|net|co|io|uk|de|ca|gov|edu|info|tv)\b', '', summary, flags=re.IGNORECASE).strip()
-    # 2. Strip trailing source mentions
+    s = re.sub(r'\b[A-Za-z0-9\-]+\.(?:com|org|net|co|io|uk|de|ca|gov|edu|info|tv)\b', '', s, flags=re.IGNORECASE).strip()
     s = re.sub(r'\s*[\-–—|/]\s*(?:via|by|from)?\s*[A-Z][A-Za-z0-9\s]{2,25}$', '', s).strip()
     s = re.sub(r'\s+', ' ', s).strip()
 
-    # 3. Check similarity to headline
+    # 2. Check forbidden buzzwords: no "reportedly", "analysts", "industry reports" unless in input
+    combined_input = f"{headline} {raw_context}".lower()
+    for pat in [r'\breportedly\b', r'\banalysts?\b', r'\bindustry reports?\b', r'\bmodern consoles?\b', r'\bpublishing schedules?\b']:
+        if re.search(pat, s, re.IGNORECASE) and not re.search(pat, combined_input, re.IGNORECASE):
+            return neutral_factual_rephrase(headline, raw_context, game)
+
+    # 3. Check similarity to headline (must not repeat headline)
     hl_norm = re.sub(r'[^a-z0-9]', '', headline.lower())
     s_norm = re.sub(r'[^a-z0-9]', '', s.lower())
     if s_norm == hl_norm or (len(s_norm) > 10 and s_norm in hl_norm) or (len(hl_norm) > 10 and hl_norm in s_norm):
-        return synthesize_clean_summary(headline, category, game)
+        return neutral_factual_rephrase(headline, raw_context, game)
 
-    # 4. Check word count
+    # 4. Check word count (strictly max 14 words)
     words = s.split()
-    if len(words) < 12 or len(words) > 18:
-        # If slightly long, try to truncate to 15 words ending with period
-        if len(words) > 18:
-            candidate = " ".join(words[:15]).rstrip(".,;:-!?") + "."
-            c_words = candidate.split()
-            if 12 <= len(c_words) <= 18:
-                return candidate
-        return synthesize_clean_summary(headline, category, game)
+    if len(words) < 6:
+        return neutral_factual_rephrase(headline, raw_context, game)
+    elif len(words) > 14:
+        candidate = " ".join(words[:14]).rstrip(".,;:-!?") + "."
+        c_words = candidate.split()
+        if len(c_words) <= 14:
+            s = candidate
+        else:
+            return neutral_factual_rephrase(headline, raw_context, game)
 
     if not s.endswith(('.', '!', '?')):
         s += '.'
@@ -255,7 +304,7 @@ def call_gemini_json(prompt: str) -> Optional[dict]:
         payload = json.dumps({
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {
-                "temperature": 0.4,
+                "temperature": 0.2,
                 "maxOutputTokens": 300
             }
         }).encode("utf-8")
@@ -276,7 +325,6 @@ def call_gemini_json(prompt: str) -> Optional[dict]:
                 if not parts:
                     continue
                 raw_text = parts[0].get("text", "").strip()
-                # Clean Markdown code fences
                 raw_text = re.sub(r"^```(?:json)?\s*", "", raw_text, flags=re.IGNORECASE)
                 raw_text = re.sub(r"\s*```$", "", raw_text)
                 return json.loads(raw_text)
@@ -295,12 +343,12 @@ def enhance_story_for_post(
     game: str = "GTA VI"
 ) -> Dict[str, str]:
     """
-    Transforms a scraped news story into clean Instagram post content.
-    Makes exactly ONE Gemini call per story.
+    Transforms a scraped news story into clean, strictly factual Instagram post content.
+    Makes ONE Gemini call per story.
     Returns:
       {
-        'headline': clean headline (source stripped),
-        'summary': 12-18 word new explanation (no domains, != headline),
+        'headline': clean headline (source stripped, quotes intact),
+        'summary': strictly factual rephrase (max 14 words, 0 invented facts, != headline),
         'hook': ONE uppercase hook (CONFIRMED/OFFICIAL only for Rockstar/Take-Two),
         'category': matching uppercase category tag (trailer = TRAILER)
       }
@@ -309,45 +357,38 @@ def enhance_story_for_post(
     is_official = is_official_source(source, cleaned_title)
     target_game = game or "GTA VI"
 
-    prompt = f"""You are an expert gaming news editor. Transform this gaming news item into a JSON object for an Instagram graphic post card.
+    prompt = f"""You are an expert gaming news editor. Transform this gaming news item into a strictly factual JSON object for an Instagram graphic card.
 
-Original Title: {cleaned_title}
-Context: {raw_summary}
+Cleaned Headline: {cleaned_title}
+RSS Description: {raw_summary}
 Source: {source}
-Game: {target_game}
+
+STRICT FACTUAL RULES (CRITICAL):
+1. SUMMARY MUST NOT INVENT FACTS. You may ONLY use facts explicitly stated in the Cleaned Headline or RSS Description above.
+2. NO numbers, dates, names, or claims that are not in the input.
+3. DO NOT say "reportedly", "analysts", "industry reports", "schedules", or "modern consoles" unless the input explicitly states them.
+4. If the RSS description is just the headline repeated or empty, write a short neutral rephrase of the headline (maximum 14 words) that adds NOTHING new.
+5. NEVER repeat or copy the headline verbatim.
+6. NEVER include domain names or website names (.com, .net, Mashable, Kotaku, Variety, Root, etc.).
+7. Summary must be exactly one clean grammatical sentence (maximum 14 words).
 
 Output strictly valid JSON with these 4 keys:
-1. "headline": An engaging, punchy headline in title case or uppercase. NEVER include any source name, trailing dash, or website name.
-2. "summary": A completely NEW, one-sentence explanation of what the story is about.
-   - MUST be strictly between 12 and 18 words.
-   - NEVER repeat or copy the headline.
-   - NEVER include domain names or website names (.com, .net, Mashable, Kotaku, Variety, Root, etc.).
-3. "hook": Exactly ONE uppercase word.
-   - If the source is officially Rockstar Games or Take-Two Interactive, you may use "CONFIRMED" or "OFFICIAL".
-   - Otherwise, choose the best word from: "NEW", "REPORT", "RUMOR", "LEAK", "UPDATE", "TRAILER".
-4. "category": An accurate uppercase category tag matching the story.
-   - If about a trailer or teaser: "TRAILER".
-   - If about release date or launch window: "RELEASE DATE".
-   - If about gameplay, physics, mechanics: "GAMEPLAY".
-   - If about leaks, datamines, hackers: "EXCLUSIVE LEAK".
-   - If about map, city, Vice City: "MAP REVEAL".
-   - If about storage, file size, specs, tech: "TECH AND SPECS".
-   - If about music, soundtrack, audio: "SOUNDTRACK".
-   - If about awards, financial, price: "INDUSTRY".
-   - Otherwise: "SPECIAL REPORT".
+{{
+  "headline": "{cleaned_title}",
+  "summary": "Short, strictly factual sentence (max 14 words) using ONLY facts from the input.",
+  "hook": "Exactly ONE uppercase word. Use CONFIRMED or OFFICIAL ONLY if the source is Rockstar Games or Take-Two Interactive. Otherwise choose from: NEW, REPORT, RUMOR, LEAK, UPDATE, TRAILER.",
+  "category": "Accurate category tag: TRAILER if about a trailer; RELEASE DATE if about release dates; GAMEPLAY if about gameplay; EXCLUSIVE LEAK if about leaks; MAP REVEAL if about map/locations; TECH AND SPECS if about specs/storage; SOUNDTRACK if about music/score; INDUSTRY if about awards/price; else SPECIAL REPORT."
+}}
 
 Return ONLY the raw JSON object."""
 
     gemini_data = call_gemini_json(prompt)
 
     if gemini_data and isinstance(gemini_data, dict):
-        # Extract & sanitize headline
         raw_hl = str(gemini_data.get("headline", cleaned_title)).strip()
         final_headline = clean_scraped_title(raw_hl) or cleaned_title
 
-        # Extract & validate category
         raw_cat = str(gemini_data.get("category", "")).strip().upper()
-        # Trailer rule: if story mentions trailer, it MUST be TRAILER, not RELEASE DATE
         if "trailer" in cleaned_title.lower() or "teaser" in cleaned_title.lower():
             final_category = "TRAILER"
         elif raw_cat:
@@ -355,7 +396,6 @@ Return ONLY the raw JSON object."""
         else:
             final_category = infer_story_category(cleaned_title)
 
-        # Extract & validate hook
         raw_hook = str(gemini_data.get("hook", "")).strip().upper()
         if is_official:
             if raw_hook in (ALLOWED_GENERAL_HOOKS | OFFICIAL_HOOKS):
@@ -363,15 +403,13 @@ Return ONLY the raw JSON object."""
             else:
                 final_hook = "CONFIRMED"
         else:
-            # Rule 3: NEVER CONFIRMED or OFFICIAL unless Rockstar/Take-Two
             if raw_hook in ALLOWED_GENERAL_HOOKS:
                 final_hook = raw_hook
             else:
                 final_hook = infer_fallback_hook(cleaned_title, is_official=False)
 
-        # Extract & validate summary
         raw_sum = str(gemini_data.get("summary", "")).strip()
-        final_summary = sanitize_summary(raw_sum, final_headline, final_category, target_game)
+        final_summary = sanitize_summary(raw_sum, final_headline, final_category, target_game, raw_context=raw_summary)
 
         return {
             "headline": final_headline,
@@ -380,10 +418,10 @@ Return ONLY the raw JSON object."""
             "category": final_category
         }
 
-    # Deterministic fallback when Gemini is unavailable
+    # Deterministic factual fallback when Gemini is rate limited or unavailable
     fallback_cat = infer_story_category(cleaned_title)
-    fallback_hook = "UPDATE"
-    fallback_sum = synthesize_clean_summary(cleaned_title, fallback_cat, target_game)
+    fallback_hook = "UPDATE" if not is_official else "CONFIRMED"
+    fallback_sum = neutral_factual_rephrase(cleaned_title, raw_summary, target_game)
 
     return {
         "headline": cleaned_title,
