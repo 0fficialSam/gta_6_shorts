@@ -425,7 +425,7 @@ def api_upload_shot(request):
 
     if "image" in request.FILES:
         uploaded_file = request.FILES["image"]
-        if uploaded_file.size < 1000:
+        if uploaded_file.size < 16:
             return JsonResponse({"success": False, "error": "Uploaded file is too small or empty"}, status=400)
 
         header = uploaded_file.read(64)

@@ -155,7 +155,10 @@ def find_highlight_spans(text: str, custom_keywords: list = None) -> list:
         patterns = []
         for kw in custom_keywords:
             if kw is not None and str(kw).strip():
-                patterns.append(r'\b' + re.escape(str(kw).strip().upper()) + r'\b')
+                k_clean = str(kw).strip().upper()
+                pre = r'\b' if k_clean[0].isalnum() else r'(?<!\w)'
+                post = r'\b' if k_clean[-1].isalnum() else r'(?!\w)'
+                patterns.append(pre + re.escape(k_clean) + post)
     else:
         # CLI / Auto Mode fallback -> use automatic viral pattern heuristics
         patterns = list(HIGHLIGHT_PATTERNS)

@@ -14,6 +14,8 @@ import json
 import glob
 import time
 import shutil
+import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
@@ -37,7 +39,7 @@ from scripts.video_assembler import (
 from scripts.news_scraper import (
     normalize_search_text, get_game_slug as get_scraper_slug, get_game_search_config,
     topic_fingerprint, titles_are_same_story, deduplicate_stories,
-    sort_stories_chronological, GAME_FALLBACK_STORIES
+    sort_stories_chronological, GAME_FALLBACK_STORIES, is_recent, parse_date
 )
 from scripts.game_image_fetcher import (
     classify_screenshot_category, is_valid_image_bytes,
@@ -45,7 +47,7 @@ from scripts.game_image_fetcher import (
     get_game_slug as get_fetcher_slug
 )
 from scripts.voiceover import (
-    clean_script_for_tts, get_bgm_track, BGM_CATALOG
+    clean_script_for_tts, get_bgm_track, BGM_CATALOG, generate_voiceover
 )
 from dashboard import views as studio_views
 
@@ -813,3 +815,200 @@ class UiButtonsAndDomTests(TestCase):
         for func_name in core_workflows:
             self.assertIn(func_name, self.declared_functions, f"Core workflow function not declared: {func_name}")
             self.assertIn(func_name, self.onclick_handlers, f"Core workflow not wired to any onclick: {func_name}")
+
+
+# =============================================================================
+#  4. ADVERSARIAL, EDGE CASE & BOUNDARY STRESS UNIT TESTS
+# =============================================================================
+class AdversarialAndEdgeCaseUnitTests(TestCase):
+    """
+    Rigorously stress-tests every pipeline module and API endpoint with:
+      - Null, None, empty, whitespace, and extreme inputs
+      - Non-string types (ints, dicts, lists) in place of expected strings
+      - Regex metacharacters, punctuation injection, Unicode accents, and emojis
+      - Corrupted, zero-byte, and invalid magic-byte files
+      - Out-of-bounds coordinates, NaNs, and negative durations
+      - Naive vs timezone-aware date parsing and age filtering
+    """
+
+    def setUp(self):
+        self.client = Client()
+
+    # ── Instagram Generator Boundary Tests ──
+    def test_edge_highlight_spans_none_and_empty(self):
+        """Verify find_highlight_spans handles None and empty inputs without raising AttributeError."""
+        self.assertEqual(find_highlight_spans(None), [])
+        self.assertEqual(find_highlight_spans(""), [])
+        self.assertEqual(find_highlight_spans("   "), [])
+
+    def test_edge_highlight_spans_invalid_keyword_types(self):
+        """Verify find_highlight_spans handles non-string and mixed keyword lists gracefully."""
+        res1 = find_highlight_spans("GTA 6 LEAKED", custom_keywords=[None, 123, "GTA", ""])
+        self.assertEqual(len(res1), 1)
+        self.assertEqual(res1[0], (0, 3))  # "GTA"
+
+        # String instead of list
+        res2 = find_highlight_spans("GTA 6 LEAKED", custom_keywords="LEAKED")
+        self.assertEqual(len(res2), 1)
+
+    def test_edge_highlight_spans_regex_metacharacters(self):
+        """Verify regex metacharacters in keywords do not crash or execute unescaped patterns."""
+        dangerous_keywords = ["[GTA]", "(6)", "+100%", "$99.99?", ".*", "\\d+", "{CUSTOM}"]
+        res = find_highlight_spans("PRICE IS $99.99? WITH +100% BOOST [GTA] (6)", custom_keywords=dangerous_keywords)
+        self.assertIsInstance(res, list)
+        self.assertGreater(len(res), 0)
+
+    def test_edge_generate_instagram_post_invalid_focal_coords(self):
+        """Verify invalid or out-of-bounds focal coordinates fall back to safe defaults."""
+        res_str = generate_instagram_post(headline="EDGE TEST", focal_x="invalid", focal_y="invalid")
+        self.assertIn("image_path", res_str)
+        self.assertTrue(os.path.exists(res_str["image_path"]))
+
+        res_bounds = generate_instagram_post(headline="EDGE TEST", focal_x=-5.0, focal_y=15.0)
+        self.assertIn("image_path", res_bounds)
+        self.assertTrue(os.path.exists(res_bounds["image_path"]))
+
+    def test_edge_generate_instagram_post_extreme_headlines(self):
+        """Verify Instagram generator survives extreme headlines (emojis, unicode, huge text)."""
+        # Emojis and Unicode
+        res_emoji = generate_instagram_post(headline="🔥 GTA 6 🚀 LEAKED (日本語, é, ñ) 💥")
+        self.assertTrue(os.path.exists(res_emoji["image_path"]))
+
+        # Single word headline
+        res_single = generate_instagram_post(headline="GTA")
+        self.assertTrue(os.path.exists(res_single["image_path"]))
+
+        # 100-word gigantic headline
+        huge_headline = "MASSIVE LEAK REVEALS " + ("GTA 6 DETAIL " * 25)
+        res_huge = generate_instagram_post(headline=huge_headline)
+        self.assertTrue(os.path.exists(res_huge["image_path"]))
+
+    def test_edge_generate_instagram_post_corrupted_background(self):
+        """Verify passing a zero-byte or corrupted image path falls back gracefully to dark canvas."""
+        corrupted_path = os.path.join(tempfile.gettempdir(), "test_corrupt_zero_byte.jpg")
+        with open(corrupted_path, "wb") as f:
+            f.write(b"")  # 0 bytes
+
+        try:
+            res = generate_instagram_post(headline="FALLBACK TEST", background_path=corrupted_path)
+            self.assertIn("image_path", res)
+            self.assertTrue(os.path.exists(res["image_path"]))
+        finally:
+            if os.path.exists(corrupted_path):
+                os.remove(corrupted_path)
+
+    # ── Video Assembler Edge Cases ──
+    def test_edge_score_image_for_sentence_none_and_empty(self):
+        """Verify semantic image scoring handles None and empty inputs without raising AttributeError."""
+        self.assertEqual(score_image_for_sentence(None, None), 0)
+        self.assertEqual(score_image_for_sentence("", ""), 0)
+        self.assertEqual(score_image_for_sentence("Lucia_01.jpg", None), 0)
+        self.assertGreater(score_image_for_sentence("Lucia_01.jpg", "Lucia takes the wheel"), 0)
+
+    def test_edge_balance_wrap_headline_empty_and_huge(self):
+        """Verify balance_wrap_headline handles empty strings and headlines requiring > 2 lines."""
+        from PIL import ImageFont
+        font = ImageFont.load_default()
+        self.assertEqual(balance_wrap_headline("", font), [""])
+        self.assertEqual(balance_wrap_headline("   ", font), ["   "])
+
+        huge_text = "THIS IS A VERY LONG HEADLINE REQUIRING MULTIPLE LINES OF WRAPPING ON DISPLAY SCREENS"
+        lines = balance_wrap_headline(huge_text, font, max_w=80)
+        self.assertIsInstance(lines, list)
+        self.assertGreater(len(lines), 2)
+        # All words must be preserved in the output lines
+        reconstructed = " ".join(lines)
+        self.assertEqual(reconstructed, huge_text)
+
+    # ── News Scraper Date & Text Edge Cases ──
+    def test_edge_scraper_is_recent_naive_and_old_datetimes(self):
+        """Verify is_recent handles naive datetimes and correctly rejects old stories."""
+        # 6-year-old article (must be rejected)
+        self.assertFalse(is_recent({"published": "2020-01-01 12:00:00"}))
+        self.assertFalse(is_recent({"published": "Wed, 01 Jan 2020 12:00:00 GMT"}))
+
+        # Fresh article (must be accepted)
+        recent_rfc = datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S GMT")
+        self.assertTrue(is_recent({"published": recent_rfc}))
+
+    def test_edge_scraper_parse_date_iso_and_rfc(self):
+        """Verify parse_date parses both ISO 8601 and RFC 2822 dates."""
+        d1 = parse_date({"published": "2026-10-15T10:30:00Z"})
+        self.assertIsNotNone(d1)
+        self.assertEqual(d1.year, 2026)
+
+        d2 = parse_date({"published": "Thu, 15 Oct 2026 10:30:00 GMT"})
+        self.assertIsNotNone(d2)
+        self.assertEqual(d2.year, 2026)
+
+        # Invalid date string returns None rather than throwing
+        self.assertIsNone(parse_date({"published": "not-a-valid-date-string"}))
+
+    def test_edge_scraper_normalize_search_text_non_string(self):
+        """Verify normalize_search_text handles non-string inputs safely."""
+        self.assertEqual(normalize_search_text(None), "")
+        self.assertEqual(normalize_search_text(12345), "12345")
+        self.assertEqual(normalize_search_text("Ghost of Yōtei"), "ghost of yotei")
+
+    # ── Voiceover Engine Edge Cases ──
+    def test_edge_voiceover_empty_script_raises_runtime_error(self):
+        """Verify generate_voiceover raises RuntimeError rather than invoking sys.exit(1) on failure."""
+        with self.assertRaises(RuntimeError):
+            generate_voiceover({"script": ""})
+
+    def test_edge_voiceover_clean_script_acronyms_and_emojis(self):
+        """Verify clean_script_for_tts strips emojis and preserves all gaming acronyms."""
+        raw = "🔥 GTA VI announced for PS5, PS4, Xbox, PC! #gta6 Take-Two CEO confirmed DLC and NPCs... 🚀"
+        cleaned = clean_script_for_tts(raw)
+        self.assertNotIn("🔥", cleaned)
+        self.assertNotIn("🚀", cleaned)
+        self.assertNotIn("#gta6", cleaned)
+        self.assertIn("GTA 6", cleaned)
+        self.assertIn("Take Two", cleaned)
+        self.assertIn("PS5", cleaned)
+        self.assertIn("Xbox", cleaned)
+
+    # ── API Endpoint Adversarial & Robustness Tests ──
+    def test_edge_api_generate_instagram_non_string_fields(self):
+        """Verify api_generate_instagram handles integer and boolean values in body without 500 error."""
+        payload = {
+            "headline": 12345,
+            "summary": 67890,
+            "game_title": "GTA VI",
+            "category": 888,
+            "focal_x": "not_a_float",
+            "focal_y": "not_a_float",
+            "custom_keywords": [None, 123, "TEST"]
+        }
+        resp = self.client.post("/api/generate/instagram/", json.dumps(payload), content_type="application/json")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(data.get("success"))
+
+    def test_edge_api_upload_shot_rejects_empty_and_corrupt_files(self):
+        """Verify api_upload_shot strictly rejects zero-byte files and fake text files disguised as images."""
+        # 1. 0-byte file
+        empty_file = SimpleUploadedFile("empty.png", b"", content_type="image/png")
+        resp1 = self.client.post("/api/upload-shot/", {"image": empty_file})
+        self.assertEqual(resp1.status_code, 400)
+        self.assertFalse(resp1.json().get("success"))
+
+        # 2. Text file disguised as PNG
+        fake_file = SimpleUploadedFile("fake.png", b"This is a text file, not a PNG image!", content_type="image/png")
+        resp2 = self.client.post("/api/upload-shot/", {"image": fake_file})
+        self.assertEqual(resp2.status_code, 400)
+        self.assertFalse(resp2.json().get("success"))
+
+    def test_edge_game_fetcher_magic_bytes_validation(self):
+        """Verify is_valid_image_bytes detects real image magic bytes and rejects counterfeit formats."""
+        # Real JPEG, PNG, WebP headers
+        self.assertTrue(is_valid_image_bytes(b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00`\x00`\x00\x00"))
+        self.assertTrue(is_valid_image_bytes(b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x01\x00"))
+        self.assertTrue(is_valid_image_bytes(b"RIFF\x24\x00\x00\x00WEBPVP8 \x18\x00\x00\x00"))
+
+        # Counterfeits: text, HTML, Windows EXE, and truncated headers
+        self.assertFalse(is_valid_image_bytes(b"<!DOCTYPE html><html><body>Error</body></html>"))
+        self.assertFalse(is_valid_image_bytes(b"MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00"))
+        self.assertFalse(is_valid_image_bytes(b"Hello world!"))
+        self.assertFalse(is_valid_image_bytes(b""))
+

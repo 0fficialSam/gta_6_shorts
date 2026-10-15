@@ -75,12 +75,18 @@ def run_all_tests():
     print(f"{BOLD}{CYAN}  GTA 6 AUTOMATION ENGINE & STUDIO PRO — COMPREHENSIVE TEST SUITE{RESET}")
     print(f"{BOLD}{CYAN}{'=' * 75}{RESET}\n")
 
-    from dashboard.tests import ApiEndpointUnitTests, FeatureUnitTests, UiButtonsAndDomTests
+    from dashboard.tests import (
+        ApiEndpointUnitTests,
+        FeatureUnitTests,
+        UiButtonsAndDomTests,
+        AdversarialAndEdgeCaseUnitTests
+    )
 
     suites = [
         ("API & BACKEND ROUTE ENDPOINTS", ApiEndpointUnitTests),
         ("GENERATION, AUDIO & PIPELINE FEATURES", FeatureUnitTests),
         ("UI BUTTONS, ONCLICK HANDLERS & DOM INTEGRITY", UiButtonsAndDomTests),
+        ("ADVERSARIAL, EDGE CASE & BOUNDARY STRESS TESTS", AdversarialAndEdgeCaseUnitTests),
     ]
 
     total_start = time.time()
