@@ -15,6 +15,7 @@ import re
 import subprocess
 import urllib.request
 import urllib.error
+import time
 from datetime import datetime
 
 try:
@@ -83,8 +84,8 @@ def call_gemini(prompt: str, model: str = None) -> str:
     if not api_key:
         return None
 
-    preferred_model = model or llm_cfg.get("gemini_model", "gemini-2.0-flash")
-    models_to_try = [preferred_model, "gemini-2.0-flash", "gemini-1.5-flash"]
+    preferred_model = model or llm_cfg.get("gemini_model", "gemini-2.5-flash")
+    models_to_try = [preferred_model, "gemini-2.5-flash", "gemini-flash-latest"]
     # Preserve order while deduplicating
     seen = set()
     models = [m for m in models_to_try if m and not (m in seen or seen.add(m))]
@@ -117,12 +118,17 @@ def call_gemini(prompt: str, model: str = None) -> str:
                     parts = candidates[0].get("content", {}).get("parts", [])
                     if parts:
                         text = parts[0].get("text", "").strip()
-                        if text and len(text.split()) >= 120:
-                            print(f"  Gemini Flash ({m}): {len(text.split())} words generated successfully")
+                        word_count = len(text.split())
+                        if text and word_count >= 95:
+                            print(f"  Gemini Flash ({m}): {word_count} words generated successfully")
                             return text
+                        else:
+                            print(f"  Gemini Flash ({m}): Generated text was too short ({word_count} words)")
         except urllib.error.HTTPError as e:
             err = e.read().decode("utf-8", errors="replace")
             print(f"  Gemini ({m}) HTTP {e.code}: {err[:120]}")
+            if e.code == 503:
+                time.sleep(1.2)
             continue
         except Exception as e:
             print(f"  Gemini ({m}) error: {e}")
