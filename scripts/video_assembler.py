@@ -759,8 +759,8 @@ def detect_focal_point(img: Image.Image) -> tuple:
 # ── DYNAMIC 4K IMAGE BACKGROUND ENGINE (KEN BURNS & DAILY VARIETY) ───────────
 def score_image_for_sentence(fname: str, text: str, game_title: str = "GTA VI") -> int:
     """Calculates semantic relevance score of an image filename against a sentence/hook text."""
-    fn = fname.lower()
-    t = text.lower()
+    fn = str(fname or "").lower()
+    t = str(text or "").lower()
     score = 0
 
     # 1. Duo Lucia & Jason
@@ -1122,10 +1122,12 @@ _BREAKING_BADGE_CACHE = {}
 def balance_wrap_headline(text: str, font, max_w: int = 940) -> list:
     """
     Splits headline text into 1 or 2 visually balanced lines,
-    preventing awkward orphan words on line 2.
+    preventing awkward orphan words on line 2. Falls back to multi-line wrap if >2 lines required.
     """
+    if not text:
+        return [""]
     dummy = ImageDraw.Draw(Image.new("RGB", (10, 10)))
-    words = text.split()
+    words = str(text).split()
     if not words:
         return [text]
 
@@ -1147,7 +1149,24 @@ def balance_wrap_headline(text: str, font, max_w: int = 940) -> list:
                 min_diff = diff
                 best_split = [l1, l2]
 
-    return best_split
+    if best_split:
+        return best_split
+
+    # Fallback to greedy multi-line word wrapping if cannot balance into exactly 2 lines
+    lines = []
+    cur_line = []
+    for w in words:
+        cand = " ".join(cur_line + [w])
+        if dummy.textbbox((0, 0), cand, font=font)[2] <= max_w:
+            cur_line.append(w)
+        else:
+            if cur_line:
+                lines.append(" ".join(cur_line))
+            cur_line = [w]
+    if cur_line:
+        lines.append(" ".join(cur_line))
+
+    return lines if lines else [text]
 
 
 def create_breaking_badge_overlay(story_title: str, theme: dict) -> tuple:
